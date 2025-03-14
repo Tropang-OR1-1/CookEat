@@ -1,0 +1,3 @@
+Contains SCSS or extra CSS styles
+
+creating folders to group multiple SCSS or CSS files can be done here

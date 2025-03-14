@@ -1,0 +1,3 @@
+Contains reusable HTML components (e.g., headers, footers)
+
+apllicable to multiple HTML

@@ -1,0 +1,3 @@
+Contains Logs and Error Reports.
+
+To be added in .gitignore

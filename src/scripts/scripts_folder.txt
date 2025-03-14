@@ -1,0 +1,3 @@
+Contains JavaScript source files
+
+creating folders to group multiple JavaScript files can be done here
