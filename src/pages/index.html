@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CookEat!</title>
-    <link rel="stylesheet" href="./../styles/home.css">
-    <script defer src="./../scripts/home.js"></script> <!-- Link to external script -->
+    <link rel="stylesheet" href="./../styles/index.css">
+    <script defer src="./../modal/login/login.js"></script>
 </head>
 <body>
     <header class="navbar">
         <div class="logo-container">
-            <img src="./../../assets/images/logo.png" alt="Cook It Logo" class="logo">
+            <img src="./images/profile_picture.jpg" alt="CookEat! Logo" width="200">>
         </div>
         
         <div class="search-container">
@@ -18,9 +18,7 @@
         </div>
 
         <nav class="nav-links">
-            <a href="#" class="button">Feeds</a>
-            <a href="#" class="button">Reels & Videos</a>
-            <a href="#" class="button">Notifications</a>
+            <a href="#" class="button" onclick="openModal()">Login</a>
         </nav>
         
         <div class="profile-dropdown">
@@ -29,7 +27,7 @@
                 <a href="#">Show Profile</a>
                 <a href="#">Help and Support</a>
                 <a href="#">Incentives</a>
-                <a href="./settings.html">Settings</a>
+                <a href="#">Settings</a>
                 <a href="#">Log Out</a>
             </div>
         </div>
@@ -73,5 +71,7 @@
         </div>
     </main>
 
+    <div id="modal-container"></div>
+    <script src="./../modal/login/login.js"></script>
 </body>
 </html>
