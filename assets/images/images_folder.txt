@@ -1,3 +1,0 @@
-You can create new folder inside images folder if you want to group them.
-
-images from this folder should ONLY be APPLIED to PUBLIC-facing assets.
