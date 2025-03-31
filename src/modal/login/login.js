@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("login.html")
         .then(response => response.text())
         .then(html => {
-            document.getElementById("modal-container").innerHTML = html;
-            attachEventListeners(); 
+            document.getElementById("loginModal").innerHTML = html;
+            attachEventListeners();
         })
         .catch(error => console.error("Error loading modal:", error));
 });
@@ -15,9 +15,9 @@ function attachEventListeners() {
         return;
     }
 
-    // Select all buttons that should trigger the login modal
+    // Select post buttons and dropdown links
     const modalTriggers = document.querySelectorAll(
-        ".button, .profile-dropdown a, .post-buttons button, .dropdown-item"
+        ".post-buttons .button, .dropdown-content a, .dropdown-toggle"
     );
 
     modalTriggers.forEach(trigger => {
@@ -27,7 +27,7 @@ function attachEventListeners() {
         });
     });
 
-    const closeButton = document.querySelector(".close");
+    const closeButton = modal.querySelector(".close");
     if (closeButton) {
         closeButton.addEventListener("click", closeModal);
     }
@@ -38,15 +38,32 @@ function attachEventListeners() {
             closeModal();
         }
     });
+
+    // Register and login toggle logic
+    const container = modal.querySelector(".container");
+    const registerBtn = modal.querySelector(".register-btn");
+    const loginBtn = modal.querySelector(".login-btn");
+
+    if (registerBtn && loginBtn && container) {
+        registerBtn.addEventListener("click", () => {
+            container.classList.add("active");
+        });
+
+        loginBtn.addEventListener("click", () => {
+            container.classList.remove("active");
+        });
+    } else {
+        console.error("Register or Login buttons not found!");
+    }
 }
 
 function openModal() {
     const modal = document.getElementById("loginModal");
     if (modal) {
-        modal.style.display = "flex"; 
+        modal.style.display = "flex";
         setTimeout(() => {
-            modal.classList.add("show"); 
-        }, 10); 
+            modal.classList.add("show");
+        }, 10);
     }
 }
 
@@ -60,16 +77,6 @@ function closeModal() {
     }
 }
 
-/* Diaz */
-
-const container = document.querySelector('.container');
-const registerBtn = document.querySelector('.register-btn');
-const loginBtn = document.querySelector('.login-btn');
-
-registerBtn.addEventListener('click', () => {
-    container.classList.add('active');
-});
-
-loginBtn.addEventListener('click', () => {
-    container.classList.remove('active');
-});
+function login() {
+    alert("Logging in...");
+}
