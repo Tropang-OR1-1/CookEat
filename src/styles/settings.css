@@ -1,1 +1,445 @@
-/* please encode css here for settings and privacy */
+:root {
+    --navbar-color: #FFA500; /* Orange Navbar */
+    --background-color: #f0f2f5;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #ccc;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Fixed Orange Navbar */
+.navbar {
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--navbar-color);
+    padding: 12px 20px;
+    color: #fff;
+    box-shadow: var(--shadow);
+}
+
+/* Logo */
+.logo {
+    height: 40px;
+}
+
+/* Search Bar */
+.search-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar {
+    width: 500px;
+    height: 35px;
+    padding: 5px 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    text-align: center;
+    outline: none;
+}
+
+.search-bar::placeholder {
+    text-align: center;
+}
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+/* Profile Dropdown */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Profile Info Section */
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.user-name {
+    font-weight: bold;
+    color: black;
+}
+
+/* Dropdown Content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #FFB22C; /* Yellow Background */
+    min-width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px 0;
+    z-index: 10;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Show Dropdown on Hover */
+.profile-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Profile Options */
+.dropdown-content a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    text-decoration: none;
+    color: black; 
+    font-size: 16px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Hover Effect: White Background & Yellow Text */
+.dropdown-content a:hover {
+    background: white;
+    color: #FFB22C;
+    border-radius: 5px;
+}
+
+/* Logout Button */
+.logout {
+    color: red !important;
+    font-weight: bold;
+}
+
+/* Icons */
+.icon {
+    font-size: 18px;
+}
+
+/* Shortcut Key */
+.shortcut {
+    margin-left: auto;
+    font-size: 12px;
+    color: black;
+}
+
+/* "See All Profiles" Button */
+.see-profiles {
+    width: 100%;
+    background: var(--navbar-color);
+    border: none;
+    padding: 10px;
+    color: black;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+
+.see-profiles:hover {
+    background: white;
+    color: #FFB22C;
+}
+
+/* Divider */
+hr {
+    border: 0;
+    height: 1px;
+    background: black;
+    margin: 10px 0;
+}
+
+
+/* Button Styles */
+.button {
+    background-color: #FFA500;
+    color: rgb(0, 0, 0);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.button:hover {
+    background-color: #FF8700;
+}
+
+.button:active {
+    background-color: #be6600;
+}
+
+/* Settings Section */
+.container {
+    position: fixed;
+    width: 100%;
+    max-width: 400px;
+    padding-top: 90px; 
+    box-sizing: border-box;
+    position: absolute;
+    left: 10px; 
+    top: 0px; 
+}
+
+/* Scrollable Content */
+.scrollable-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    width: 90%;
+    max-height: calc(100vh - 120px); 
+}
+/* Header */
+.header-title {
+    text-align: left;
+    padding: 10px 0;
+    box-shadow: var(--shadow);
+}
+
+.header-title h2 {
+    color: var(--text-color);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Search Settings */
+.search-settings-container {
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.search-settings-container .search-bar {
+    width: 100%;
+    max-width: 360px;
+    height: 35px;
+    padding: 5px 15px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    outline: none;
+}
+
+.search-settings-container .search-bar::placeholder {
+    text-align: left;
+}
+
+/* Settings Sections */
+.settings-section {
+    background: var(--card-background);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 15px;
+}
+
+.settings-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+/* Settings List */
+.settings-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-section li {
+    padding: 12px;
+    background: var(--background-color);
+    border-radius: 8px;
+    margin: 5px 0;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.3s ease, transform 0.2s;
+}
+
+.settings-section li:hover {
+    background: #e4e6eb;
+    box-shadow: var(--shadow);
+    transform: scale(1.03);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-bar {
+        width: 300px;
+    }
+
+    .nav-links {
+        gap: 5px;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .search-settings-container .search-bar {
+        max-width: 280px;
+    }
+}
+
+/* Main Container */
+.setting-feed {
+    background: white;
+    max-width: 800px;
+    padding: 20px;
+    top: 100px; 
+    left: 550px; 
+    position: absolute;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Search Box */
+.search-box {
+    background: var(--background-color);
+    padding: 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Most Visited Settings */
+.most-visited {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.setting-card {
+    background: var(--background-color);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    width: 32%;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.setting-card:hover {
+    background: #e0e2e5;
+    transform: scale(1.05);
+}
+
+.setting-card img {
+    width: 50px;
+    height: 50px;
+}
+
+.setting-card h4 {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.setting-card p {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+/* Extra Setting (Horizontal Card) */
+.extra-setting {
+    display: flex;
+    align-items: center;
+    background: #f0f2f5;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+    justify-content: space-between;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.extra-setting:hover {
+    background: #e0e2e5;
+    transform: scale(1.02);
+}
+
+.extra-setting img {
+    width: 50px;
+    height: 50px;
+}
+
+.extra-content {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.extra-content h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.extra-content p {
+    font-size: 14px;
+    color: gray;
+}
+
+.arrow {
+    font-size: 20px;
+    color: gray;
+}

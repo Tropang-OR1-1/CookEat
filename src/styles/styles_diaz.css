@@ -8,16 +8,10 @@
 
 body {
     background-color: #b5b5b5a3;
-    padding-top: 60px;
 }
 
 /* Navbar Styles */
 .navbar {
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-    top: 0;
-    left: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -29,6 +23,10 @@ body {
 /* Logo */
 .logo {
     height: 40px;
+}
+
+body {
+    background-image: url('Logo-pic.jpg');
 }
 
 /* Search Bar */
@@ -66,8 +64,8 @@ body {
 
 /* Profile Dropdown */
 .profile-pic {
-    width: 50px;
-    height: 50px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -113,7 +111,7 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     font-size: 1em;
     font-weight: bold;
 }
@@ -123,14 +121,13 @@ body {
     background-color: #FF8700;
 }
 
-/* Click Effect - Flash and Reset */
-.button:active {
-    background-color: #be6600; /* Click effect */
-}
-
-/* Ensures hover works after click */
-.button.clicked:hover {
-    background-color: #FF8700;
+/* Click Effect - Change to Outlined */
+.button:active,
+.button.clicked {
+    background-color: transparent;
+    border: 2px solid #FFA500;
+    color: #FFA500;
+    font-weight: bold;
 }
 
 /* Main Content Layout */
