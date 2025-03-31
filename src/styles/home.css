@@ -1,4 +1,4 @@
-/* Global Styles */ 
+/* Global Styles */
 * {
     margin: 0;
     padding: 0;
@@ -11,8 +11,8 @@ body {
     padding-top: 60px;
 }
 
-/* Navbar Styles */
-.navbar {
+/* Header Styles */
+.header-navbar {
     position: fixed;
     width: 100%;
     z-index: 1000;
@@ -27,18 +27,18 @@ body {
 }
 
 /* Logo */
-.logo {
+.header-logo {
     height: 40px;
 }
 
 /* Search Bar */
-.search-container {
+.header-search-container {
     flex-grow: 1;
     display: flex;
     justify-content: center;
 }
 
-.search-bar {
+.header-search-bar {
     width: 500px;
     height: 35px;
     padding: 5px 10px;
@@ -49,7 +49,7 @@ body {
 }
 
 /* Navigation Links */
-.nav-links {
+.header-nav-links {
     list-style: none;
     display: flex;
     gap: 5px;
@@ -58,26 +58,26 @@ body {
     align-items: center;
 }
 
-.nav-links a {
+.header-nav-links a {
     text-decoration: none;
     color: black;
     font-weight: bold;
 }
 
 /* Profile Dropdown */
-.profile-pic {
+.header-profile-pic {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     cursor: pointer;
 }
 
-.profile-dropdown {
+.header-profile-dropdown {
     position: relative;
     display: inline-block;
 }
 
-.dropdown-content {
+.header-dropdown-content {
     display: none;
     position: absolute;
     right: 0;
@@ -88,7 +88,7 @@ body {
     z-index: 10;
 }
 
-.dropdown-content a {
+.header-dropdown-content a {
     display: block;
     padding: 10px;
     background-color: #FFB22C;
@@ -96,14 +96,99 @@ body {
     color: black;
 }
 
-.dropdown-content a:hover {
+.header-dropdown-content a:hover {
     background-color: #ffffff;
     color: #FFB22C;
 }
 
-.profile-dropdown:hover .dropdown-content {
+.header-profile-dropdown:hover .header-dropdown-content {
     display: block;
 }
+
+/* Button Styles */
+.header-button {
+    background-color: #FFA500;
+    color: rgb(0, 0, 0);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* Hover Effect */
+.header-button:hover {
+    background-color: #FF8700;
+}
+
+/* Click Effect - Flash and Reset */
+.header-button:active {
+    background-color: #be6600; /* Click effect */
+}
+
+/* Ensures hover works after click */
+.header-button.clicked:hover {
+    background-color: #FF8700;
+}
+
+/* Dropdown Button Styles */
+.header-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.header-dropdown-toggle {
+    background-color: #FFA500;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+}
+
+.header-dropdown-toggle:hover {
+    background-color: #FF8700;
+}
+
+/* Fixed dropdown menu color */
+.header-dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #FFA500;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    min-width: 120px;
+    right: 0;
+    z-index: 1000;
+}
+
+/* Dropdown items */
+.header-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9em;
+    color: white;
+}
+
+.header-dropdown-item:hover {
+    background-color: #FF8700;
+}
+
+/* Show dropdown when clicked */
+.header-dropdown.active .header-dropdown-menu {
+    display: block;
+}
+
 
 /* Button Styles */
 .button {
