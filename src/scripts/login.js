@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    fetch("login.html")
+    fetch("/src/modal/login/login.html")
         .then(response => response.text())
         .then(html => {
             document.getElementById("loginModal").innerHTML = html;

@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CookEat!</title>
-    <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="styles/index.css">
+    <link rel="stylesheet" href="styles/login.css">
+
 </head>
 <body>
     <header class="navbar">
@@ -69,6 +71,7 @@
         </div>
     </main>
 
+    <!-- Modal for login -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -78,7 +81,7 @@
             <button onclick="login()">Login</button>
         </div>
     </div>
-
-    <script src="./modal/login/login.js"></script>
+    
+    <script src="scripts/login.js"></script>
 </body>
 </html>
