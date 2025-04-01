@@ -1,10 +1,21 @@
-  
 {
-    "scripts": {
-      "install:backend": "npm --prefix backend install",
-      "start:backend": "npm --prefix backend start",
-      "dev:backend": "npm --prefix backend run dev"
-    }
-  }
-
-
+  "name": "cookeat",
+  "version": "1.0.0",
+  "description": "Book-N-Cook is a project created by six (6) members of this organization.\r sup bro",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jrhey124/CookEAT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Jrhey124/CookEAT/issues"
+  },
+  "homepage": "https://github.com/Jrhey124/CookEAT#readme"
+}
