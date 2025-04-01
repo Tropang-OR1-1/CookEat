@@ -1,5 +1,6 @@
 require("dotenv").config({ path: "../.env" });
 
+const validator = require("validator"); // Import the validator library for email validation
 const db = require("../config/db");
 const express = require("express"); // Initialize Express app
 const app = express(); 
@@ -67,6 +68,10 @@ app.post("/login", async (req, res) => {
         !req.body.hasOwnProperty("email"))
         return res.status(400).json({ error: "Incomplete credentials." });
     
+    if (!validator.isEmail(req.body.email)) {
+        return res.status(400).json({ error: "Invalid email format." });
+        } // Validate the email format
+
     const { username, password, email } = req.body; 
     query = "SELECT user_id FROM userdata WHERE email = ?";
 
