@@ -1,0 +1,10 @@
+  
+{
+    "scripts": {
+      "install:backend": "npm --prefix backend install",
+      "start:backend": "npm --prefix backend start",
+      "dev:backend": "npm --prefix backend run dev"
+    }
+  }
+
+

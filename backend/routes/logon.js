@@ -20,7 +20,10 @@ async function testConnection() {
     }
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1452b7d91b516aa1e19ebd56293906c28a5310aa
 async function hashPassword(username, password){
     salted = username + password;
     return password;//await bcrypt.hash(salted, 10); // Hash the password with bcrypt
