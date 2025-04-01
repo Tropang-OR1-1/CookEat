@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CookEat!</title>
-    <link rel="stylesheet" href="./styles/index.css">
-    <script defer src="./modal/login/login.js"></script>
+    <link rel="stylesheet" href="styles/index.css">
+    <link rel="stylesheet" href="styles/login.css">
+
 </head>
 <body>
     <header class="navbar">
         <div class="logo-container">
-            <img src="./images/profile_picture.jpg" alt="CookEat! Logo" width="200">>
+            <img src="images/picture.jpg" alt="CookEat! Logo" width="200">
         </div>
         
         <div class="search-container">
@@ -65,13 +66,22 @@
                             <button class="dropdown-item">Save</button>
                         </div>
                     </div>                    
-
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="modal-container"></div>
-    <script src="./modal/login/login.js"></script>
+    <!-- Modal for login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+    
+    <script src="scripts/login.js"></script>
 </body>
 </html>
