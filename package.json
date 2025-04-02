@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/Jrhey124/CookEAT/issues"
   },
-  "homepage": "https://github.com/Jrhey124/CookEAT#readme"
+  "homepage": "https://github.com/Jrhey124/CookEAT#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  }
 }

@@ -1,14 +1,39 @@
 require("dotenv").config({ path: "../.env" });
+const express = require("express"); // Initialize Express app
+
+const app = express(); 
+const cors = require("cors");
 
 const validator = require("validator"); // Import the validator library for email validation
 const db = require("../config/db");
-const express = require("express"); // Initialize Express app
-const app = express(); 
+const rateLimit = require("express-rate-limit");
+
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
+app.use(cors()); // Enable CORS for all routes
 
+  
+app.use((req, res, next) => { // prevent empty requests 
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "Empty or no JSON body provided" });
+    }
+    next();
+  });
+
+app.use((err, req, res, next) => { // prevent malformed requests 
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+      return res.status(400).json({ error: "Invalid JSON format" });
+    }
+    next(err);
+  });
+
+const loginLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per windowMs
+    message: "Too many login attempts from this IP, please try again after 15 minutes",
+  });
 
 async function testConnection() {
     try {
@@ -41,29 +66,34 @@ async function checkCredentials(email, password){
         }
     }
 
-app.post("/login", async (req, res) => {
+app.post("/login", loginLimiter, async (req, res) => {
+    console.log(req.body); // Print the request body to the console
+
+    if (!req.body) { return res.status(400).json({ error: "Invalid Requests Headers." }); } // Check if the request body is empty
     if (!req.body.hasOwnProperty("email") || !req.body.hasOwnProperty("password")) {
         return res.status(400).json({ error: "Invalid Requests Headers." });
     } // make sure username and password are provided
-    const { email, password} = req.body; // Destructure the request body
     
-    console.log("Email:", email); // Print the username to the console
-    console.log("Password:", password); // Print the password to the console
+    if (!validator.isEmail(req.body.email)) {
+        return res.status(400).json({ error: "Invalid email format." });
+        } // Validate the email format
+    
+    console.log(`user: ${req.body.email} tried to login.`); // Print the username to the console
+    const { email, password} = req.body; // Destructure the request body
+
     uid = await checkCredentials(email, password); // Check credentials
-    console.log("User ID:", uid); // Print the user ID to the console
     if (!uid) {
         return res.status(401).json({ error: "user might not exist or wrong password." });
         } // Check if credentials are valid
     
     const token = jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
     res.json({ message: "Login successful", token }); // Send the token back to the client
-    
-    
-    //console.log("Received login request:", { username, password });
+
     });
 
 
-    app.post("/register", async (req, res) => {
+    app.post("/register", loginLimiter, async (req, res) => {
+        
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password") ||
         !req.body.hasOwnProperty("email"))
         return res.status(400).json({ error: "Incomplete credentials." });
@@ -105,7 +135,10 @@ app.post("/login", async (req, res) => {
     }); // make sure username and password are provided
     
 
+
 app.listen(process.env.LOGIN_API_PORT, () => {
-    console.log("Server is running on port 3000");
+     console.log(`Server is running on port ${process.env.LOGIN_API_PORT}`);
 });
+
+
 //UserSearch("johndb"); // Test the function with a sample username
