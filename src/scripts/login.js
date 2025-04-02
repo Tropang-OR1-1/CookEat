@@ -55,7 +55,30 @@ function attachEventListeners() {
     } else {
         console.error("Register or Login buttons not found!");
     }
+
+    // ADD LOGIN EVENT LISTENER
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            login(); // Call the login function
+        });
+    } else {
+        console.error("Login form not found!");
+    }
+
+    // ADD REGISTER EVENT LISTENER
+    const RegisterForm = document.getElementById("registerForm");
+    if (RegisterForm) {
+        RegisterForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            register(); // Call the login function
+        });
+    } else {
+        console.error("Register form not found!");
+    }
 }
+
 
 function openModal() {
     const modal = document.getElementById("loginModal");
@@ -78,5 +101,39 @@ function closeModal() {
 }
 
 function login() {
-    alert("Logging in...");
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+    
+    url = "http://localhost:3000/login"; // Replace with your actual login URL
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())  // Convert response to JSON
+        .then(data => alert(data.token))  // Log the token directly
+        .catch(error => alert(error)); // Handle errors
+    
+
+}
+
+
+function register() {
+    const username = document.getElementById("registerUsername").value;
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    url = "http://localhost:3000/register"; // Replace with your actual register URL
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, email, password })
+    })
+        .then(response => response.json())  // Convert response to JSON
+        .then(data => alert(data.token))  // Log the token directly
+        .catch(error => alert(error)); // Handle errors
 }
