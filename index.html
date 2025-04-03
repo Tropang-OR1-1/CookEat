@@ -6,29 +6,32 @@
     <title>CookEat!</title>
     <link rel="stylesheet" href="src/styles/index.css">
     <link rel="stylesheet" href="src/styles/login.css">
+    <link rel="stylesheet" href="./src/styles/header.css">
 
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo-container">
-            <img src="images/picture.jpg" alt="CookEat! Logo" width="200">
+    <header class="header-navbar">
+        <div class="header-logo-container">
+            <a href="./../pages/home.html">
+                <img src="./../../assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+            </a>
         </div>
         
-        <div class="search-container">
-            <input type="text" placeholder="Search for recipes..." class="search-bar">
+        <div class="header-search-container">
+            <input type="text" placeholder="Search for recipes..." class="header-search-bar">
         </div>
 
-        <nav class="nav-links">
-            <a href="#" class="button" onclick="openModal()">Login</a>
+        <nav class="header-nav-links">
+            <a href="#" class="header-button" onclick="openModal()">Login</a>
         </nav>
         
-        <div class="profile-dropdown">
-            <img src="./../assets/images/profile_picture.jpg" alt="User Profile" class="profile-pic">
-            <div class="dropdown-content">
+        <div class="header-profile-dropdown">
+            <img src="./assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
+            <div class="header-dropdown-content">
                 <a href="#">Show Profile</a>
                 <a href="#">Help and Support</a>
                 <a href="#">Incentives</a>
-                <a href="#">Settings</a>
+                <a href="./settings.html">Settings</a>
                 <a href="#">Log Out</a>
             </div>
         </div>
