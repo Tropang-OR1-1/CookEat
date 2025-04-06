@@ -3,26 +3,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     dropdowns.forEach(dropdown => {
         const toggle = dropdown.querySelector(".dropdown-toggle");
-        const menu = dropdown.querySelector(".dropdown-menu");
 
         toggle.addEventListener("click", function (event) {
             event.stopPropagation();
-            dropdown.classList.toggle("active");
+            const isActive = dropdown.classList.contains("active");
 
-            // Close other open dropdowns
-            document.querySelectorAll(".dropdown").forEach(other => {
-                if (other !== dropdown) other.classList.remove("active");
+            // Close all other dropdowns
+            dropdowns.forEach(d => {
+                d.classList.remove("active");
+                const t = d.querySelector(".dropdown-toggle");
+                if (t) t.setAttribute("aria-expanded", "false");
             });
-        });
 
-        document.addEventListener("click", function () {
-            dropdown.classList.remove("active");
+            dropdown.classList.toggle("active");
+            toggle.setAttribute("aria-expanded", String(!isActive));
         });
     });
-});
 
-document.querySelectorAll('.button').forEach(button => {
-    button.addEventListener('click', function() {
-        this.classList.toggle('clicked'); // Toggles between filled and outlined state
+    // Global click to close all dropdowns
+    document.addEventListener("click", function () {
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove("active");
+            const t = dropdown.querySelector(".dropdown-toggle");
+            if (t) t.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    // Toggle clicked style on action buttons
+    document.querySelectorAll('.button').forEach(button => {
+        button.addEventListener('click', function () {
+            this.classList.toggle('clicked');
+        });
     });
 });

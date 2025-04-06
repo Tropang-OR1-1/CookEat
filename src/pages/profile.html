@@ -1,1 +1,34 @@
-NOTE: Progile.html code here
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="./../styles/profile.css">
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-card">
+            <img src="./../../assets/images/profile_picture.jpg" alt="Profile Picture" class="avatar">
+            <h2>John Doe</h2>
+            <p>Food Enthusiast & Home Chef</p>
+            <button class="btn" onclick="editProfile()">Edit Profile</button>
+            <button class="btn" onclick="uploadRecipe()">Upload Recipe</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('saved')">Saved Recipes</button>
+            <button class="tab-btn" onclick="showTab('videos')">Video Uploads</button>
+        </div>
+
+        <div id="saved" class="tab-content active">
+            <p>You have no saved recipes yet.</p>
+        </div>
+        <div id="videos" class="tab-content">
+            <p>No videos uploaded yet.</p>
+        </div>
+    </div>
+
+    <script src="./../scripts/profile.js"></script>
+</body>
+</html>

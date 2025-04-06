@@ -1,83 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CookEat!</title>
-    <link rel="stylesheet" href="./../styles/home.css">
-    <link rel="stylesheet" href="./../styles/header.css">
-    
-    <script defer src="./../scripts/home.js"></script> <!-- Link to external script -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CookEat!</title>
+  <link rel="stylesheet" href="./../styles/home.css" />
+  <link rel="stylesheet" href="./../styles/header.css" />
+  <script defer src="./../scripts/home.js"></script>
 </head>
+
 <body>
-    
-    <header class="header-navbar">
-        <div class="header-logo-container">
-            <a href="./../pages/home.html">
-                <img src="./../../assets/images/logo.png" alt="Cook It Logo" class="header-logo">
-            </a>
-        </div>
-        
-        <div class="header-search-container">
-            <input type="text" placeholder="Search for recipes..." class="header-search-bar">
-        </div>
-    
-        <nav class="header-nav-links">
-            <a href="./home.html" class="header-button">Feeds</a>
-            <a href="#" class="header-button">Reels & Videos</a>
-            <a href="#" class="header-button">Notifications</a>
-        </nav>
-        
-        <div class="header-profile-dropdown">
-            <img src="./../../assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
-            <div class="header-dropdown-content">
-                <a href="./profile.html">Show Profile</a>
-                <a href="#">Help and Support</a>
-                <a href="#">Incentives</a>
-                <a href="./settings.html">Settings</a>
-                <a href="#">Log Out</a>
+  <header class="header-navbar">
+    <div class="header-logo-container">
+      <a href="./../pages/home.html">
+        <img src="./../../assets/images/logo.png" alt="Cook It Logo" class="header-logo" />
+      </a>
+    </div>
+
+    <div class="header-search-container">
+      <input type="text" placeholder="Search for recipes..." class="header-search-bar" />
+    </div>
+
+    <nav class="header-nav-links">
+      <a href="./home.html" class="header-button">Feeds</a>
+      <a href="#" class="header-button">Reels & Videos</a>
+      <a href="#" class="header-button">Notifications</a>
+    </nav>
+
+    <div class="header-profile-dropdown">
+      <img src="./../../assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic" />
+      <div class="header-dropdown-content">
+        <a href="./profile.html">Show Profile</a>
+        <a href="#">Help and Support</a>
+        <a href="#">Incentives</a>
+        <a href="./settings.html">Settings</a>
+        <a href="#">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+    <aside class="sidebar">
+      <nav>
+        <ul class="sidebar-menu">
+          <li class="active"><a href="#"><span>🏠</span> For You</a></li>
+          <li><a href="#"><span>👥</span> Following</a></li>
+          <li><a href="create-post.html"><span>➕</span> Upload</a></li>        
+          <li><a href="#"><span>📺</span> LIVE</a></li>
+          <li><a href="#"><span>⋯</span> More</a></li>
+        </ul>
+      </nav>
+
+      <div class="categories">
+        <hr class="divider" />
+        <h3>Categories</h3>
+        <ul>
+          <li><a href="#">Breakfast</a></li>
+          <li><a href="#">Lunch</a></li>
+          <li><a href="#">Dinner</a></li>
+          <li><a href="#">Desserts</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <hr class="divider" />
+        <h4>Program</h4>
+        <h4>Terms & Policies</h4>
+        <h4>About Us</h4>
+        <p>© 2025 CookEat!</p>
+      </div>
+    </aside>
+
+    <div class="post-container">
+      <div class="post">
+        <section class="video-feed">
+          <h2>Video Feed</h2>
+          <div id="videoContainer"></div>
+        </section>
+
+        <div class="post-buttons">
+          <button class="button">Like</button>
+          <button class="button">Comment</button>
+          <button class="button">Send Star</button>
+          <button class="button">Share</button>
+
+          <div class="dropdown">
+            <button class="dropdown-toggle" aria-expanded="false">⋮</button>
+            <div class="dropdown-menu">
+              <button class="dropdown-item">Edit</button>
+              <button class="dropdown-item">Delete</button>
+              <button class="dropdown-item">Save</button>
             </div>
+          </div>
         </div>
-    </header>
-    
-    
-    <main class="content">
-        <aside class="sidebar">
-            <h3>Categories</h3>
-            <ul>
-                <li><a href="#">Breakfast</a></li>
-                <li><a href="#">Lunch</a></li>
-                <li><a href="#">Dinner</a></li>
-                <li><a href="#">Desserts</a></li>
-            </ul>
-        </aside>
-
-        <div class="post-container">
-            <div class="post">
-                <section class="video-feed">
-                    <h2>Video Feed</h2>
-                    <div id="videoContainer"></div>
-                </section>
-
-                <div class="post-buttons">
-                    <button class="button">Like</button>
-                    <button class="button">Comment</button>
-                    <button class="button">Send Star</button>
-                    <button class="button">Share</button>
-
-                    <div class="dropdown">
-                        <button class="dropdown-toggle" onclick="toggleDropdown(this)">⋮</button>
-                        <div class="dropdown-menu">
-                            <button class="dropdown-item">Edit</button>
-                            <button class="dropdown-item">Delete</button>
-                            <button class="dropdown-item">Save</button>
-                        </div>
-                    </div>                    
-
-                </div>
-            </div>
-        </div>
-    </main>
-
+      </div>
+    </div>
+  </main>
 </body>
 </html>
