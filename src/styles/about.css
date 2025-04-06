@@ -6,7 +6,7 @@ body {
   }
   
   .creators-section {
-    padding: 40px 20px;
+    padding: 10px 20px;
     max-width: 1200px;
     margin: auto;
     text-align: center;
@@ -20,14 +20,14 @@ body {
   
   .desc {
     font-size: 1.1rem;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     color: #444;
   }
   
   .creators-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
+    gap: 20px;
   }
   
   .creator-card {
