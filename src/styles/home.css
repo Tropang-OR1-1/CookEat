@@ -11,12 +11,11 @@ body {
     display: flex;
     padding-top: 80px; /* space for fixed header */
     justify-content: center;
-    max-width: 750px;
+    max-width: 800px;
     margin: 0 auto;
     background-color: #f8f8f8;
   }
   .content {
-    margin-left: 240px;
     width: calc(100% - 240px);
     transition: margin-left 0.3s ease-in-out;
 }
@@ -89,7 +88,7 @@ body {
  }
   
 .post-container {
-    margin-left: 240px;
+    margin: 240px;
     padding: 20px;
     width: 100%;
   }
@@ -99,7 +98,7 @@ body {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 6px 12px rgb(255 47 47 / 15%);
-    width: 100%;
+    width: 500px;
     border: 2px solid #edd2d2;
     margin-bottom: 10px;
   }
