@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Post</title>
-  <link rel="stylesheet" href="/src/styles/header.css" />
-  <link rel="stylesheet" href="/src/styles/home.css" />
-  <link rel="stylesheet" href="/src/styles/index.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <link rel="stylesheet" href="./../styles/createPost.css">
 </head>
 <body>
+    <div id="createPostModal" class="create-post-modal">
+      <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <h2>Create New Post</h2>
+          <form id="createPostForm">
+              <label for="postTitle">Post Title:</label>
+              <input type="text" id="postTitle" name="postTitle" required>
 
-  <!-- Modal UI directly on this page -->
-  <div class="modal" style="display: block;">
-    <div class="modal-content">
-      <a href="/src/pages/home.html" class="close-btn">&times;</a>
-      <h2>Create a Post</h2>
-      <form id="createPostForm">
-        <div class="form-group">
-          <label for="postTitle">Post Title</label>
-          <input type="text" id="postTitle" name="postTitle" required>
-        </div>
-        <div class="form-group">
-          <label for="postContent">Post Content</label>
-          <textarea id="postContent" name="postContent" rows="4" required></textarea>
-        </div>
-        <button type="submit" class="submit-btn">Submit</button>
-      </form>
-    </div>
+              <label for="caption">Caption:</label>
+              <textarea id="caption" name="caption"></textarea>
+
+              <label for="media">Upload Media (Picture/Video):</label>
+              <input type="file" id="media" name="media" accept="image/*,video/*">
+
+              <label for="instructions">Instructions (How to Cook):</label>
+              <textarea id="instructions" name="instructions" required></textarea>
+
+              <label for="ingredients">Ingredients:</label>
+              <textarea id="ingredients" name="ingredients" required></textarea>
+
+              <button type="submit" class="publish-btn">Publish Post</button>
+          </form>
+      </div>
   </div>
 
-  <script src="/src/scripts/create-post.js"></script>
+    <script src="./../scripts/createPost.js"></script>
 </body>
 </html>
