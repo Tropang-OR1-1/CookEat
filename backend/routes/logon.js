@@ -1,7 +1,8 @@
 require("dotenv").config({ path: "../.env" });
 const express = require("express"); // Initialize Express app
-const router = express.Router();
 
+const router = express.Router();
+router.use(express.urlencoded({ extended: true }));  // To handle form-data bodies
 
 //const app = express(); 
 const cors = require("cors");
@@ -9,34 +10,23 @@ const cors = require("cors");
 const validator = require("validator"); // Import the validator library for email validation
 const db = require("../config/db");
 const rateLimit = require("express-rate-limit");
+const upload = require("multer")();
 
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-router.use(express.json());
+
 router.use(cors()); // Enable CORS for all routes
 
   
-router.use((req, res, next) => { // prevent empty requests 
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ error: "Empty or no JSON body provided" });
-    }
-    next();
-  });
-
-router.use((err, req, res, next) => { // prevent malformed requests 
-    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-      return res.status(400).json({ error: "Invalid JSON format" });
-    }
-    next(err);
-  });
 
 const loginLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 15 minutes
+    windowMs: 5 * 60 * 1000, // 5 minutes
     max: 5, // Limit each IP to 5 requests per windowMs
     message: "Too many login attempts from this IP, please try again after 15 minutes",
   });
 
+  
 
 async function hashPassword(username, password){
     salted = username + password;
@@ -57,13 +47,17 @@ async function checkCredentials(email, password){
         }
     }
 
-router.post("/login", loginLimiter, async (req, res) => {
-    if (!req.body) { return res.status(400).json({ error: "Invalid Requests Headers." }); } // Check if the request body is empty
-    if (!req.body.hasOwnProperty("email") || !req.body.hasOwnProperty("password")) {
+router.post("/login", upload.none(), loginLimiter, async (req, res) => {
+    if (req.files && req.files.length > 0) {
+        return res.status(400).json({ error: 'Files are not allowed in this request' });
+      }
+
+    const {email, password} = req.body; // Destructure the request body
+
+    if (!email || !password) {
         return res.status(400).json({ error: "Invalid Requests Headers." });
     } // make sure username and password are provided
     
-    const {email, password} = req.body; // Destructure the request body
     if (typeof email !== 'string' || typeof password !== 'string') {
         return res.status(400).json({ error: "Invalid input types." });
         } // Check if the input types are correct
@@ -83,13 +77,13 @@ router.post("/login", loginLimiter, async (req, res) => {
     console.log(`user: ${email} logged in.`); // Print the username to the console
     });
 
-
-router.post("/register", loginLimiter, async (req, res) => {
-    if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password") ||
-        !req.body.hasOwnProperty("email"))
-        return res.status(400).json({ error: "Incomplete credentials." });
-    
+router.post("/register", upload.none(), loginLimiter, async (req, res) => {
+    console.log(req.body); // Log the request body for debugging
     const { username, password, email } = req.body; 
+
+    if (!username || !password || !email) {
+        return res.status(400).json({ error: "Incomplete credentials." });
+        }
     if (typeof username !== 'string' || typeof password !== 'string' || typeof email !== 'string') {
         return res.status(400).json({ error: "Invalid input types." });
         } // Check if the input types are correct
@@ -97,6 +91,11 @@ router.post("/register", loginLimiter, async (req, res) => {
     if (!validator.isEmail(req.body.email)) {
         return res.status(400).json({ error: "Invalid email format." });
         } // Validate the email format
+    
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({ error: 'Invalid username format' });
+        } // Validate the username format
 
 
     query = 'SELECT user_id FROM "userdata" WHERE email = $1';
