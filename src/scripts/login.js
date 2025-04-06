@@ -17,7 +17,7 @@ function attachEventListeners() {
 
     // Select post buttons and dropdown links
     const modalTriggers = document.querySelectorAll(
-        ".post-buttons .button, .dropdown-content a, .dropdown-toggle"
+        ".post-buttons .button, .dropdown-content a, .dropdown-toggle, .header-profile-dropdown, .restricted-item"
     );
 
     modalTriggers.forEach(trigger => {
