@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Jrhey124/CookEAT#readme",
   "dependencies": {
+    "cookeat": "file:",
     "dotenv": "^16.4.7"
   }
 }
