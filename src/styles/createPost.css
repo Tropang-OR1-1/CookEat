@@ -1,0 +1,141 @@
+/* Global Styles for Create Post Modal */
+.create-post-modal * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.create-post-modal {
+    background-color: #f8f8f8;
+    padding-top: 60px;
+}
+
+/* Modal Styles */
+.create-post-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Dark background */
+    display: flex; 
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+/* Modal Content */
+.create-post-modal .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%; /* Adjust as needed */
+    max-width: 500px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+
+/* Close Button */
+.create-post-modal .close-btn {
+    color: #FF8700;
+    font-size: 28px;
+    font-weight: bold;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.create-post-modal .close-btn:hover,
+.create-post-modal .close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Form Styles */
+.create-post-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Reduced gap between form elements */
+}
+
+.create-post-modal label {
+    font-weight: bold;
+}
+
+/* Input and Textarea Styles */
+.create-post-modal input[type="text"],
+.create-post-modal input[type="file"],
+.create-post-modal textarea {
+    padding: 8px; /* Reduced padding */
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.create-post-modal input[type="text"],
+.create-post-modal textarea {
+    width: 100%;
+}
+
+.create-post-modal textarea {
+    min-height: 80px; /* Reduced height of the text area */
+    resize: vertical;
+}
+
+/* Button Styles */
+.create-post-modal .publish-btn {
+    background-color: #FFA500;
+    color: white;
+    padding: 10px 20px; /* Reduced padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.create-post-modal .publish-btn:hover {
+    background-color: #FF8700;
+}
+
+.create-post-modal .publish-btn:active {
+    background-color: #be6600;
+}
+
+/* Modal Header */
+.create-post-modal h2 {
+    color: #FFA500;
+    text-align: center;
+    font-size: 22px; /* Reduced font size */
+}
+
+/* Input Focus */
+.create-post-modal input[type="text"]:focus,
+.create-post-modal textarea:focus {
+    border-color: #FFA500;
+    outline: none;
+}
+
+/* File Input */
+.create-post-modal input[type="file"] {
+    padding: 8px;
+    background-color: #fff;
+}
+
+/* Placeholder Text */
+.create-post-modal ::placeholder {
+    color: #888;
+}
+
+/* Form Section Titles */
+.create-post-modal h3 {
+    color: #FFA500;
+    font-size: 18px;
+    margin-bottom: 10px;
+}

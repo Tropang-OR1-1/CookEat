@@ -1,1 +1,67 @@
-/* styles for profile.html here */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    text-align: center;
+    padding: 20px;
+}
+
+.profile-container {
+    max-width: 400px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.btn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn:hover {
+    background: #ff5252;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: #ddd;
+    border: none;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #ff6b6b;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.tab-content.active {
+    display: block;
+}

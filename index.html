@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CookEat!</title>
-    <link rel="stylesheet" href="src/styles/index.css">
-    <link rel="stylesheet" href="src/styles/login.css">
-    <link rel="stylesheet" href="./src/styles/header.css">
-
+    <link rel="stylesheet" href="/src/styles/index.css">
+    <link rel="stylesheet" href="/src/styles/login.css">
+    <link rel="stylesheet" href="/src/styles/header.css">
 </head>
 <body>
     <header class="header-navbar">
-        <div class="header-logo-container">
-                <img src="./../../assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+        <div class="header-logo-container restricted-item">
+            <a href="/src/pages/home.html">
+                <img src="/assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+            </a>
         </div>
         
         <div class="header-search-container">
@@ -24,13 +25,14 @@
         </nav>
         
         <div class="header-profile-dropdown">
-            <img src="./assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
+            <img src="/assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
             <div class="header-dropdown-content">
-                <a href="#">Show Profile</a>
-                <a href="#">Help and Support</a>
-                <a href="#">Incentives</a>
-                <a href="./settings.html">Settings</a>
-                <a href="#">Log Out</a>
+                <a href="/src/pages/profile.html" class="restricted-item">Show Profile</a>
+                <a href="#" class="restricted-item">Help and Support</a>
+                <a href="#" class="restricted-item">Incentives</a>
+                <a href="/src/pages/settings.html" class="restricted-item">Settings</a>
+                <a href="/src/pages/about.html" class="restricted-item">About us</a>
+                <a href="#" class="">Log Out</a>
             </div>
         </div>
     </header>
@@ -83,6 +85,6 @@
         </div>
     </div>
     
-    <script src="src/scripts/login.js"></script>
+    <script src="/src/scripts/login.js"></script>
 </body>
 </html>
