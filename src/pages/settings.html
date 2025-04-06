@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings & Privacy</title>
-    <link rel="stylesheet" href="./../styles/settings.css">
-    <link rel="stylesheet" href="./../styles/header.css">
+    <link rel="stylesheet" href="/src/styles/settings.css">
+    <link rel="stylesheet" href="/src/styles/header.css">
     <style>
         /* Smooth fade-in effect */
         .settings-container {
@@ -24,32 +24,36 @@
 
     <header class="header-navbar">
         <div class="header-logo-container">
-            <a href="./../pages/home.html">
-                <img src="./../../assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+            <a href="/src/pages/home.html">
+                <img src="/assets/images/profile_picture.jpg" alt="Cook It Logo" class="header-logo">
             </a>
         </div>
         
         <div class="header-search-container">
             <input type="text" placeholder="Search for recipes..." class="header-search-bar">
         </div>
-    
+      
         <nav class="header-nav-links">
-            <a href="./home.html" class="header-button">Feeds</a>
+            <a href="/src/pages/home.html" class="header-button">Home</a>
+            <a href="/src/pages/recipes.html" class="header-button">Recipes</a>
+            <a href="/src/pages/about.html" class="header-button">About Us</a> <!-- About link -->
+            <a href="/src/pages/home/html" class="header-button">Feeds</a>
             <a href="#" class="header-button">Reels & Videos</a>
             <a href="#" class="header-button">Notifications</a>
         </nav>
         
         <div class="header-profile-dropdown">
-            <img src="./../../assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
+            <img src="/assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
             <div class="header-dropdown-content">
-                <a href="./profile.html">Show Profile</a>
+                <a href="/src/pages/profile.html">Show Profile</a>
                 <a href="#">Help and Support</a>
                 <a href="#">Incentives</a>
-                <a href="./settings.html">Settings</a>
+                <a href="/src/pages/settings.html">Settings</a>
+                <a href="/src/pages/about.html">About Us</a> <!-- Added About link in the profile dropdown -->
                 <a href="#">Log Out</a>
             </div>
         </div>
-    </header>
+      </header>
     
     <div class="settings-container">
         <div class="setting-feed">
