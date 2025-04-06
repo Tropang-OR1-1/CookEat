@@ -1,4 +1,4 @@
-/* Global Styles */
+/* Global Styles */ 
 * {
     margin: 0;
     padding: 0;
@@ -8,16 +8,10 @@
 
 body {
     background-color: #b5b5b5a3;
-    padding-top: 60px;
 }
 
-/* Header Styles */
-.header-navbar {
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-    top: 0;
-    left: 0;
+/* Navbar Styles */
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -27,18 +21,22 @@ body {
 }
 
 /* Logo */
-.header-logo {
+.logo {
     height: 40px;
 }
 
+body {
+    background-image: url('Logo-pic.jpg');
+}
+
 /* Search Bar */
-.header-search-container {
+.search-container {
     flex-grow: 1;
     display: flex;
     justify-content: center;
 }
 
-.header-search-bar {
+.search-bar {
     width: 500px;
     height: 35px;
     padding: 5px 10px;
@@ -49,7 +47,7 @@ body {
 }
 
 /* Navigation Links */
-.header-nav-links {
+.nav-links {
     list-style: none;
     display: flex;
     gap: 5px;
@@ -58,26 +56,26 @@ body {
     align-items: center;
 }
 
-.header-nav-links a {
+.nav-links a {
     text-decoration: none;
     color: black;
     font-weight: bold;
 }
 
 /* Profile Dropdown */
-.header-profile-pic {
-    width: 50px;
-    height: 50px;
+.profile-pic {
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     cursor: pointer;
 }
 
-.header-profile-dropdown {
+.profile-dropdown {
     position: relative;
     display: inline-block;
 }
 
-.header-dropdown-content {
+.dropdown-content {
     display: none;
     position: absolute;
     right: 0;
@@ -88,7 +86,7 @@ body {
     z-index: 10;
 }
 
-.header-dropdown-content a {
+.dropdown-content a {
     display: block;
     padding: 10px;
     background-color: #FFB22C;
@@ -96,99 +94,14 @@ body {
     color: black;
 }
 
-.header-dropdown-content a:hover {
+.dropdown-content a:hover {
     background-color: #ffffff;
     color: #FFB22C;
 }
 
-.header-profile-dropdown:hover .header-dropdown-content {
+.profile-dropdown:hover .dropdown-content {
     display: block;
 }
-
-/* Button Styles */
-.header-button {
-    background-color: #FFA500;
-    color: rgb(0, 0, 0);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 1em;
-    font-weight: bold;
-}
-
-/* Hover Effect */
-.header-button:hover {
-    background-color: #FF8700;
-}
-
-/* Click Effect - Flash and Reset */
-.header-button:active {
-    background-color: #be6600; /* Click effect */
-}
-
-/* Ensures hover works after click */
-.header-button.clicked:hover {
-    background-color: #FF8700;
-}
-
-/* Dropdown Button Styles */
-.header-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.header-dropdown-toggle {
-    background-color: #FFA500;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 1em;
-}
-
-.header-dropdown-toggle:hover {
-    background-color: #FF8700;
-}
-
-/* Fixed dropdown menu color */
-.header-dropdown-menu {
-    display: none;
-    position: absolute;
-    background-color: #FFA500;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    overflow: hidden;
-    min-width: 120px;
-    right: 0;
-    z-index: 1000;
-}
-
-/* Dropdown items */
-.header-dropdown-item {
-    display: block;
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    text-align: left;
-    font-size: 0.9em;
-    color: white;
-}
-
-.header-dropdown-item:hover {
-    background-color: #FF8700;
-}
-
-/* Show dropdown when clicked */
-.header-dropdown.active .header-dropdown-menu {
-    display: block;
-}
-
 
 /* Button Styles */
 .button {
@@ -198,7 +111,7 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     font-size: 1em;
     font-weight: bold;
 }
@@ -208,14 +121,13 @@ body {
     background-color: #FF8700;
 }
 
-/* Click Effect - Flash and Reset */
-.button:active {
-    background-color: #be6600; /* Click effect */
-}
-
-/* Ensures hover works after click */
-.button.clicked:hover {
-    background-color: #FF8700;
+/* Click Effect - Change to Outlined */
+.button:active,
+.button.clicked {
+    background-color: transparent;
+    border: 2px solid #FFA500;
+    color: #FFA500;
+    font-weight: bold;
 }
 
 /* Main Content Layout */
