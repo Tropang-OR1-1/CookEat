@@ -62,8 +62,7 @@ router.post('/', FailLimiter, upload.Profile.single('profilePic'), async (req, r
         (parsedData.nationality && typeof parsedData.nationality !== 'string') ||
         (parsedData.sex && !verifySex.includes(parsedData.sex)) ||
         (parsedData.status && !verifyStatus.includes(parsedData.status)) ||
-        (parsedData.birthdate && !birthdayRegex.test(parsedData.birthdate))
-        ) {
+        (parsedData.birthdate && !birthdayRegex.test(parsedData.birthdate))) {
         return res.status(400).json({ error: "Invalid data format" });
         }
     
@@ -123,7 +122,62 @@ router.post('/', FailLimiter, upload.Profile.single('profilePic'), async (req, r
       }
 });
 
-router.get('/:username',  (req, res)  => {
+router.get('/:username', async (req, res)  => {
+    const username = req.params.username; // Get the username from the URL
+    const {n = 0, sessiontoken} = req.body || {}; 
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({ error: 'Invalid username format' });
+        } // Validate the username format
 
+    let sessionId = null; // to check if the user can see the profile
+    if (sessiontoken !== undefined && typeof sessiontoken === 'string') {
+        let result_token = jwtModule.verifyToken(sessiontoken); // Verify the session token
+        if (result_token.success) { // Check if the token is valid
+            sessionId = parseInt(result_token.decoded.userId.user_id); // Ensure userId is an integer
+            if (!isNaN(sessionId)) sessionId = null; 
+            } // Check if the token is valid
+        } // Ensure userId is an integer
+    
+
+    if (n === undefined || typeof n !== 'number') n = 0;
+    const query = `SELECT biography, username, nationality, sex, status, picture \
+            FROM user_profile WHERE username = $1 OFFSET $2 LIMIT 1;`;
+    const result = await db.query(query, [username, n]);
+    if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+        } // Check if the user exists
+    
+    console.log(result.rows[0].picture); // Log the result for debugging
+
+    if (result.rows[0].picture !== null) { // tokenize the picture
+        result.rows[0].picture = jwtModule.generateToken(
+            { userId: result.rows[0].picture },
+            { expiresIn: '10m'} ); // Generate a token for the picture
+        }
+
+    // Status Handling
+    if (result.rows[0].status == "private" && sessionId !== null) { // private viewing
+        if (sessionId == result.rows[0].id) {
+            return res.status(200).json(result.rows[0]); // Allow access to own profile
+            }
+        }
+
+    else if (result.rows[0].status == "restricted" && sessionId !== null) { // check if the user 
+        const query1 = `SELECT * FROM followers WHERE following_user_id = $1 AND followed_user_id = $2;`;
+        const result1 = await db.query(query1, [result.rows[0].id, sessionId]);
+        if (result1.rows.length) 
+            return res.status(200).json(result.rows[0]); // Allow access to followed profile
+        } // Check if the user exists
+
+    else {
+        return res.status(200).json(result.rows[0]); // Allow access to public profile
+        } // Check if the user exists
+    res.status(200).json({
+        "username": result.rows[0].username,
+        "picture_jwt": result.rows[0].picture 
+        }); // Send the user data back to the client
+    
     });
+
 module.exports = router;

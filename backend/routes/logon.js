@@ -21,7 +21,7 @@ router.use(cors()); // Enable CORS for all routes
   
 
 const loginLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 15 minutes
+    windowMs: 5 * 60 * 1000, // 5 minutes
     max: 5, // Limit each IP to 5 requests per windowMs
     message: "Too many login attempts from this IP, please try again after 15 minutes",
   });
@@ -91,6 +91,11 @@ router.post("/register", upload.none(), loginLimiter, async (req, res) => {
     if (!validator.isEmail(req.body.email)) {
         return res.status(400).json({ error: "Invalid email format." });
         } // Validate the email format
+    
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({ error: 'Invalid username format' });
+        } // Validate the username format
 
 
     query = 'SELECT user_id FROM "userdata" WHERE email = $1';
