@@ -6,6 +6,7 @@
     <title>CookEat!</title>
     <link rel="stylesheet" href="/src/styles/home.css">
     <link rel="stylesheet" href="/src/styles/header.css">
+    <link rel="stylesheet" href="/src/styles/notification.css">
 </head>
 <body>
     
@@ -23,7 +24,7 @@
         <nav class="header-nav-links">
             <a href="/src/pages/home.html" class="header-button">Feeds</a>
             <a href="#" class="header-button">Reels & Videos</a>
-            <a href="#" class="header-button">Notifications</a>
+            <a href="#" class="header-button" onclick="toggleNotifications(event)">Notifications</a>
             <a href="#" class="header-button create-post-btn" id="openModalBtn">Create Post</a>
         </nav>
         
@@ -38,6 +39,37 @@
             </div>
         </div>
     </header>
+
+    <div id="notificationPanel" class="notification-panel hidden">
+        <div class="notification-header">
+          <strong>Notifications</strong>
+          <span class="tabs">
+            <button class="tab active" onclick="showAll()">All</button>
+            <button class="tab" onclick="showUnread()">Unread</button>
+          </span>
+          <span onclick="toggleNotifications()" class="close-btn">✖</span>
+        </div>
+      
+        <div class="notification-section">
+          <div class="notification-subheader">
+            <span>New</span>
+            <a href="/notifications">See all</a>
+          </div>
+          
+          <ul class="notification-list" id="notificationList">
+            <!-- Notifications will be injected here via JavaScript -->
+          </ul>
+      
+          <div class="empty-state" id="emptyState" style="display: none;">
+            <p>No notifications at the moment.</p>
+          </div>
+        </div>
+      
+        <div class="see-previous">
+          <button onclick="seePrevious()">See previous notifications</button>
+        </div>
+      </div>
+          
     
     <main class="content">
         <aside class="sidebar">
@@ -78,5 +110,6 @@
 
     <script src="/src/scripts/home.js"></script>
     <script src="/src/scripts/createPost.js"></script>
+    <script src="/src/scripts/notification.js"></script>
 </body>
 </html>
