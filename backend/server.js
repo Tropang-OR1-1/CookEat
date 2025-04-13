@@ -13,14 +13,20 @@ app.use(cors());
 
 
 // Include route file
-const profileRoutes = require('./routes/profile');
-const logonRoutes = require('./routes/logon');
+const profileRoutes = require('./routes/user/profile');
+const logonRoutes = require('./routes/user/logon');
 const mediaRoutes = require('./routes/media');
+const postsRoutes = require('./routes/feed/posts')
+const commentRoutes = require('./routes/feed/comments');
+const reactRoutes = require('./routes/feed/reactions');
 
 // Mount the routes
 app.use('/profile', profileRoutes);
 app.use('/', logonRoutes);
 app.use('/media', mediaRoutes);
+app.use('/posts', postsRoutes);
+app.use('/comments', commentRoutes);
+app.use('/react', reactRoutes);
 // Start the server
 app.listen(process.env.API_PORT, () => {
   console.log(`Server running on port ${process.env.API_PORT}`);
