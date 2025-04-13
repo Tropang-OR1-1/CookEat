@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="/src/styles/profile.css">
+    <link rel="stylesheet" href="/src/styles/header.css">
+</head>
+<body>
+    <header class="header-navbar">
+        <div class="header-logo-container">
+            <a href="/src/pages/home.html">
+                <img src="/assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+            </a>
+        </div>
+        
+        <div class="header-search-container">
+            <input type="text" placeholder="Search for recipes..." class="header-search-bar">
+        </div>
+      
+        <nav class="header-nav-links">
+            <a href="/src/pages/home.html" class="header-button">Home</a>
+            <a href="/src/pages/recipes.html" class="header-button">Recipes</a>
+            <a href="/src/pages/about.html" class="header-button">About Us</a> <!-- About link -->
+            <a href="/src/pages/home/html" class="header-button">Feeds</a>
+            <a href="#" class="header-button">Reels & Videos</a>
+            <a href="#" class="header-button">Notifications</a>
+        </nav>
+        
+        <div class="header-profile-dropdown">
+            <img src="/assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
+            <div class="header-dropdown-content">
+                <a href="/src/pages/profile.html">Show Profile</a>
+                <a href="#">Help and Support</a>
+                <a href="#">Incentives</a>
+                <a href="/src/pages/settings.html">Settings</a>
+                <a href="/src/pages/about.html">About Us</a> <!-- Added About link in the profile dropdown -->
+                <a href="#">Log Out</a>
+            </div>
+        </div>
+      </header>
+
+    <div class="profile-container">
+        <div class="profile-card">
+            <img src="/assets/images/profile_picture.jpg" alt="Profile Picture" class="avatar">
+            <h2>John Doe</h2>
+            <p>Food Enthusiast & Home Chef</p>
+            <button class="btn" onclick="editProfile()">Edit Profile</button>
+            <button class="btn" onclick="uploadRecipe()">Upload Recipe</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('saved')">Saved Recipes</button>
+            <button class="tab-btn" onclick="showTab('videos')">Video Uploads</button>
+        </div>
+
+        <div id="saved" class="tab-content active">
+            <p>You have no saved recipes yet.</p>
+        </div>
+        <div id="videos" class="tab-content">
+            <p>No videos uploaded yet.</p>
+        </div>
+    </div>
+
+    <script src="/src/scripts/profile.js"></script>
+</body>
+</html>
