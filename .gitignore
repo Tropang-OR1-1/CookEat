@@ -11,6 +11,9 @@ dist/
 .cache/
 *.bak
 
+backend/uploads/media
+backend/uploads/profiles
+
 # Environment and secrets
 .env       
 .env.local
