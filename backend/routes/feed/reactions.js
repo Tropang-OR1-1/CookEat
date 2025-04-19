@@ -26,7 +26,7 @@ router.post('/post',verifyToken, upload.none(), async (req, res) => {
     if (!pid.success) return res.status(400).json({ error: pid.error });
     pid = pid.id;
 
-    const userId = req.user.payload.user_id; // Get the user ID from the token
+    const userId =  req.user.id; // Get the user ID from the token
     const query = `INSERT INTO post_reaction (user_id, post_id, vote)
             VALUES ($1, $2, $3)
             ON CONFLICT (user_id, post_id)
@@ -56,7 +56,7 @@ router.post('/comment',verifyToken, async (req, res) => {
     if (!pid.success) return res.status(400).json({ error: pid.error });
     pid = pid.id;
 
-    const userId = req.user.payload.user_id; // Get the user ID from the token
+    const userId =  req.user.id; // Get the user ID from the token
     const query = `INSERT INTO comment_reaction (user_id, comment_id, vote)
             VALUES ($1, $2, $3)
             ON CONFLICT (user_id, comment_id)

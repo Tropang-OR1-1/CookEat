@@ -1,13 +1,15 @@
 require("dotenv").config({ path: "../.env" });
 const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');  // Importing the uuid library
+//const { v4: uuidv4 } = require('uuid');  // Importing the uuid library
+const db = require("./db");
+
 const crypto = require('crypto');  // For generating random strings
 
 const JWT_SECRET = process.env.JWT_SECRET;  // Change to something very secure!
 
-const generateUUID = () => {
-  return uuidv4();  // Generates a random UUID
-};
+//const generateUUID = () => {
+ // return uuidv4();  // Generates a random UUID
+//};
 
 // Function to generate a strong random string for added randomness in the token
 const generateRandomString = (length = 32) => {
@@ -16,11 +18,11 @@ const generateRandomString = (length = 32) => {
 
 // Middleware to generate JWT with UUID for uniqueness and dynamic expiration
 const generateJWT = (load, expiresIn = '3h') => {
-  const uuid = generateUUID();  // Add UUID to the payload for added uniqueness
+//  const uuid = generateUUID();  // Add UUID to the payload for added uniqueness
   const randomString = generateRandomString();  // Add a random string to make the token more unpredictable
   
   const payload = {
-    uuid,  // Add the UUID to the payload for added uniqueness
+    //uuid,  // Add the UUID to the payload for added uniqueness
     jti: randomString,  // Add a random string as JWT ID for more entropy
     payload: load,  // Only the user_id in the payload
     iat: Math.floor(Date.now() / 1000)  // Issued at time (current timestamp)
@@ -33,7 +35,7 @@ const generateJWT = (load, expiresIn = '3h') => {
 };
 
 
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
     const token = req.headers['authorization'];  // Assuming token is passed in the 'Authorization' header
   
     if (!token) {
@@ -45,11 +47,16 @@ const verifyToken = (req, res, next) => {
   
     try {
       // Verify the token using the secret key
-      const decoded = jwt.verify(tokenWithoutBearer, JWT_SECRET);
-      req.user = decoded;  // Store the decoded token (user data) in the request for later use
+      const token_id = jwt.verify(tokenWithoutBearer, JWT_SECRET);
+      const decoded = await db.query(`SELECT id FROM user_profile WHERE token_id = $1 AND 
+          is_deleted = false LIMIT 1`, [token_id.payload]);
+      if (!decoded.rows.length)
+        return res.status(403).json({ message: 'User not found or got deleted.' });  // Data not found or got deleted
+
+      req.user = decoded.rows[0];  // Store the decoded token (user data) in the request for later use
       next();  // Proceed to the next middleware/handler
     } catch (err) {
-      return res.status(401).json({ message: 'Invalid or expired token' });  // If token is invalid or expired, return 401
+      return res.status(401).json({ message: 'Invalid or expired session token' });  // If token is invalid or expired, return 401
     }
   };
 

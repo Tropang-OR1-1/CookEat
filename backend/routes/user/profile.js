@@ -3,17 +3,21 @@ const db = require("../../config/db");
 
 const upload = require('../../config/multer');  // Import multer configuration
 const {getUserToken, generateJWT, verifyToken} = require('../../config/jwt'); // Import JWT verification middleware
+const { stringArrayParser, tagsValidator, usernameRegex,
+      allowedSex, allowedNationalities, allowedStatus } = require('../../config/defines');
+require('dotenv').config({ path: '../.env' });
 
-//const { parse } = require('dotenv');
+const isvalidbiographyLength = (biography) => { return biography.length <= process.env.MAX_BIOGRAPHY_LENGTH; }
+
 const router = express.Router();
 
 
 
-router.post('/', verifyToken,  upload.Profile.single('profilePic'), async (req, res) => {
+router.post('/profile', verifyToken,  upload.Profile.single('profile_img'), async (req, res) => {
     const { username, biography, nationality, sex, status, birthdate } = req.body ?? {};  // Destructure the request body
-    
-    const verifySex = ['Male', 'Female'];
-    const verifyStatus = ['public', 'private', 'restricted'];
+    let { tags } = req.body ?? {};
+
+    const userId = req.user.id; // Get the user ID from the token 
     const birthdayRegex = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
     
     const hasAnyUpdate =
@@ -22,23 +26,50 @@ router.post('/', verifyToken,  upload.Profile.single('profilePic'), async (req, 
         nationality !== undefined ||
         sex !== undefined ||
         status !== undefined ||
-        birthdate !== undefined ||
+        birthdate !== undefined
         req.file !== undefined; // Check if any of the fields are present
-  
-    if (!hasAnyUpdate) {
-        return res.status(400).json({ error: 'No update fields provided' });
-        }   
+ 
 
     if ( // check each data formats
         (username  !== undefined    && typeof username !== 'string') ||
         (biography  !== undefined   && typeof biography !== 'string') ||
         (nationality  !== undefined && typeof nationality !== 'string') ||
-        (sex  !== undefined         && !verifySex.includes(sex)) ||
-        (status  !== undefined      && !verifyStatus.includes(status)) ||
-        (birthdate  !== undefined   && !birthdayRegex.test(birthdate))) {
-        return res.status(400).json({ error: "Invalid data format" });
+        (sex  !== undefined         && typeof sex !== 'string') ||
+        (status  !== undefined      && typeof status !== 'string') ||
+        (birthdate  !== undefined   && typeof birthdate !== 'string')) {
+        return res.status(400).json({ error: "Invalid data format(data must be string)." });
         }
     
+    if (typeof nationality === 'string' && !allowedNationalities(nationality))
+      return res.status(400).json({ error: `Invalid ${nationality}`, accepts: allowedNationalities });
+    if (typeof sex === 'string' && !allowedSex.includes(sex))
+      return res.status(400).json({ error: `Invalid ${sex}`, accepts: allowedSex });
+    if (typeof status === 'string' && !allowedStatus.includes(status))
+      return res.status(400).json({ error: `Invalid ${status}`, accepts: allowedStatus });
+    if (typeof birthday === 'string' && !birthdayRegex.test(birthdate))
+      return res.status(400).json({ error: `Invalid ${birthday}`, accepts: 'DD-MM-YYYY format.' });
+    
+    if (typeof biography === "string" && !isvalidbiographyLength(biography))
+      return res.status(400).json({ error: `biography is too long. max ${process.env.MAX_BIOGRAPHY_LENGTH}` });
+    if (tags !== undefined){
+      tags = stringArrayParser(tags);
+      if (tags === undefined) return res.status(400).json({ error: "tags must be in list format." });
+      }
+
+    if (tags !== undefined && !tagsValidator(tags))
+        { return res.status(400).json({ error: "Tags must be an array of strings." }); } // check tags format
+
+    if (tags !== undefined){ // perform tags linking
+        console.log(tags);
+        linkTagsToUser(tags, userId);
+        }
+    else if (!hasAnyUpdate) {
+        return res.status(400).json({ error: 'No update fields provided' });
+        }  
+    
+    if (!hasAnyUpdate) // only tags updated.
+      return res.status(200).json({ message: `User(${username}) updated successfully.` });
+
     const updates = [];
     const values = [];
     let i = 1;
@@ -72,9 +103,8 @@ router.post('/', verifyToken,  upload.Profile.single('profilePic'), async (req, 
         values.push(req.file.filename); // or req.file.path
       }
     
+
     
-    const userId = req.user.payload.user_id; // Get the user ID from the token
-    console.log(userId);
     const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING *;`;
     values.push(userId); // Add the ID as the last value
 
@@ -83,7 +113,7 @@ router.post('/', verifyToken,  upload.Profile.single('profilePic'), async (req, 
         if (result.rows.length === 0) {
           return res.status(404).json({ error: 'User not found' });
         }
-        res.status(200).json({
+        return res.status(200).json({
           message: `User(${username}) updated successfully.`
         });
       } catch (error) {
@@ -95,7 +125,6 @@ router.post('/', verifyToken,  upload.Profile.single('profilePic'), async (req, 
 router.get('/:username', async (req, res)  => {
     const username = req.params.username; // Get the username from the URL
     const {n = 0, sessiontoken} = req.body || {}; 
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(username)) {
         return res.status(400).json({ error: 'Invalid username format' });
         } // Validate the username format
@@ -134,5 +163,48 @@ router.get('/:username', async (req, res)  => {
         }); // Send the user data back to the client
     
     });
+
+
+const linkTagsToUser = async (tags, userId) => {
+    const client = await db.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Step 1: Delete existing user_tag links
+        await client.query('DELETE FROM user_tags WHERE user_id = $1', [userId]);
+
+        // Step 2: Insert new tags if they don't exist
+        const insertTagsQuery = `
+            INSERT INTO tags (name)
+            SELECT unnest($1::text[])
+            ON CONFLICT (name) DO NOTHING;
+        `;
+        await client.query(insertTagsQuery, [tags]);
+
+        // Step 3: Fetch IDs of the new tags
+        const selectTagIdsQuery = `
+            SELECT id FROM tags WHERE name = ANY($1)
+        `;
+        const tagResult = await client.query(selectTagIdsQuery, [tags]);
+        const tagIds = tagResult.rows.map(row => row.id);
+
+        // Step 4: Link new tags to the user
+        const insertUserTagsQuery = `
+            INSERT INTO user_tags (user_id, tags_id)
+            SELECT $1, unnest($2::int[])
+            ON CONFLICT DO NOTHING;
+        `;
+        await client.query(insertUserTagsQuery, [userId, tagIds]);
+
+        await client.query('COMMIT');
+        return { success: true };
+    } catch (err) {
+        await client.query('ROLLBACK');
+        return { success: false, error: err };
+    } finally {
+        client.release();
+    }
+};
+
 
 module.exports = router;
