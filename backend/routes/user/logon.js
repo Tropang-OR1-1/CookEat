@@ -7,24 +7,16 @@ router.use(express.urlencoded({ extended: true }));  // To handle form-data bodi
 //const app = express(); 
 const cors = require("cors");
 
-const validator = require("validator"); // Import the validator library for email validation
-const db = require("../config/db");
-const rateLimit = require("express-rate-limit");
+const db = require("../../config/db");
 const upload = require("multer")();
+const { usernameRegex, emailValidator, sanitizeInput } = require('../../config/defines');
 
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { generateJWT, verifyToken } = require('../../config/jwt'); // Import the module
+
 
 router.use(cors()); // Enable CORS for all routes
 
-  
-
-const loginLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 5, // Limit each IP to 5 requests per windowMs
-    message: "Too many login attempts from this IP, please try again after 15 minutes",
-  });
 
   
 
@@ -35,7 +27,7 @@ async function hashPassword(username, password){
 
 async function checkCredentials(email, password){
     hashedPassword = await hashPassword(email, password); // Hash the password
-    const query = 'SELECT user_id FROM "userdata" WHERE email = $1 AND password_hashed = $2';
+    const query = 'SELECT user_id FROM "userdata" WHERE email = $1 AND password_hashed = $2 AND deleted_at IS NULL';
     try {
         const result = await db.query(query, [email, hashedPassword]);
         if (!result.rows.length) return false;
@@ -47,11 +39,7 @@ async function checkCredentials(email, password){
         }
     }
 
-router.post("/login", upload.none(), loginLimiter, async (req, res) => {
-    if (req.files && req.files.length > 0) {
-        return res.status(400).json({ error: 'Files are not allowed in this request' });
-      }
-
+router.post("/login", upload.none(), async (req, res) => {
     const {email, password} = req.body; // Destructure the request body
 
     if (!email || !password) {
@@ -62,24 +50,24 @@ router.post("/login", upload.none(), loginLimiter, async (req, res) => {
         return res.status(400).json({ error: "Invalid input types." });
         } // Check if the input types are correct
         
-    if (!validator.isEmail(req.body.email)) {
+    if (!emailValidator(email)) {
         return res.status(400).json({ error: "Invalid email format." });
         } // Validate the email format
     
 
     uid = await checkCredentials(email, password); // Check credentials
     if (!uid) {
-        return res.status(401).json({ error: "user might not exist or wrong password." });
+        return res.status(401).json({ error: "user might not exist or wrong password or got deleted." });
         } // Check if credentials are valid
     
-    const token = jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
+    const token = generateJWT(uid.token_id, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
     res.json({ message: "Login successful", token }); // Send the token back to the client
     console.log(`user: ${email} logged in.`); // Print the username to the console
     });
 
-router.post("/register", upload.none(), loginLimiter, async (req, res) => {
-    console.log(req.body); // Log the request body for debugging
-    const { username, password, email } = req.body; 
+router.post("/register", upload.none(), async (req, res) => {
+    const { password, email } = req.body ?? {}; 
+    let { username } = req.body ?? {};
 
     if (!username || !password || !email) {
         return res.status(400).json({ error: "Incomplete credentials." });
@@ -88,20 +76,21 @@ router.post("/register", upload.none(), loginLimiter, async (req, res) => {
         return res.status(400).json({ error: "Invalid input types." });
         } // Check if the input types are correct
 
-    if (!validator.isEmail(req.body.email)) {
+
+    if (!emailValidator(email)) {
         return res.status(400).json({ error: "Invalid email format." });
         } // Validate the email format
     
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(username)) {
         return res.status(400).json({ error: 'Invalid username format' });
         } // Validate the username format
 
+    username = sanitizeInput(username); // XSS prevention
 
     query = 'SELECT user_id FROM "userdata" WHERE email = $1';
 
     try { // check the username
-        result = await db.query(query, [email]);
+        const result = await db.query(query, [email]);
         if (result.rows.length) return res.status(400).json({ error: "email already registered." });
     } catch{
         console.error("Error executing query:", error.message);
@@ -110,27 +99,52 @@ router.post("/register", upload.none(), loginLimiter, async (req, res) => {
     
     hashedPassword = await hashPassword(username, password); // Hash the password
 
-    let profileId = null;
+    let profileId;
     try {
         const insertData = 'INSERT INTO "userdata" (password_hashed, email) VALUES ($1, $2) RETURNING user_id';
         const result1 = await db.query(insertData, [hashedPassword, email]);
         
         const userId = result1.rows[0].user_id;
         
-        const insertProf = 'INSERT INTO "user_profile" (id, username) VALUES ($1, $2) RETURNING id';
+        const insertProf = 'INSERT INTO "user_profile" (id, username) VALUES ($1, $2) RETURNING token_id';
         const result2 = await db.query(insertProf, [userId, username]);
         
-        const profileId = result2.rows[0].id;
+        profileId = result2.rows[0].token_id;
+        console.log("inner:" + profileId);
+
     } catch (error){ 
         console.error("Error executing query:", error.message);
         }; 
-    
-    const token = jwt.sign({ userId: profileId }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
+    //console.log(profileId);
+
+    const token = generateJWT(profileId, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: profileId }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
     res.json({ message: "Registered successful", token }); // Send the token back to the client
 
     console.log(`user: ${email} registered.`); // Print the username to the console
     
     }); // make sure username and password are provided
     
+router.delete("/delete", verifyToken, upload.none(), async (req, res) => {
+    const { password } = req.body ?? {};
+    if (!password || typeof password !== 'string' || password === "")
+        return res.status(400).json({ error: "Password are Required." });
 
+    const userId = req.user.id;
+    const searchquery = `SELECT password_hashed, email FROM userdata WHERE user_id = $1 AND deleted_at IS NULL`;
+    const result = await db.query(searchquery, [userId]);
+
+    if (!result.rows.length)
+        return res.status(400).json({ error: "User are nonexistant or got deleted." });
+
+    const udata = result.rows[0];
+    if (udata.password_hashed !== await hashPassword(udata.email, password))
+        return res.status(400).json({ error: "Wrong password provided." });
+
+    let ret;
+    try {
+        ret = await db.query(`UPDATE userdata SET deleted_at = NOW() WHERE user_id = $1 RETURNING deleted_at;`, [userId]);
+        return res.status(200).json({ message: `Successfully deleted at ${ret.deleted_at}` });
+
+        } catch (err) { return res.status(400).json({ error: "Database Error." }); }
+    });
 module.exports = router;

@@ -3,61 +3,62 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config(); // Load environment variables from .env
+const multer = require('multer');
 
 const app = express();
 
 // Middleware to enable cross-origin requests (CORS)
 app.use(cors());
 
-
-
-
 // Include route file
-const profileRoutes = require('./routes/profile');
-const logonRoutes = require('./routes/logon');
-const mediaRoutes = require('./routes/media');
+const profileRoutes = require('./routes/user/profile');
+const logonRoutes = require('./routes/user/logon');
+const followRoutes = require('./routes/user/follows');
+const savesRoutes = require('./routes/user/saves');
 
+
+const recipeRoutes = require('./routes/recipe/recipe');
+const rateRoutes = require('./routes/recipe/rating');
+
+const mediaRoutes = require('./routes/media');
+const postsRoutes = require('./routes/feed/posts')
+const commentRoutes = require('./routes/feed/comments');
+const reactRoutes = require('./routes/feed/reactions');
 // Mount the routes
-app.use('/profile', profileRoutes);
-app.use('/', logonRoutes);
+
+app.use('/user', profileRoutes);
+app.use('/user', logonRoutes);
+app.use('/user', followRoutes);
+app.use('/user', savesRoutes);
+
 app.use('/media', mediaRoutes);
+app.use('/posts', postsRoutes);
+app.use('/comments', commentRoutes);
+app.use('/react', reactRoutes);
+
+app.use('/recipe', recipeRoutes);
+app.use('/recipe', rateRoutes);
+
+
 // Start the server
 app.listen(process.env.API_PORT, () => {
   console.log(`Server running on port ${process.env.API_PORT}`);
 });
 
-
-
-/*
-const express = require('express');
-const multer = require('multer');
-const app = express();
-
-// Use multer for parsing multipart/form-data
-const upload = multer(); // Will not save files, only parse form-data
-
-app.use(express.json()); // For handling application/json
-app.use(express.urlencoded({ extended: true })); // For handling x-www-form-urlencoded
-
-// Register route
-app.post('/register', upload.none(), (req, res) => {
-    console.log(req.body); // Log the body to see if it's being received
-
-    const { username, password, email } = req.body; 
-
-    if (!username || !password || !email) {
-        return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    // Logic for registration
-    res.json({
-        message: "Registration successful",
-        data: { username, email }
-    });
+// Catch-all for unknown routes
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Routes not found' });
 });
 
-app.listen(3000, () => {
-    console.log(`Server running on port ${3000}`);
-  });
+/*
+// Global error handler
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: err.message });
+    } else if (err) {
+        return res.status(500).json({ error: 'Something went wrong with the file upload.' });
+    }
+    next();
+});
 
-  */
+*/
