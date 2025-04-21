@@ -6,6 +6,7 @@
     <title>Settings & Privacy</title>
     <link rel="stylesheet" href="/src/styles/settings.css">
     <link rel="stylesheet" href="/src/styles/header.css">
+    <link rel="stylesheet" href="/src/styles/notification.css">
     <style>
         /* Smooth fade-in effect */
         .settings-container {
@@ -39,7 +40,7 @@
             <a href="/src/pages/about.html" class="header-button">About Us</a> <!-- About link -->
             <a href="/src/pages/home/html" class="header-button">Feeds</a>
             <a href="#" class="header-button">Reels & Videos</a>
-            <a href="#" class="header-button">Notifications</a>
+            <a href="#" class="header-button" onclick="toggleNotifications(event)">Notifications</a>
         </nav>
         
         <div class="header-profile-dropdown">
@@ -54,6 +55,36 @@
             </div>
         </div>
       </header>
+      
+      <div id="notificationPanel" class="notification-panel hidden">
+        <div class="notification-header">
+          <strong>Notifications</strong>
+          <span class="tabs">
+            <button class="tab active" onclick="showAll()">All</button>
+            <button class="tab" onclick="showUnread()">Unread</button>
+          </span>
+          <span onclick="toggleNotifications()" class="close-btn">✖</span>
+        </div>
+      
+        <div class="notification-section">
+          <div class="notification-subheader">
+            <span>New</span>
+            <a href="/notifications">See all</a>
+          </div>
+          
+          <ul class="notification-list" id="notificationList">
+            <!-- Notifications will be injected here via JavaScript -->
+          </ul>
+      
+          <div class="empty-state" id="emptyState" style="display: none;">
+            <p>No notifications at the moment.</p>
+          </div>
+        </div>
+      
+        <div class="see-previous">
+          <button onclick="seePrevious()">See previous notifications</button>
+        </div>
+      </div>
     
     <div class="settings-container">
         <div class="setting-feed">
@@ -182,6 +213,7 @@
             }, 300); // Delay navigation to match the transition
         }
     </script>
+    <script src="/src/scripts/notification.js"></script>
 
 </body>
 </html>

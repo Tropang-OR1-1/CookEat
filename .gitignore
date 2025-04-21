@@ -11,7 +11,11 @@ dist/
 .cache/
 *.bak
 
+backend/uploads/
+backend/uploads/*
+
 # Environment and secrets
+./.env
 .env       
 .env.local
 
