@@ -1,0 +1,91 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table follows {
+  following_user_id integer
+  followed_user_id integer
+}
+
+Table users { 
+  id integer [primary key]
+  picture varchar(50) // link 
+  biography varchar(100)
+  username varchar(30)
+  sex enum ('M', 'F')
+  nationality varchar(30)
+  status enum (private, public)
+  // private only shows shared to not followed
+  created_at timestamp
+}
+
+Table posts { // posts
+  
+  id integer [primary key]
+  ref_id integer // 0 if not shared
+  title varchar [not null]
+  body text [note: 'Content of the post']
+  reference_link varchar(50) // links
+  user_id integer [not null]
+  status varchar
+  created_at timestamp
+}
+
+Table comments { // posts comment
+  id integer [primary key]
+  ref_id integer
+  post_id integer [not null]
+  user_id integer [not null]
+  comments varchar(200)
+  created_at timestamp 
+}
+
+Table post_reactions {
+  user_id integer
+  post_id integer
+  vote enum ('UP', 'DOWN')// not final 
+}
+
+Table comment_reactions {
+  user_id integer
+  comment_id integer
+  vote enum ('UP', 'DOWN')// not final 
+}
+
+Table categoryTags{
+  post_id integer
+  category varchar(30)
+  indexes { (post_id, category) [unique] } 
+  }
+
+Table usersTags{
+  user_id integer
+  category varchar(30)
+  }
+
+Table SessionManagement{
+  session byte(64)
+  user_id integer
+}
+
+Ref: posts.user_id > users.id // many-to-one
+
+Ref: posts.ref_id - posts.id 
+
+Ref: categoryTags.post_id < posts.id
+Ref: categoryTags.category > usersTags.category
+
+Ref: users.id < follows.following_user_id
+Ref: users.nationality < categoryTags.category
+Ref: users.id < follows.followed_user_id
+
+Ref: users.id < usersTags.user_id
+Ref: post_reactions.user_id > users.id
+
+Ref: post_reactions.post_id > posts.id
+
+Ref: comments.ref_id - comments.id
+Ref: comments.post_id > posts.id 
+Ref: comments.user_id > users.id
+
+Ref: comment_reactions.user_id > users.id
+Ref: comment_reactions.comment_id < comments.id
