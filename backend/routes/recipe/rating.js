@@ -76,7 +76,7 @@ router.post('/rate/:recipeId', verifyToken, upload.Media.single("media"), async 
 });
 
 
-router.put('/rate/:recipeId', verifyToken, upload.Media.single("media"), async (req, res) => {
+router.put('/rate/:public_recipe_id', verifyToken, upload.Media.single("media"), async (req, res) => {
     const { recipeId: public_recipe_id } = req.params;
     const { rating, content, deletemedia } = req.body ?? {};
     const userId = req.user.id;
@@ -84,6 +84,9 @@ router.put('/rate/:recipeId', verifyToken, upload.Media.single("media"), async (
     // Validate recipeId (UUID format)
     if (!isValidUUID(public_recipe_id))
         return res.status(400).json({ error: 'Invalid recipe ID format.' });
+
+    if (!rating && !content && !deletemedia && !req.file)
+        return res.status(400).json({ error: 'No Attributes provided.' });
 
     // Validate rating (must be integer 1-5 if provided)
     let parsedRating = null;
@@ -113,11 +116,11 @@ router.put('/rate/:recipeId', verifyToken, upload.Media.single("media"), async (
         return res.status(404).json({ error: 'Rating not found for this user and recipe.' });
 
     let mediaFilename = existingRating.rows[0].fname; // Retain existing media if no new media is uploaded
-    const existingFname = existingRating.rows[0].fname;
-    if (deletemedia === 'True' && existingFname !== null && !req.file){ // only when delete media and no file given
+
+    if (deletemedia === 'True' && mediaFilename !== null && !req.file){ // only when delete media and no file given
         const delquery = 'UPDATE recipe_rating SET fname = null WHERE recipe_id = $1 AND user_id = $2';
         await db.query(delquery, [recipe_id, userId]);
-        deleteFile(process.env.RECIPE_RATING_MEDIA_DIR, existingRating.rows[0].fname);
+        deleteFile(process.env.RECIPE_RATING_MEDIA_DIR, mediaFilename);
         }
 
     if (req.file) {

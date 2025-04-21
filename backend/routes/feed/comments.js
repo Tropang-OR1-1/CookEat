@@ -185,8 +185,66 @@ router.delete('/:comment_id', verifyToken, upload.none(), async (req, res) => {
     }
 });
 
+router.get('/:post_id', async (req, res) => {
+    const { post_id } = req.params;
+    
+    // Query to get the public_id of the post (assuming queryPPID fetches post details by post_id)
+    let pid = await queryPPID(post_id);
+    if (!pid.success) return res.status(400).json({ error: pid.error });
+    else pid = pid.id;
 
- 
+    // Get page from query params, default to 1 if not provided
+    const page = parseInt(req.query.page) || 1;
+
+    // Get the page limit from environment variables, default to 10 if not provided
+    const limit = parseInt(process.env.COMMENTS_PAGE_LIMIT) || 10;
+
+    // Calculate the offset based on the page number
+    const offset = (page - 1) * limit;
+
+    const client = await db.connect();
+    try {
+        // Query to get comments for the given post_id with pagination
+        const result = await client.query(
+            `SELECT 
+                comments.public_id AS comment_id,
+                comments.comments AS comment_text,
+                comments.created_at AS comment_created_at,
+                user_profile.username AS user_name,
+                user_profile.picture AS user_picture,
+                user_profile.public_id AS user_public_id
+            FROM comments
+            JOIN user_profile ON comments.user_id = user_profile.id
+            WHERE comments.post_id = $1
+            ORDER BY comments.created_at DESC
+            LIMIT $2 OFFSET $3`,
+            [pid, limit, offset]
+        );
+
+        // Query to get the total count of comments for pagination info
+        const countResult = await client.query(
+            'SELECT COUNT(*) FROM comments WHERE post_id = $1',
+            [pid]
+        );
+        const totalRecords = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // Return the paginated data
+        return res.status(200).json({
+            data: result.rows,
+            page,
+            limit,
+            totalPages,
+            totalRecords
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error retrieving comments for the post.' });
+    } finally {
+        client.release();
+    }
+});
+
 
 const AllowedToViewPost = async (user_id, post_id) => {
   try {

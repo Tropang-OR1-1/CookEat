@@ -1,19 +1,23 @@
 const express = require('express');
 const db = require("../../config/db");
 
+const tagsHandler = require('../../config/tags');
+
 const upload = require('../../config/multer');  // Import multer configuration
 const {getUserToken, generateJWT, verifyToken} = require('../../config/jwt'); // Import JWT verification middleware
-const { stringArrayParser, tagsValidator, usernameRegex,
+const { validateArrayInput, usernameRegex,
       allowedSex, allowedNationalities, allowedStatus } = require('../../config/defines');
 require('dotenv').config({ path: '../.env' });
+
+const { deleteFile } = require('../../config/uploads');
 
 const isvalidbiographyLength = (biography) => { return biography.length <= process.env.MAX_BIOGRAPHY_LENGTH; }
 
 const router = express.Router();
 
 
-
-router.post('/profile', verifyToken,  upload.Profile.single('profile_img'), async (req, res) => {
+// verifyToken already making sure that the token do exist in the user_profile. no need to double check
+router.post('/profile', verifyToken,  upload.Profile.single('profile'), async (req, res) => {
     const { username, biography, nationality, sex, status, birthdate } = req.body ?? {};  // Destructure the request body
     let { tags } = req.body ?? {};
 
@@ -26,7 +30,7 @@ router.post('/profile', verifyToken,  upload.Profile.single('profile_img'), asyn
         nationality !== undefined ||
         sex !== undefined ||
         status !== undefined ||
-        birthdate !== undefined
+        birthdate !== undefined ||
         req.file !== undefined; // Check if any of the fields are present
  
 
@@ -51,25 +55,21 @@ router.post('/profile', verifyToken,  upload.Profile.single('profile_img'), asyn
     
     if (typeof biography === "string" && !isvalidbiographyLength(biography))
       return res.status(400).json({ error: `biography is too long. max ${process.env.MAX_BIOGRAPHY_LENGTH}` });
+
+
     if (tags !== undefined){
-      tags = stringArrayParser(tags);
-      if (tags === undefined) return res.status(400).json({ error: "tags must be in list format." });
+      let maxItem = parseInt(process.env.USER_TAGS_MAX_ITEM) || 20;
+      let maxCharLength = parseInt(process.env.USER_TAGS_MAX_CHAR_LENGTH) || 20;
+      const processed_tags = validateArrayInput(tags, {maxLength: maxCharLength, maxItems: maxItem});
+      if (!processed_tags.success)
+          return res.status(400).json({ error: processed_tags.error });
+      else tags  = processed_tags.data;
       }
 
-    if (tags !== undefined && !tagsValidator(tags))
-        { return res.status(400).json({ error: "Tags must be an array of strings." }); } // check tags format
-
-    if (tags !== undefined){ // perform tags linking
-        console.log(tags);
-        linkTagsToUser(tags, userId);
-        }
-    else if (!hasAnyUpdate) {
+    else if (!hasAnyUpdate && tags === undefined) {
         return res.status(400).json({ error: 'No update fields provided' });
         }  
     
-    if (!hasAnyUpdate) // only tags updated.
-      return res.status(200).json({ message: `User(${username}) updated successfully.` });
-
     const updates = [];
     const values = [];
     let i = 1;
@@ -98,28 +98,47 @@ router.post('/profile', verifyToken,  upload.Profile.single('profile_img'), asyn
         updates.push(`birthday = $${i++}`);
         values.push(birthdate);
       }
+
+    let oldFilename = null;
     if (req.file !== undefined) {
         updates.push(`picture = $${i++}`);
         values.push(req.file.filename); // or req.file.path
+        
+        const { rows } = await db.query(`SELECT picture FROM user_profile WHERE id = $1;`, [userId]);
+        oldFilename = rows[0].picture;
+        console.log(oldFilename);
       }
-    
 
-    
     const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING *;`;
     values.push(userId); // Add the ID as the last value
-
+    
+    const client = await db.connect();
     try {
-        const result = await db.query(query, values);
-        if (result.rows.length === 0) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-        return res.status(200).json({
-          message: `User(${username}) updated successfully.`
-        });
+        await client.query('BEGIN;');
+        if (values.length > 1){
+          const result = await client.query(query, values);
+          if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found.' });
+            }
+          }
+
+        if (tags !== undefined){ // perform tags linking
+            await tagsHandler.updateTagsToEntity(client, userId, tags, 'user');
+            }
+        
+        if (oldFilename !== null){
+          console.log("deleting file: " + oldFilename);
+          deleteFile(process.env.PROFILE_DIR, oldFilename);
+          }
+        await client.query('COMMIT;');
+        return res.status(200).json({message: `Userprofile updated successfully.`});
       } catch (error) {
         console.error(error);
+        await client.query('ROLLBACK;');
         res.status(500).json({ error: 'Database error while updating user' });
-      }
+        } finally {
+          client.release();
+        }
 });
 
 router.get('/:username', async (req, res)  => {
