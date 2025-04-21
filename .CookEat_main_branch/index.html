@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookEat!</title>
+    <link rel="stylesheet" href="/src/styles/index.css">
+    <link rel="stylesheet" href="/src/styles/login.css">
+    <link rel="stylesheet" href="/src/styles/header.css">
+</head>
+<body>
+    <header class="header-navbar">
+        <div class="header-logo-container restricted-item">
+            <a href="/src/pages/home.html">
+                <img src="/assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+            </a>
+        </div>
+        
+        <div class="header-search-container">
+            <input type="text" placeholder="Search for recipes..." class="header-search-bar">
+        </div>
+
+        <nav class="header-nav-links">
+            <a href="#" class="header-button" onclick="openModal()">Login</a>
+        </nav>
+        
+        <div class="header-profile-dropdown">
+            <img src="/assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
+            <div class="header-dropdown-content">
+                <a href="/src/pages/profile.html" class="restricted-item">Show Profile</a>
+                <a href="#" class="restricted-item">Help and Support</a>
+                <a href="#" class="restricted-item">Incentives</a>
+                <a href="/src/pages/settings.html" class="restricted-item">Settings</a>
+                <a href="/src/pages/about.html" class="restricted-item">About us</a>
+                <a href="#" class="">Log Out</a>
+            </div>
+        </div>
+    </header>
+    
+    <main class="content">
+        <aside class="sidebar">
+            <h3>Categories</h3>
+            <ul>
+                <li><a href="#">Breakfast</a></li>
+                <li><a href="#">Lunch</a></li>
+                <li><a href="#">Dinner</a></li>
+                <li><a href="#">Desserts</a></li>
+            </ul>
+        </aside>
+
+        <div class="post-container">
+            <div class="post">
+                <section class="video-feed">
+                    <h2>Video Feed</h2>
+                    <div id="videoContainer"></div>
+                </section>
+
+                <div class="post-buttons">
+                    <button class="button">Like</button>
+                    <button class="button">Comment</button>
+                    <button class="button">Send Star</button>
+                    <button class="button">Share</button>
+
+                    <div class="dropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown(this)">⋮</button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item">Edit</button>
+                            <button class="dropdown-item">Delete</button>
+                            <button class="dropdown-item">Save</button>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+    
+    <script src="/src/scripts/login.js"></script>
+</body>
+</html>
