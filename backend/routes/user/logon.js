@@ -1,5 +1,6 @@
 require("dotenv").config({ path: "../.env" });
 const express = require("express"); // Initialize Express app
+const bcrypt = require('bcryptjs'); // Use 'bcrypt' if you installed bcrypt, 'bcryptjs' otherwise
 
 const router = express.Router();
 router.use(express.urlencoded({ extended: true }));  // To handle form-data bodies
@@ -20,22 +21,36 @@ router.use(cors()); // Enable CORS for all routes
 
   
 
-async function hashPassword(username, password){
-    salted = username + password;
-    return password;//await bcrypt.hash(salted, 10); // Hash the password with bcrypt
+async function hashPassword(email, password){
+    const salted = email + password;
+    return await bcrypt.hash(salted, 10); // Hash the password with bcrypt
+    }
+
+async function validatePassword(email, password, hashedPassword){
+    const salted = email + password;
+    return await bcrypt.compare(salted, hashedPassword);
     }
 
 async function checkCredentials(email, password){
     hashedPassword = await hashPassword(email, password); // Hash the password
-    const query = 'SELECT user_id FROM "userdata" WHERE email = $1 AND password_hashed = $2 AND deleted_at IS NULL';
+    const query = `
+        SELECT user_profile.token_id, userdata.password_hashed
+        FROM userdata
+        JOIN user_profile ON user_profile.id = userdata.user_id
+        WHERE userdata.email = $1 AND userdata.deleted_at IS NULL
+        `;
     try {
-        const result = await db.query(query, [email, hashedPassword]);
-        if (!result.rows.length) return false;
-        return result.rows[0]; // Returns the id if credentials are valid        
+        const result = await db.query(query, [email]);
+        if (!result.rows.length) return {success: false, err: "User not found."}; // User not found or deleted
+
+        const isMatch = await validatePassword(email, password, result.rows[0].password_hashed);
+        if (!isMatch) return {success: false, err: "Password incorrect."}; // Passwords do not match
+
+        return {success: true, token_id: result.rows[0].token_id}; // Returns the id if credentials are valid        
         }
     catch (error) {
         console.error("Error executing query:", error.message);
-        return res.status(500).json({ error: "Database query failed" });
+        return {success: false, err: "Internal query failed."};
         }
     }
 
@@ -54,12 +69,13 @@ router.post("/login", upload.none(), async (req, res) => {
         return res.status(400).json({ error: "Invalid email format." });
         } // Validate the email format
     
-
+    console.log(email, password);
     uid = await checkCredentials(email, password); // Check credentials
-    if (!uid) {
+    if (!uid.success) {
         return res.status(401).json({ error: "user might not exist or wrong password or got deleted." });
         } // Check if credentials are valid
-    
+    console.log(uid);
+
     const token = generateJWT(uid.token_id, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
     res.json({ message: "Login successful", token }); // Send the token back to the client
     console.log(`user: ${email} logged in.`); // Print the username to the console
@@ -97,7 +113,7 @@ router.post("/register", upload.none(), async (req, res) => {
         return res.status(500).json({ error: "Database query failed" });
         }
     
-    hashedPassword = await hashPassword(username, password); // Hash the password
+    hashedPassword = await hashPassword(email, password); // Hash the password
 
     let profileId;
     try {

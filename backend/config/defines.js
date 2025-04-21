@@ -84,7 +84,7 @@ const stringArrayParser = (tags) => {
 };
 
 
-const validateArrayInput = (input, { maxLength = 500, minItems = 1, itemType = 'string' } = {}) => {
+const validateArrayInput = (input, { maxLength = 50, minItems = 1, maxItems = 20, itemType = 'string' } = {}) => {
   // Use stringArrayParser to handle cases where input might be a stringified array
   const parsedInput = stringArrayParser(input);
 
@@ -96,6 +96,9 @@ const validateArrayInput = (input, { maxLength = 500, minItems = 1, itemType = '
   // Check if array is not empty (based on minItems)
   if (parsedInput.length < minItems) {
       return { success: false, error: `Array should contain at least ${minItems} item(s) or improper parsing format.` };
+    } else 
+  if (parsedInput.length > maxItems) {
+      return { success: false, error: `Array should contain no more than ${maxItems} item(s).` };
   }
 
   // Sanitize input by applying sanitizedInput to each item
@@ -215,6 +218,9 @@ const hasUploadedFiles = (files) => {
     }
   };
 
+const MAX_TAG_NAME_LENGTH = parseInt(process.env.MAX_TAGS_CATEGORY_NAME_LENGTH, 10) || 50;
+
+
 const isAlphanumeric = (str) => typeof str === 'undefined' || typeof str === 'string' && /^[A-Za-z0-9_]+$/.test(str);
 
 
@@ -241,5 +247,6 @@ module.exports = {
   queryStatus,
   queryPPID,
   queryCPID,
-  queryRPID
+  queryRPID,
+
 };

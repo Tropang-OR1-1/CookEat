@@ -91,7 +91,9 @@ router.post('/', verifyToken,
     
     let processed_category = undefined;
     if (category !== undefined){
-        processed_category = validateArrayInput(category);
+        let maxItem = parseInt(process.env.CATEGORY_MAX_ITEM) || 20;
+        let maxCharLength = parseInt(process.env.CATEGORY_MAX_CHAR_LENGTH) || 50;
+        processed_category = validateArrayInput(category, {maxLength: maxCharLength, maxItems: maxItem});
         if (!processed_category.success)
             return res.status(400).json({ error: processed_category.error });
         }
@@ -172,16 +174,16 @@ router.post('/', verifyToken,
     });
 
 
-router.put('/:public_recipe_id', verifyToken, 
+router.put('/:recipeId', verifyToken, 
     upload.combinedRecipeUpload.fields([
     { name: 'thumbnail', maxCount: 1 },
     { name: 'media', maxCount: parseInt(process.env.MAX_RECIPE_MEDIA || '10') }
     ]), async (req, res) => {
 
     let { title, description, ingredients, steps, category, 
-        prep_time, cook_time, servings, difficulty, deletemedia } = req.body ?? {};
+        prep_time, cook_time, servings, difficulty, deleteMedia, deleteThumbnail } = req.body ?? {};
 
-    const public_recipe_id = req.params.public_recipe_id;
+    const public_recipe_id = req.params.recipeId;
     let thumbnail = req.files['thumbnail'];
     const media = req.files['media'];
 
@@ -190,7 +192,8 @@ router.put('/:public_recipe_id', verifyToken,
             steps !== undefined || prep_time !== undefined ||
             cook_time !== undefined || servings !== undefined ||
             difficulty !== undefined || req.file !== undefined ||
-            deletemedia !== undefined || hasUploadedMedia(thumbnail);
+            deleteMedia !== undefined || deleteThumbnail !== undefined ||
+            hasUploadedMedia(thumbnail);
 
     if (!Hasupdate &&
         ingredients === undefined &&
@@ -214,12 +217,10 @@ router.put('/:public_recipe_id', verifyToken,
     if ((title !== undefined && typeof title !== 'string'))
         return res.status(400).json({error: "Title must be a valid string."});
     
-    
-    if (!isvalidtitleLength(title))
+    if (typeof title === 'string' && !isvalidtitleLength(title))
         return res.status(400).json({error: "title is too long."});
     if (title === "")
         return res.status(400).json({error: "Title cannot be empty."});
-
     else processed_title = sanitizeInput(title); 
 
     let processed_description = undefined;
@@ -227,11 +228,11 @@ router.put('/:public_recipe_id', verifyToken,
         return res.status(400).json({ error: "Description must be a valid string." });
     else processed_description = sanitizeInput(description);
 
-
-
     let processed_category = undefined;
     if (category !== undefined){
-        processed_category = validateArrayInput(category);
+        let maxItem = parseInt(process.env.CATEGORY_MAX_ITEM) || 20;
+        let maxCharLength = parseInt(process.env.CATEGORY_MAX_CHAR_LENGTH) || 50;
+        processed_category = validateArrayInput(category, {maxLength: maxCharLength, maxItems: maxItem});
         if (!processed_category.success)
             return res.status(400).json({ error: processed_category.error });
         }
@@ -279,10 +280,12 @@ router.put('/:public_recipe_id', verifyToken,
         else processed_difficulty = difficulty;
         }
     
-    if (deletemedia !== undefined && !allowedDeleteMedia.includes(deletemedia))
-        { return res.status(400).json({error: `Invalid Deletemedia(image, video, all): ${deletemedia}`}); }
+    if (deleteMedia !== undefined && !allowedDeleteMedia.includes(deleteMedia))
+        { return res.status(400).json({error: `Invalid Deletemedia(image, video, all): ${deleteMedia}`}); }
 
-    
+    if (deleteThumbnail !== undefined && deleteThumbnail !== "True")
+        deleteThumbnail = undefined;
+
     const client = await db.connect();
     try {
         await client.query('BEGIN;');
@@ -292,8 +295,8 @@ router.put('/:public_recipe_id', verifyToken,
         if (processed_ingredient !== undefined)
             await updateIngredientsTorecipe(client, recipe_id, processed_ingredient.data);
 
-        if (deletemedia !== undefined)
-            await deleteRecipeMedia(client, recipe_id, deletemedia);
+        if (deleteMedia !== undefined)
+            await deleteRecipeMedia(client, recipe_id, deleteMedia);
 
         if (hasUploadedMedia(media)){ // manage files
             const result = await updateRecipeMedia(db, media, recipe_id);
@@ -311,7 +314,8 @@ router.put('/:public_recipe_id', verifyToken,
                 cook_time: processed_cooktime,
                 servings: processed_servings,
                 difficulty: processed_difficulty,
-                file: thumbnail
+                file: thumbnail,
+                deleteThumbnail
                 });
             
             if (result.success && result.oldThumbnail) {
@@ -406,9 +410,11 @@ const insertIngredientsToRecipe = async (client, recipeId, ingredients) => {
 };
 
 const insertCategoriesToRecipe = async (client, recipeId, categoryNames) => {
-    if (!Array.isArray(categoryNames) || categoryNames.length === 0) {
-        throw new Error("categoryNames must be a non-empty array.");
-    }
+    if (!Array.isArray(categoryNames)) {
+        throw new Error("categoryNames must be an array.");
+        }
+    if (!categoryNames.length) return;
+    
     const valuesClause = [];
     const queryValues = [];
     for (let i = 0; i < categoryNames.length; i++) {
@@ -489,13 +495,23 @@ const validateSteps = (steps) => {
     return { success: true, data: sanitizedSteps };
 };
 
+const MAX_INGREDIENTS = parseInt(process.env.INGRIDIENTS_MAX_ITEM, 10) || 10; // fallback if not set
+const MAX_INGREDIENTS_LENGTH = parseInt(process.env.INGRIDIENTS_MAX_CHAR_LENGTH, 10) || 30;
 
-const validateIngredients = (ingredients, minIngredients = 1, maxIngredients = 50, minUnitLength = 1, maxUnitLength = 5) => {
+const validateIngredients = (
+    ingredients,
+    minIngredients = 1,
+    maxIngredients = MAX_INGREDIENTS,
+    minUnitLength = 1,
+    maxUnitLength = 5,
+    maxNameLength = MAX_INGREDIENTS_LENGTH
+) => {
     // First, parse ingredients if they're passed as a stringified array
     const parsedIngredients = stringArrayParser(ingredients);
 
-    if (!Array.isArray(parsedIngredients))
+    if (!Array.isArray(parsedIngredients)) {
         return { success: false, error: 'Failed to parse ingredient data.' };
+    }
     if (parsedIngredients.length === 0) {
         return { success: false, error: 'Ingredients should be a non-empty array.' };
     }
@@ -505,14 +521,31 @@ const validateIngredients = (ingredients, minIngredients = 1, maxIngredients = 5
     }
 
     try {
+        let errors = [];
         // Normalize and sanitize ingredients
-        const normalizedIngredients = parsedIngredients.map(item => {
+        const normalizedIngredients = parsedIngredients.map((item, index) => {
             const name = sanitizeInput(item.name);
             const unit = sanitizeInput(item.unit);
             const quantity = typeof item.quantity === 'string' ? parseFloat(item.quantity) : item.quantity;
 
+            // Validate name length
+            if (name.length > maxNameLength) {
+                errors.push({ index, error: `Ingredient name "${name}" exceeds the maximum length of ${maxNameLength} characters.` });
+            }
+
+            // Validate quantity (should be a valid number)
+            if (isNaN(quantity) || !isFinite(quantity) || quantity < 0) {
+                errors.push({ index, error: `Invalid quantity for ingredient "${name}". Quantity should be a positive number.` });
+            }
+
             return { name, quantity, unit };
         });
+
+        // If there are any errors, return them
+        if (errors.length > 0) {
+            const errorMessages = errors.map(err => `Ingredient at index ${err.index}: ${err.error}`).join(', ');
+            return { success: false, error: `Validation errors: ${errorMessages}` };
+        }
 
         // Validate each ingredient
         const isValid = normalizedIngredients.every(item =>
@@ -551,6 +584,7 @@ const validateIngredients = (ingredients, minIngredients = 1, maxIngredients = 5
 };
 
 
+
 const updateRecipe = async (recipeId, {
     client,
     title,
@@ -560,7 +594,8 @@ const updateRecipe = async (recipeId, {
     cook_time,
     servings,
     difficulty,
-    file // this is req.file
+    file,
+    deleteThumbnail // this is req.file
 }) => {
 
     try {
@@ -569,7 +604,7 @@ const updateRecipe = async (recipeId, {
         let oldThumbnail = null;
 
         // Fetch current thumbnail if new one is provided
-        if (file !== undefined) {
+        if (file !== undefined || deleteThumbnail === "True" ) {
             const thumbRes = await client.query(
                 `SELECT thumbnail FROM recipe WHERE id = $1`,
                 [recipeId]
@@ -615,14 +650,17 @@ const updateRecipe = async (recipeId, {
         if (file !== undefined) {
             fields.push(`thumbnail = $${index++}`);
             values.push(file.filename); // or file.path if you store full path
-        }
+            }
+        else if (deleteThumbnail === "True"){
+            fields.push(`thumbnail = $${index++}`);
+            values.push(null); // or file.path if you store full path    
+            }   
 
         // Always update updated_at
         fields.push(`updated_at = NOW()`);
 
         if (fields.length === 0) {
             await client.query('ROLLBACK');
-            client.release();
             return { success: false, message: "No valid fields to update." };
         }
 
@@ -635,12 +673,10 @@ const updateRecipe = async (recipeId, {
 
         await client.query(query, values);
         await client.query('COMMIT');
-        client.release();
         return { success: true, oldThumbnail };
 
     } catch (error) {
         await client.query('ROLLBACK');
-        client.release();
         console.error('Error updating recipe:', error);
         return { success: false, error: 'Database error while updating recipe.' };
     }
