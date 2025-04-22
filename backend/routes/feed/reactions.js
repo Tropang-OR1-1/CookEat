@@ -7,65 +7,48 @@ const { verifyToken } = require('../../config/jwt'); // Import JWT verification 
 
 const router = express.Router();
 
-router.post('/post',verifyToken, upload.none(), async (req, res) => {
-    const { reaction, post_id } = req.body ?? {};
+const validateReactionData = async (reaction, id, type) => {
+  if (!reaction || !id) return { error: `${type}_id and reaction are required.` };
+  if (typeof reaction !== 'string' || typeof id !== 'string') return { error: "Data values must be string." };
+  if (!isValidUUID(id)) return { error: `${type}_id must be in UUID format.` };
+  if (!allowedReactions.includes(reaction)) return { error: `Must be a valid reaction for ${type}.` };
+  return null;
+};
 
-    if (!reaction || !post_id)
-        return res.status(400).json({ error: "reaction and post_id is required." });
+const handleReaction = async (req, res, type, queryFunction, table) => {
+  const { reaction, [type === 'post' ? 'post_id' : 'comment_id']: id } = req.body ?? {};
+  
+  const validationError = await validateReactionData(reaction, id, type);
+  if (validationError) return res.status(400).json(validationError);
 
-    if (typeof reaction !== 'string' || typeof post_id !== 'string')
-        return res.status(400).json({ error: "data values must be string." });
+  let pid = await queryFunction(id);
+  if (!pid.success) return res.status(400).json({ error: pid.error });
+  pid = pid.id;
 
-    if (!isValidUUID(post_id))
-        return res.status(400).json({ error: "post_id must be in uuid format." });
+  const userId = req.user.id;
+  const query = `INSERT INTO ${table}_reaction (user_id, ${type}_id, vote)
+                 VALUES ($1, $2, $3)
+                 ON CONFLICT (user_id, ${type}_id)
+                 DO UPDATE SET vote = EXCLUDED.vote;`;
 
-    if (!allowedReactions.includes(reaction))
-        return res.status(400).json({ error: "must be a valid reaction." });
+  try {
+    const result = await db.query(query, [userId, pid, reaction]);
+    if (result.rowCount === 0) return res.status(500).json({ error: "Something went wrong while saving the reaction." });
+    return res.status(200).send(`${type.charAt(0).toUpperCase() + type.slice(1)} Reaction (${id}): ${reaction}.`);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 
-    let pid = await queryPPID(post_id);
-    if (!pid.success) return res.status(400).json({ error: pid.error });
-    pid = pid.id;
+router.post('/post', verifyToken, async (req, res) => {
+  handleReaction(req, res, 'post', queryPPID, 'post');
+});
 
-    const userId =  req.user.id; // Get the user ID from the token
-    const query = `INSERT INTO post_reaction (user_id, post_id, vote)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (user_id, post_id)
-            DO UPDATE SET vote = EXCLUDED.vote;`;
-    try { const result = await db.query(query, [userId, pid, reaction]); }
-    catch (error) { return res.status(400).json({ error }) }
-
-    return res.status(200).send(`Reaction(${post_id}): ${reaction}.`);
-    });
-
-router.post('/comment',verifyToken, async (req, res) => {
-    const { reaction, comment_id } = req.body ?? {};
-
-    if (!reaction || !comment_id)
-        return res.status(400).json({ error: "reaction and comment_id is required." });
-
-    if (typeof reaction !== 'string' || typeof comment_id !== 'string')
-        return res.status(400).json({ error: "data values must be string." });
-
-    if (!isValidUUID(comment_id))
-        return res.status(400).json({ error: "comment_id must be in uuid format." });
-
-    if (!allowedReactions.includes(reaction))
-        return res.status(400).json({ error: "must be a valid reaction." });
-
-    let pid = await queryCPID(comment_id);
-    if (!pid.success) return res.status(400).json({ error: pid.error });
-    pid = pid.id;
-
-    const userId =  req.user.id; // Get the user ID from the token
-    const query = `INSERT INTO comment_reaction (user_id, comment_id, vote)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (user_id, comment_id)
-            DO UPDATE SET vote = EXCLUDED.vote;`;
-    try { const result = await db.query(query, [userId, pid, reaction]); }
-    catch (error) { return res.status(400).json({ error }) }
+router.post('/comment', verifyToken, async (req, res) => {
+  handleReaction(req, res, 'comment', queryCPID, 'comment');
+});
 
 
-    return res.status(200).send(`Reaction(${comment_id}): ${reaction}.`);
-    });
+
 module.exports = router;
 

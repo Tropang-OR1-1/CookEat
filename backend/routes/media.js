@@ -4,38 +4,56 @@ const {verifyMedia} = require('../config/jwt'); // Import JWT verification middl
 const path = require('path');
 const express = require('express');
 const router = express.Router();
-
+const fs = require('fs').promises;
 // Secret key for signing JWT
-const JWT_SECRET = process.env.JWT_SECRET;
+
+const { isValidUUID, allowedMediaTypes, allowedImageTypes } = require('../config/defines');
 
 // Middleware for token verification and image serving
-router.get('/image/:img', (req, res) => {
-    const token = req.params.img || req.body.img;
+router.get('/:type/:fname', async (req, res) => {
+    const { type, fname } = req.params;
+    const AllowedType = ["profile", "posts", "recipe", "rating", "thumbnail"];
 
-    if (!token) {
-        return res.status(400).json({ error: 'No token provided' });
+    const [uuid, extension] = fname.split(/\.(?=[^.]+$)/); // split on last dot only
+    const ext = `.${extension}`;
+
+
+    if (!AllowedType.includes(type))
+        return res.status(400).json({ error: 'Route not found.' });
+
+    if (!isValidUUID(uuid))
+        return res.status(400).json({ error: 'Invalid filename.' });
+
+    if (!allowedMediaTypes.includes(ext) && !allowedImageTypes.includes(ext)){
+        console.log(ext);
+        return res.status(404).json({ error: 'Invalid file extension.' });
         }
-    resulttoken = verifyMedia(token); // Verify the session token
-    if (resulttoken === null) { // Check if the token is valid
-        return res.status(401).json("Token invalid or expired.");
-        }
 
-
-    console.log({ message: resulttoken.payload });
-
-    const imageName = resulttoken.payload; // e.g. "profile123.jpg"
-    if (!imageName || typeof imageName !== 'string') {
-        return res.status(400).json({ error: 'Broken filename.' });
+    let FileDir;
+    if (type === "posts" || type === "recipe") {
+        FileDir = allowedImageTypes.includes(ext)
+            ? (type === "posts" ? process.env.POST_IMAGE_DIR : process.env.RECIPE_IMAGE_DIR)
+            : (type === "posts" ? process.env.POST_VIDEO_DIR : process.env.RECIPE_VIDEO_DIR);
+    } else if (type === "profile") {
+        FileDir = process.env.PROFILE_DIR;
+    } else if (type === "rating") {
+        FileDir = process.env.RECIPE_RATING_MEDIA_DIR;
+    } else if (type === "thumbnail") {
+        FileDir = process.env.RECIPE_THUMBNAIL_DIR;
+    } else {
+        console.log(type);
+        return res.status(404).json({ error: 'Route not found.' });
     }
 
-    const uploadDir = process.env.PROFILE_DIR;
-    const filePath = path.join(__dirname, '..', uploadDir, imageName);
-
-    res.sendFile(filePath, (err) => {
-        if (err) {
-        return res.status(500).json({ error: 'Failed to send the file' });
-        }
-    });
+    const filePath = path.join(__dirname, '..', FileDir, fname);
+    console.log(filePath);
+    try {
+        await fs.access(filePath); // Check if file exists
+        res.sendFile(filePath);
+    } catch (err) {
+        console.log(err);
+        res.status(404).json({ error: 'File not found.' });
+    }
 });
 
 module.exports = router;

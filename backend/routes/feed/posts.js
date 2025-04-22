@@ -5,10 +5,13 @@ const upload = require('../../config/multer');  // Import multer configuration
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 require('dotenv').config({ path: '../.env' });
 
+const tagsHandler = require('../../config/tags');
+
 const { allowedStatus, allowedMediaTypes, allowedImageTypes,
         queryStatus, queryPPID, tagsValidator,
         queryPostUID, hasUploadedFiles, stringArrayParser,
-        sanitizeInput, isValidUUID, allowedDeleteMedia
+        sanitizeInput, isValidUUID, allowedDeleteMedia,
+        validateArrayInput
         } = require('../../config/defines');
 
 const { insertMedia, updateMedia, deleteMedia } = require('../../config/uploads');
@@ -77,6 +80,16 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
     if (tags !== undefined && !tagsValidator(tags))
         { return res.status(400).json({ error: "Tags must be an array of strings." }); } // check tags format
     
+    if (tags !== undefined){
+        let maxItem = parseInt(process.env.POST_TAGS_MAX_ITEM) || 20;
+        let maxCharLength = parseInt(process.env.POST_TAGS_MAX_CHAR_LENGTH) || 20;
+        const processed_tags = validateArrayInput(tags, {maxLength: maxCharLength, maxItems: maxItem});
+        if (!processed_tags.success)
+            return res.status(400).json({ error: processed_tags.error });
+        else tags  = processed_tags.data;
+        }
+
+
     const userId =  req.user.id; // Get the user ID from the token
     
     if (visibility === undefined) { // fetch the user status if not provided
@@ -101,8 +114,7 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
         const postId = id;
         
         if (tags !== undefined){ // perform tags linking
-            console.log(tags);
-            linkTagsToPost(tags, postId);
+            await tagsHandler.insertTagsToEntity(client, postId, tags, 'post_tags', 'post_id');
             }
 
         if (hasUploadedFiles(req.files)){
@@ -202,9 +214,14 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
         return res.status(400).json({ error: "Title is too long." });
         } 
     
-    tags = stringArrayParser(tags);
-    if (tags !== undefined && !tagsValidator(tags))
-        { return res.status(400).json({ error: "Tags must be an array of strings." }); } // check tags format
+    if (tags !== undefined){
+        let maxItem = parseInt(process.env.POST_TAGS_MAX_ITEM) || 20;
+        let maxCharLength = parseInt(process.env.POST_TAGS_MAX_CHAR_LENGTH) || 20;
+        const processed_tags = validateArrayInput(tags, {maxLength: maxCharLength, maxItems: maxItem});
+        if (!processed_tags.success)
+            return res.status(400).json({ error: processed_tags.error });
+        else tags  = processed_tags.data;
+        }
     
     if (visibility !== undefined && (typeof visibility !== 'string' || !allowedStatus.includes(visibility))) {
         return res.status(400).json({ error: 'Invalid status value.' });
@@ -255,10 +272,10 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
             catch (error) { res.status(500).json({ error: error }); }
             }
         
-        if (tags !== undefined){ //update tags
-            const result = await updatePostTags(tags, rid); 
-            if (!result.success) return {success: false, error: result.error };
+        if (tags !== undefined){ // perform tags linking
+            await tagsHandler.updateTagsToEntity(client, rid, tags, 'post');
             }
+
 
         if (hasUploadedFiles(req.files)){ // manage files
             const result = await updatePostMedia(db, req.files, rid);
@@ -302,27 +319,6 @@ router.delete('/:post_id', verifyToken, async (req, res) => {
         }
     });
 
-const updatePostTags = async (tags, postId) => {
-    try { await db.query(`DELETE FROM post_tags WHERE post_id = $1`, [postId]); }
-    catch (err) { return {success: false, error: err} };
-    return linkTagsToPost(tags, postId);
-    }
-
-const linkTagsToPost = async (tags, postId) => {
-    try {
-        for (const tag of tags) { // insert postid to tags
-            const querytags = `WITH insert_tag AS (INSERT INTO "tags" ("name") 
-                VALUES ($1) ON CONFLICT ("name") DO NOTHING RETURNING "id")
-                SELECT "id" FROM insert_tag UNION SELECT "id" FROM "tags" WHERE "name" = $1`;
-            const tagResult = await db.query(querytags, [tag]); // Get the ID of the tag
-            const tagId = tagResult.rows[0].id; // Get the ID of the tag
-
-            const querylinks = 'INSERT INTO post_tags (post_id, tags_id) VALUES ($1, $2)';
-            await db.query(querylinks, [postId, tagId]); // Link the post and tag
-            }
-        } catch (err) { return {success: false, error: err} };
-    return { success: true };
-    };
       
 module.exports = router;
 
