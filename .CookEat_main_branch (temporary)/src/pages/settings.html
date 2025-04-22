@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings & Privacy</title>
+    <link rel="stylesheet" href="/src/styles/settings.css">
+    <link rel="stylesheet" href="/src/styles/header.css">
+    <link rel="stylesheet" href="/src/styles/notification.css">
+    <style>
+        /* Smooth fade-in effect */
+        .settings-container {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .settings-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-navbar">
+        <div class="header-logo-container">
+            <a href="/src/pages/home.html">
+                <img src="/assets/images/logo.png" alt="Cook It Logo" class="header-logo">
+            </a>
+        </div>
+        
+        <div class="header-search-container">
+            <input type="text" placeholder="Search for recipes..." class="header-search-bar">
+        </div>
+      
+        <nav class="header-nav-links">
+            <a href="/src/pages/home.html" class="header-button">Home</a>
+            <a href="/src/pages/recipes.html" class="header-button">Recipes</a>
+            <a href="/src/pages/about.html" class="header-button">About Us</a> <!-- About link -->
+            <a href="/src/pages/home/html" class="header-button">Feeds</a>
+            <a href="#" class="header-button">Reels & Videos</a>
+            <a href="#" class="header-button" onclick="toggleNotifications(event)">Notifications</a>
+        </nav>
+        
+        <div class="header-profile-dropdown">
+            <img src="/assets/images/profile_picture.jpg" alt="User Profile" class="header-profile-pic">
+            <div class="header-dropdown-content">
+                <a href="/src/pages/profile.html">Show Profile</a>
+                <a href="#">Help and Support</a>
+                <a href="#">Incentives</a>
+                <a href="/src/pages/settings.html">Settings</a>
+                <a href="/src/pages/about.html">About Us</a> <!-- Added About link in the profile dropdown -->
+                <a href="#">Log Out</a>
+            </div>
+        </div>
+      </header>
+      
+      <div id="notificationPanel" class="notification-panel hidden">
+        <div class="notification-header">
+          <strong>Notifications</strong>
+          <span class="tabs">
+            <button class="tab active" onclick="showAll()">All</button>
+            <button class="tab" onclick="showUnread()">Unread</button>
+          </span>
+          <span onclick="toggleNotifications()" class="close-btn">✖</span>
+        </div>
+      
+        <div class="notification-section">
+          <div class="notification-subheader">
+            <span>New</span>
+            <a href="/notifications">See all</a>
+          </div>
+          
+          <ul class="notification-list" id="notificationList">
+            <!-- Notifications will be injected here via JavaScript -->
+          </ul>
+      
+          <div class="empty-state" id="emptyState" style="display: none;">
+            <p>No notifications at the moment.</p>
+          </div>
+        </div>
+      
+        <div class="see-previous">
+          <button onclick="seePrevious()">See previous notifications</button>
+        </div>
+      </div>
+    
+    <div class="settings-container">
+        <div class="setting-feed">
+            <h3>Find the settings you need</h3>
+            <div class="search-box">
+                <input type="text" placeholder="🔍 Search settings">
+            </div>
+        
+            <h3 class="section-title">Most visited settings</h3>
+            <div class="most-visited">
+                <div class="setting-card">
+                    <img src="blocking-icon.png" alt="Blocking Icon">
+                    <h4>Blocking</h4>
+                    <p>Review people you've previously blocked or add someone to your blocked list.</p>
+                </div>
+                <div class="setting-card">
+                    <img src="activity-icon.png" alt="Activity Log Icon">
+                    <h4>Activity log</h4>
+                    <p>View and manage your activity on Facebook.</p>
+                </div>
+                <div class="setting-card">
+                    <img src="darkmode-icon.png" alt="Dark Mode Icon">
+                    <h4>Dark mode</h4>
+                    <p>Choose if you want to use dark mode.</p>
+                </div>
+            </div>
+        
+            <h3 class="section-title">Looking for something else?</h3>
+            <div class="extra-setting">
+                <img src="lock-icon.png" alt="Privacy Icon">
+                <div class="extra-content">
+                    <h4>Privacy Center</h4>
+                    <p>Learn how to manage and control your privacy across Meta products.</p>
+                </div>
+                <span class="arrow">→</span>
+            </div>
+            <div class="extra-setting">
+                <img src="icon.png" alt="Help Center Icon">
+                <div class="extra-content">
+                <h4>Cook Eat Help Center</h4>
+                    <p>Learn more about our updated settings experience on Cook Eat.</p>
+                </div>
+                <span class="arrow">→</span>
+            </div>
+        </div>
+
+        <!-- Main Settings Content -->
+        <div class="container">
+            <div class="header-title">
+                <h2>Settings & Privacy</h2>
+                <div class="search-settings-container">
+                    <input type="text" placeholder="🔍 Search settings" class="search-bar">
+                </div>
+            </div>
+            <div class="scrollable-content">
+                <!-- Account Settings -->
+                <div class="settings-section">
+                    <h3>Accounts</h3>
+                    <ul>
+                        <li>📄 Personal details</li>
+                        <li>🔒 Password and security</li>
+                        <li>📢 Ad preferences</li>
+                        <li>✔️ Verification</li>
+                    </ul>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="settings-section">
+                    <h3>Privacy</h3>
+                    <ul>
+                        <li>🔏 Privacy Checkup</li>
+                        <li>👨‍👩‍👧 Family Center</li>
+                        <li>⚙️ Default audience settings</li>
+                    </ul>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-section">
+                    <h3>Security & Login</h3>
+                    <ul>
+                        <li>🔑 Change password</li>
+                        <li>📍 Where you're logged in</li>
+                        <li>📲 Two-factor authentication</li>
+                    </ul>
+                </div>
+
+                <!-- Preferences -->
+                <div class="settings-section">
+                    <h3>Preferences</h3>
+                    <ul>
+                        <li>⚙️ Content preferences</li>
+                    </ul>
+                </div>
+
+                <!-- More Privacy Controls -->
+                <div class="settings-section">
+                    <h3>Privacy Settings</h3>
+                    <ul>
+                        <li>👀 Who can see your posts?</li>
+                        <li>🚫 Blocking</li>
+                        <li>🔍 How people can find you</li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Back Button -->
+        <button onclick="goBack()">Back</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Add the 'show' class to trigger the animation
+            document.querySelector(".settings-container").classList.add("show");
+        });
+
+        // Smooth transition when navigating back
+        function goBack() {
+            const settingsPage = document.querySelector(".settings-container");
+            settingsPage.style.opacity = "0";
+            settingsPage.style.transform = "translateY(20px)";
+
+            setTimeout(() => {
+                window.history.back();
+            }, 300); // Delay navigation to match the transition
+        }
+    </script>
+    <script src="/src/scripts/notification.js"></script>
+
+</body>
+</html>

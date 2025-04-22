@@ -1,0 +1,273 @@
+:root {
+    --navbar-color: #FFA500; /* Orange Navbar */
+    --background-color: #ececec;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #141313;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #b5b5b5a3;
+    padding-top: 60px;
+}
+
+/* Settings Section */
+.container {
+    position: fixed;
+    background-color: var(--card-background);
+    width: 90%;
+    max-width: 400px;
+    padding-top: 30px; 
+    box-sizing: border-box;
+    position: absolute;
+    left: 0px; 
+    top: 0px; 
+}
+
+/* Scrollable Content */
+.scrollable-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    width: 90%;
+    max-height: calc(100vh - 120px); 
+}
+/* Header */
+.header-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 0;
+    box-shadow: var(--shadow);
+}
+
+.header-title h2 {
+    color: var(--text-color);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Search Settings */
+.search-settings-container {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    padding-bottom: 20px;
+    box-shadow: #333;
+}
+
+.search-settings-container .search-bar {
+    width: 90%;
+    max-width: 360px;
+    height: 35px;
+    padding: 5px 15px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    outline: none;
+}
+
+.search-settings-container .search-bar::placeholder {
+    text-align: left;
+}
+
+/* Settings Sections */
+.settings-section {
+    background: var(--card-background);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 15px;
+}
+
+.settings-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+/* Settings List */
+.settings-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-section li {
+    padding: 12px;
+    background: var(--background-color);
+    border-radius: 8px;
+    margin: 5px 0;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.3s ease, transform 0.2s;
+}
+
+.settings-section li:hover {
+    background: #e4e6eb;
+    box-shadow: var(--shadow);
+    transform: scale(1.03);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-bar {
+        width: 300px;
+    }
+
+    .nav-links {
+        gap: 5px;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .search-settings-container .search-bar {
+        max-width: 280px;
+    }
+}
+
+/* Main Container */
+.setting-feed {
+    background: white;
+    max-width: 1000px;
+    height: 600px;
+    padding: 20px;
+    top: 40px; 
+    left: 450px; 
+    position: absolute;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Search Box */
+.search-box {
+    background: var(--background-color);
+    padding: 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Most Visited Settings */
+.most-visited {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.setting-card {
+    background: var(--background-color);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    width: 32%;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.setting-card:hover {
+    background: #e0e2e5;
+    transform: scale(1.05);
+}
+
+.setting-card img {
+    width: 50px;
+    height: 50px;
+}
+
+.setting-card h4 {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.setting-card p {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+/* Extra Setting (Horizontal Card) */
+.extra-setting {
+    display: flex;
+    align-items: center;
+    background: var(--background-color);
+    padding: 30px;
+    border-radius: 12px;
+    margin-top: 20px;
+    justify-content: space-between;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.extra-setting:hover {
+    background: #e0e2e5;
+    transform: scale(1.02);
+}
+
+.extra-setting img {
+    width: 50px;
+    height: 50px;
+}
+
+.extra-content {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.extra-content h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.extra-content p {
+    font-size: 14px;
+    color: gray;
+}
+
+.arrow {
+    font-size: 20px;
+    color: gray;
+}
+
+/* Sample Smooth fade-in effect */
+.settings-container {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.settings-container.show {
+    opacity: 1;
+    transform: translateY(0);
+}
