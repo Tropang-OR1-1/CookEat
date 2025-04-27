@@ -40,12 +40,12 @@ const About = () => {
             <p className="flirt">"Is it hot in here or is it just my CSS making your heart flutter?"</p>
           </a>
 
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
+          <a href="https://burniiiii.github.io/Web-Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
             <span className="ripple"></span>
             <img src="/images/about_img/rivera.jpeg" alt="Bernie Jr. Rivera" />
             <h2>Bernie Jr. Rivera</h2>
             <p className="role">JavaScript</p>
-            <p className="flirt">"I must be JavaScript because every time you see me, your heart executes a ❤️ function."</p>
+            <p className="flirt">"Hmmm?"</p>
           </a>
 
           <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">

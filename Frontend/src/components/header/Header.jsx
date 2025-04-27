@@ -4,51 +4,85 @@ import CreatePost from "../createpost/CreatePost.jsx";
 import LoginRegister from "../loginRegister/LoginRegister.jsx";
 import "./Header.css";
 
-function Header() {
+function Header({ token, setToken }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown toggle
+
+  // Function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown on click
+  };
 
   return (
     <header className="header-navbar header">
       <div className="header-logo-container">
         <Link to="/">
-          <img src="/images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
+          <img src="./images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
         </Link>
       </div>
 
       <div className="header-search-container">
-        <input type="text" placeholder="Search for recipes..." className="header-search-bar" />
+        <input type="text" placeholder="Search in CookEat" className="header-search-bar" />
       </div>
 
       <nav className="header-nav-links">
-        <Link to="/" className="header-button">Home</Link>
+        {/* Links always visible */}
         <Link to="/recipes" className="header-button">Recipes</Link>
-        <Link to="/" className="header-button">Feeds</Link>
-        <Link to="/reels" className="header-button">Reels & Videos</Link>
-        <Link to="/notifications" className="header-button">Notifications</Link>
-        <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
+        <Link to="/about" className="header-button">About Us</Link>
 
-        {/* ✅ Login/Register Modal (THIS IS ONLY TEMPORARY, WE NEED A CONDITIONAL STATEMENT FOR App.jsx IF THE USER IS LOGGED IN OR NOT) */}
-        <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>Login</button>
+        {/* Links that appear only if the user is logged in */}
+        {token && (
+          <>
+            <Link to="/" className="header-button">Feeds</Link>
+            <Link to="/reels" className="header-button">Reels & Videos</Link>
+            <Link to="/notifications" className="header-button">Notifications</Link>
+            <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
+          </>
+        )}
+
+        {/* Login button only shown if not logged in */}
+        {!token && (
+          <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>Login/Register</button>
+        )}
       </nav>
 
-      {/* ✅ Create Post Modal */}
+      {/* Create Post Modal */}
       <CreatePost isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
 
-      {/* ✅ Login/Register Modal (THIS IS ONLY TEMPORARY, WE NEED A CONDITIONAL STATEMENT FOR App.jsx IF THE USER IS LOGGED IN OR NOT) */}
-      <LoginRegister isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
-    
-      <div className="header-profile-dropdown header-dropdown">
-        <img src="/images/profile_img.jpg" alt="User Profile" className="header-profile-pic" />
-        <div className="header-dropdown-content">
-          <Link to="/profile">Show Profile</Link>
-          <Link to="/help">Help and Support</Link>
-          <Link to="/incentives">Incentives</Link>
-          <Link to="/settings">Settings</Link>
-          <Link to="/about">About Us</Link>
-          <Link to="/logout">Log Out</Link>
+      {/* Login/Register Modal */}
+      <LoginRegister 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+        setToken={setToken}
+      />
+
+      {/* Profile dropdown only shown if logged in */}
+      {token && (
+        <div className="header-profile-dropdown">
+          <img 
+            src="/images/profile_img.jpg" 
+            alt="User Profile" 
+            className="header-profile-pic" 
+            onClick={toggleDropdown} // Handle click to toggle dropdown
+          />
+          {isDropdownOpen && ( // Only show dropdown if it's open
+            <div className="header-dropdown-content">
+              <Link to="/profile">Show Profile</Link>
+              <Link to="/help">Help and Support</Link>
+              <Link to="/incentives">Incentives</Link>
+              <Link to="/settings">Settings</Link>
+              <Link to="/about">About Us</Link>
+              <Link to="#" onClick={handleLogout}>Log Out</Link>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </header>
   );
 }
