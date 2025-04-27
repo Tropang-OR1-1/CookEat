@@ -40,14 +40,16 @@ backend/uploads/
 backend/uploads/*
 
 # Environment and secrets
-./.env
-.env       
-.env.local
+<<<<<<< Updated upstream
+=======
+ 
+#.env.local
+>>>>>>> Stashed changes
 
 # Database files
-db/*.sqlite
-db/*.db
-db/*.sql
+# db/*.sqlite
+# db/*.db
+# db/*.sql
 
 # Ignore IDE/editor-specific files
 .vscode/

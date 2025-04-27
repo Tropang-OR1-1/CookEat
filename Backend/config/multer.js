@@ -65,6 +65,7 @@ const Media = multer({
 const storageRecipeSteps = multer.memoryStorage();
 
 // Multer setup for Recipe file upload
+/*
 const recipeSteps = multer({
   storage: storageRecipeSteps,
   fileFilter: fileFilterMedia,
@@ -72,7 +73,7 @@ const recipeSteps = multer({
       fileSize: process.env.RECIPE_MAX_SIZE // Dynamic file size limit from .env
   }
 });
-
+*/
 // ---------- Thumbnail Storage and Filter ---------- //
 const storageThumbnail = multer.diskStorage({
   destination: (req, file, cb) => {

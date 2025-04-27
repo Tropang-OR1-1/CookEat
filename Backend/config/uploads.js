@@ -74,7 +74,7 @@ const insertMedia = async ({
         }
 
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false, error: 'Error inserting media' };
     }
 };
@@ -202,8 +202,7 @@ const deleteFile = (folderPath, filename) => {
     });
 };
 
-
-const saveFile = async (directory = MEDIA_SAVE_PATH, file) => {
+const saveFile = async (directory, file) => {
     // Validate if the file type is allowed (optional, based on your defines)
     const fileType = path.extname(file.originalname).toLowerCase();
     if (![...allowedImageTypes, ...allowedMediaTypes].includes(fileType)) {
@@ -219,14 +218,14 @@ const saveFile = async (directory = MEDIA_SAVE_PATH, file) => {
     // Ensure the destination folder exists
     try {
         await fs.mkdir(directory, { recursive: true });
-    } catch (err) {
+    } catch {
         throw new Error('Failed to create directory');
     }
 
     // Write the file buffer to the disk
     try {
         await fs.writeFile(destination, file.buffer);
-    } catch (err) {
+    } catch {
         throw new Error('Failed to save file');
     }
 
