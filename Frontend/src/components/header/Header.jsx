@@ -6,13 +6,13 @@ import "./Header.css";
 
 function Header() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); 
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <header className="header-navbar header">
       <div className="header-logo-container">
         <Link to="/">
-          <img src="/public/images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
+          <img src="/images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
         </Link>
       </div>
 
@@ -23,7 +23,6 @@ function Header() {
       <nav className="header-nav-links">
         <Link to="/" className="header-button">Home</Link>
         <Link to="/recipes" className="header-button">Recipes</Link>
-        <Link to="/about" className="header-button">About Us</Link>
         <Link to="/" className="header-button">Feeds</Link>
         <Link to="/reels" className="header-button">Reels & Videos</Link>
         <Link to="/notifications" className="header-button">Notifications</Link>
@@ -39,8 +38,8 @@ function Header() {
       {/* ✅ Login/Register Modal (THIS IS ONLY TEMPORARY, WE NEED A CONDITIONAL STATEMENT FOR App.jsx IF THE USER IS LOGGED IN OR NOT) */}
       <LoginRegister isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     
-      <div class="header-profile-dropdown">
-      <img src="/public/images/profile_img.jpg" alt="User Profile" className="header-profile-pic" />
+      <div className="header-profile-dropdown header-dropdown">
+        <img src="/images/profile_img.jpg" alt="User Profile" className="header-profile-pic" />
         <div className="header-dropdown-content">
           <Link to="/profile">Show Profile</Link>
           <Link to="/help">Help and Support</Link>
@@ -51,7 +50,7 @@ function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;
