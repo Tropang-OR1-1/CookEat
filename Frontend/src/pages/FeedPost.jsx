@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './FeedPost.css';  // FeedPost styles
-import axios from 'axios';  // For making API requests
+import axios from 'axios';
+import './styles/feedpost.css';
 
 function FeedPost({
   profileImage,

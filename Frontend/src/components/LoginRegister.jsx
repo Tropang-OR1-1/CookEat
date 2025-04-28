@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './LoginRegister.css';   
-// need to install axios (npm install axios)
 import axios from 'axios';
+import './styles/loginregister.css';   
+
 
 function LoginRegister({ isOpen, onClose, setToken }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
