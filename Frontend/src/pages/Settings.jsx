@@ -1,5 +1,5 @@
 import React from 'react';
-import './Settings.css';
+import './styles/settings.css';
 
 function Settings () {
 

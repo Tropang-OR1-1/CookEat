@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./NotFound.css";
+import "./styles/notfound.css";
 
 function NotFound() {
   return (
