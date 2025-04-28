@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './Profile.css';
-import FeedPost from '../feedpage/FeedPost'; 
 import axios from 'axios';
+import FeedPost from './FeedPost';
+import './styles/profile.css'; 
 
 function Profile() {
   // State hooks to store profile data, posts, and loading state

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";  // Use useNavigate instead of useHistory
-import CreatePost from "../createpost/CreatePost.jsx";
-import LoginRegister from "../loginRegister/LoginRegister.jsx";
-import "./Header.css";
+import { Link, useNavigate } from "react-router-dom";
+import CreatePost from "./CreatePost.jsx";
+import LoginRegister from "./LoginRegister.jsx";
+import "./styles/header.css";
 
 function Header({ token, setToken }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);

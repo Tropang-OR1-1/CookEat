@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import FeedPost from './FeedPost';  // Import your FeedPost component
-import './FeedPage.css';  // Add styling for the FeedPage
+import FeedPost from './FeedPost';
+import './styles/feedpage.css';
 
 function FeedPage() {
   const [posts, setPosts] = useState([]);  // State to store posts

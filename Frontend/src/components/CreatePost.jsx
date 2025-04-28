@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './CreatePost.css'; // Ensure you have the correct path to your CSS file
+import './styles/createpost.css';
 
 function CreatePost ({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
