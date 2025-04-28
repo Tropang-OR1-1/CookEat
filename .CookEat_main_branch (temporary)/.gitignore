@@ -1,0 +1,36 @@
+# Logs
+# logs/
+# *.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Build and cache files
+dist/
+.cache/
+*.bak
+
+backend/uploads/
+backend/uploads/*
+
+# Environment and secrets
+./.env
+.env       
+.env.local
+
+# Database files
+db/*.sqlite
+db/*.db
+db/*.sql
+
+# Ignore IDE/editor-specific files
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Node.js dependencies
+node_modules/
+package-lock.json

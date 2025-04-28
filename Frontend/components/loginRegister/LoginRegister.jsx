@@ -1,0 +1,148 @@
+import React, { useState } from 'react';
+import './LoginRegister.css';   
+// need to install axios (npm install axios)
+import axios from 'axios';
+
+function LoginRegister({ isOpen, onClose }) {
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
+
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:3000/login', loginData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      alert(response.data.token);
+    } catch (error) {
+      alert(error.response ? error.response.data : error.message);
+    }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:3000/register', registerData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      alert(response.data.token);
+    } catch (error) {
+      alert(error.response ? error.response.data : error.message);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className={`modal ${isOpen ? 'show' : ''}`} onClick={(e) => e.target.classList.contains('modal') && onClose()}>
+      <div className={`container ${isRegisterMode ? 'active' : ''}`}>
+        <div className={`form-box ${isRegisterMode ? 'register' : 'login'}`}>
+          {isRegisterMode ? (
+            <form onSubmit={handleRegisterSubmit}>
+              <h1>Registration</h1>
+              <div className="input-box">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  required
+                  value={registerData.username}
+                  onChange={handleRegisterChange}
+                />
+              </div>
+              <div className="input-box">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                  value={registerData.email}
+                  onChange={handleRegisterChange}
+                />
+              </div>
+              <div className="input-box">
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  required
+                  value={registerData.password}
+                  onChange={handleRegisterChange}
+                />
+              </div>
+              <button type="submit" className="btn">Register</button>
+              <p>or register with social platforms</p>
+              <div className="social-icons">
+                <a href="#"><i className='bx bxl-google'></i></a>
+                <a href="#"><i className='bx bxl-facebook'></i></a>
+                <a href="#"><i className='bx bxl-github'></i></a>
+                <a href="#"><i className='bx bxl-linkedin'></i></a>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleLoginSubmit}>
+              <h1>Login</h1>
+              <div className="input-box">
+                <input
+                  type="text"
+                  name="email"
+                  placeholder="Email"
+                  required
+                  value={loginData.email}
+                  onChange={handleLoginChange}
+                />
+              </div>
+              <div className="input-box">
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  required
+                  value={loginData.password}
+                  onChange={handleLoginChange}
+                />
+              </div>
+              <div className="forgot-link">
+                <a href="#">Forgot password?</a>
+              </div>
+              <button type="submit" className="btn">Login</button>
+              <p>or login with social platforms</p>
+              <div className="social-icons">
+                <a href="#"><i className='bx bxl-google'></i></a>
+                <a href="#"><i className='bx bxl-facebook'></i></a>
+                <a href="#"><i className='bx bxl-github'></i></a>
+                <a href="#"><i className='bx bxl-linkedin'></i></a>
+              </div>
+            </form>
+          )}
+        </div>
+
+        <div className="toggle-box">
+          <div className="toggle-panel toggle-left">
+            <h1>Hello! Welcome to Cook Eat</h1>
+            <p>Don't have an account?</p>
+            <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
+          </div>
+          <div className="toggle-panel toggle-right">
+            <h1>Welcome! to Cook Eat</h1>
+            <p>Already have an account?</p>
+            <button className="btn" onClick={() => setIsRegisterMode(false)}>Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default LoginRegister;
