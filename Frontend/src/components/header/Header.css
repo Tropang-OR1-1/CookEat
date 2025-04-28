@@ -34,11 +34,11 @@ body {
 .header-search-container {
   display: flex;
   align-items: center;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .header-search-bar {
-  width: 600px;
+  width: 300px !important;
   height: 35px;
   padding: 5px 10px;
   font-size: 16px;

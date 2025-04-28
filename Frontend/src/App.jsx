@@ -3,7 +3,7 @@ import Header from './components/header/Header.jsx';
 import Profile from './pages/profile/Profile.jsx';
 import Settings from './pages/settings/Settings.jsx';
 import About from './pages/about/About.jsx';
-import FeedPage from './pages/feedpage/FeedPage';  // Import FeedPage
+import FeedPage from './pages/feedpage/FeedPage.jsx';  // Import FeedPage
 
 import { useState, useEffect } from 'react';
 
