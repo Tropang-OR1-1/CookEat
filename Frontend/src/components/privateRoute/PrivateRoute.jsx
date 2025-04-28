@@ -5,8 +5,8 @@ function PrivateRoute({ children }) {
   const token = localStorage.getItem('token'); // Get token from localStorage
 
   if (!token) {
-    // Redirect to login if no token
-    return <Navigate to="/login" />;
+    // Redirect to root if no token
+    return <Navigate to="/" />;
   }
 
   return children; // Render the children (protected route) if token exists
