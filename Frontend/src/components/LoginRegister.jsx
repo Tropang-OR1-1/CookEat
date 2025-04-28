@@ -52,10 +52,12 @@ function LoginRegister({ isOpen, onClose, setToken }) {
       localStorage.setItem('token', token); // Save to local storage
       setToken(token); // Update the app state
       onClose(); // Close the modal
+      window.location.reload(); // refresh and fetch the new profile!
     } catch (error) {
       alert(error.response ? error.response.data : error.message);
     }
   };
+  
 
   if (!isOpen) return null;
 
