@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";  // Use useNavigate instead of useHistory
 import CreatePost from "../createpost/CreatePost.jsx";
 import LoginRegister from "../loginRegister/LoginRegister.jsx";
 import "./Header.css";
@@ -8,11 +8,13 @@ function Header({ token, setToken }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown toggle
+  const navigate = useNavigate(); // Use navigate hook for redirection
 
   // Function to handle logout
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
+    localStorage.removeItem('token'); // Remove token from localStorage
+    setToken(null); // Clear token from state
+    navigate("/login"); // Redirect to login page
   };
 
   const toggleDropdown = () => {
@@ -39,7 +41,7 @@ function Header({ token, setToken }) {
         {/* Links that appear only if the user is logged in */}
         {token && (
           <>
-            <Link to="/" className="header-button">Feeds</Link>
+            <Link to="/feeds" className="header-button">Feeds</Link>
             <Link to="/reels" className="header-button">Reels & Videos</Link>
             <Link to="/notifications" className="header-button">Notifications</Link>
             <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
