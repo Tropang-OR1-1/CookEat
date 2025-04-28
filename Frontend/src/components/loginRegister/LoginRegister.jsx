@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import './LoginRegister.css';   
-import axios from 'axios'; // need to install axios (npm install axios)
+// need to install axios (npm install axios)
+import axios from 'axios';
 
-function LoginRegister({ isOpen, onClose }) {
+function LoginRegister({ isOpen, onClose, setToken }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
@@ -25,12 +26,18 @@ function LoginRegister({ isOpen, onClose }) {
       formData.append('password', loginData.password);
   
       const response = await axios.post('https://cookeat.cookeat.space/user/login', formData);
-  
-      alert(response.data.token);
+      const token = response.data.token;
+      localStorage.setItem('token', token); // Save to local storage
+      setToken(token); // Update the app state
+      onClose(); // Close the modal
     } catch (error) {
-      alert(error.response ? error.response.data : error.message);
+      if (error.response && error.response.data) {
+        alert(error.response.data.error || JSON.stringify(error.response.data));
+      } else {
+        alert(error.message);
+      }
     }
-  };  
+  };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -41,8 +48,10 @@ function LoginRegister({ isOpen, onClose }) {
       formData.append('password', registerData.password);
   
       const response = await axios.post('https://cookeat.cookeat.space/user/register', formData);
-  
-      alert(response.data.token);
+      const token = response.data.token;
+      localStorage.setItem('token', token); // Save to local storage
+      setToken(token); // Update the app state
+      onClose(); // Close the modal
     } catch (error) {
       alert(error.response ? error.response.data : error.message);
     }
@@ -141,7 +150,7 @@ function LoginRegister({ isOpen, onClose }) {
             <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
           </div>
           <div className="toggle-panel toggle-right">
-            <h1>Welcome! to Cook Eat</h1>
+            <h1>Welcome to Cook Eat!</h1>
             <p>Already have an account?</p>
             <button className="btn" onClick={() => setIsRegisterMode(false)}>Login</button>
           </div>

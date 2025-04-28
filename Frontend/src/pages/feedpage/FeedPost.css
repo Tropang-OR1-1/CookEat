@@ -1,0 +1,187 @@
+.feed-post {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid #FF8700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-left {
+  display: flex;
+  align-items: center;
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-info {
+  margin-left: 10px;
+}
+
+.username {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.time {
+  font-size: 0.9rem;
+  color: #8a96a3;
+}
+
+.post-caption {
+  margin-top: 15px;
+}
+
+.caption {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.media-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.media-container img,
+.media-container video {
+  max-width: 100%;
+  border-radius: 10px;
+  outline: 2px solid #FF8700;
+}
+
+.media-container img {
+  width: 100%;
+  max-width: 600px;
+}
+
+.media-container video {
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.recipe-details {
+  margin-top: 20px;
+}
+
+.ingredients h4, .instructions h4 {
+  color: #FF8700;
+}
+
+.ingredients ul, .instructions ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ingredients li, .instructions li {
+  font-size: 1rem;
+  color: #333;
+}
+
+.engagement {
+  margin-top: 20px;
+}
+
+.engagement-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.like-btn, .comment-btn, .share-btn {
+  background-color: #FF8700;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.like-btn:hover, .comment-btn:hover, .share-btn:hover {
+  background-color: #e26a00;
+}
+
+.like-btn .like-count, .comment-btn .comment-count {
+  font-size: 0.9rem;
+}
+
+/* Comment Modal Styles */
+.comment-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:focus {
+  outline: none;
+}
+
+button.cancel {
+  background-color: #ccc;
+}
+
+button.submit {
+  background-color: #FF8700;
+  color: white;
+}
+
+button.submit:hover {
+  background-color: #e26a00;
+}

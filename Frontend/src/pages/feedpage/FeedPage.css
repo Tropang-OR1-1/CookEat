@@ -1,0 +1,29 @@
+.feed-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .feed-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .feed-page-container p {
+    text-align: center;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  @media (max-width: 768px) {
+    .feed-page-container {
+      padding: 10px;
+    }
+  
+    .feed-posts {
+      gap: 15px;
+    }
+  }
+  
