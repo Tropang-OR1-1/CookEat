@@ -34,21 +34,24 @@ function Header({ token, setToken }) {
       </div>
 
       <nav className="header-nav-links">
-        {/* Links always visible */}
-        <Link to="/recipes" className="header-button">Recipes</Link>
-        <Link to="/about" className="header-button">About Us</Link>
+        <div className="header-center">
+          <Link to="/" className="header-button">Feeds</Link>
+          <Link to="/recipes" className="header-button">Recipes</Link>
+          
+          {/* Render "About Us" button only when the user is logged out */}
+          {!token && (
+            <Link to="/about" className="header-button">About Us</Link>
+          )}
 
-        {/* Links that appear only if the user is logged in */}
-        {token && (
-          <>
-            <Link to="/feeds" className="header-button">Feeds</Link>
-            <Link to="/reels" className="header-button">Reels & Videos</Link>
-            <Link to="/notifications" className="header-button">Notifications</Link>
-            <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
-          </>
-        )}
-
-        {/* Login button only shown if not logged in */}
+          {/* Links that appear only if the user is logged in */}
+          {token && (
+            <>
+              <Link to="/notifications" className="header-button">Notifications</Link>
+              <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
+            </>
+          )}
+        </div>
+        {/* Login/Register button only shown if not logged in */}
         {!token && (
           <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>Login/Register</button>
         )}
