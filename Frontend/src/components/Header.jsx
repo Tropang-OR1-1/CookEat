@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import "./styles/header.css";
@@ -7,18 +7,18 @@ import "./styles/header.css";
 function Header({ token, setToken }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown toggle
-  const navigate = useNavigate(); // Use navigate hook for redirection
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation(); // Get current route
 
-  // Function to handle logout
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove token from localStorage
-    setToken(null); // Clear token from state
-    navigate("/login"); // Redirect to login page
+    localStorage.removeItem("token");
+    setToken(null);
+    navigate("/login");
   };
 
   const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown on click
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   return (
@@ -34,49 +34,86 @@ function Header({ token, setToken }) {
       </div>
 
       <nav className="header-nav-links">
-        <div className="header-center">
-          <Link to="/" className="header-button">Feeds</Link>
-          <Link to="/recipes" className="header-button">Recipes</Link>
-          
-          {/* Render "About Us" button only when the user is logged out */}
-          {!token && (
-            <Link to="/about" className="header-button">About Us</Link>
-          )}
-
-          {/* Links that appear only if the user is logged in */}
-          {token && (
-            <>
-              <Link to="/notifications" className="header-button">Notifications</Link>
-              <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
-            </>
-          )}
+      <div className="header-center">
+        <div className="header-tooltip-wrapper">
+          <Link
+            to="/"
+            className={`header-button ${location.pathname === "/" ? "active" : ""}`}
+          >
+            <i className="bx bx-news"></i>
+            <span className="header-tooltip">Feeds</span>
+          </Link>
         </div>
-        {/* Login/Register button only shown if not logged in */}
-        {!token && (
-          <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>Login/Register</button>
+
+        <div className="header-tooltip-wrapper">
+          <Link
+            to="/recipes"
+            className={`header-button ${location.pathname === "/recipes" ? "active" : ""}`}
+          >
+            <i className="bx bx-food-menu"></i>
+            <span className="header-tooltip">Recipes</span>
+          </Link>
+        </div>
+
+        {token && (
+          <>
+            <div className="header-tooltip-wrapper">
+              <button
+                className="header-button"
+                onClick={() => setIsPostModalOpen(true)}
+              >
+                <i className="bx bx-message-square-add"></i>
+                <span className="header-tooltip">Create Post</span>
+              </button>
+            </div>
+
+            <div className="header-tooltip-wrapper">
+              <Link
+                to="/notifications"
+                className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
+              >
+                <i className="bx bx-bell"></i>
+                <span className="header-tooltip">Notifications</span>
+              </Link>
+            </div>
+          </>
         )}
+
+        {!token && (
+          <div className="header-tooltip-wrapper">
+            <Link
+              to="/about"
+              className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
+            >
+              <i className="bx bxl-dev-to"></i>
+              <span className="header-tooltip">About Us</span>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {!token && (
+        <div className="header-tooltip-wrapper header-button">
+          <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>
+            <span className="header-login-text">Login</span> {/* Apply typography style to the text */}
+            <span className="header-tooltip">Login / Register</span>
+          </button>
+        </div>
+      )}
       </nav>
 
-      {/* Create Post Modal */}
       <CreatePost isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
+      <LoginRegister isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} setToken={setToken} />
 
-      {/* Login/Register Modal */}
-      <LoginRegister 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
-        setToken={setToken}
-      />
-
-      {/* Profile dropdown only shown if logged in */}
       {token && (
         <div className="header-profile-dropdown">
-          <img 
-            src="/images/profile_img.jpg" 
-            alt="User Profile" 
-            className="header-profile-pic" 
-            onClick={toggleDropdown} // Handle click to toggle dropdown
+          <img
+            src="/images/profile_img.jpg"
+            alt="User Profile"
+            className="header-profile-pic"
+            onClick={toggleDropdown}
           />
-          {isDropdownOpen && ( // Only show dropdown if it's open
+          {isDropdownOpen && (
             <div className="header-dropdown-content">
               <Link to="/profile">Show Profile</Link>
               <Link to="/help">Help and Support</Link>

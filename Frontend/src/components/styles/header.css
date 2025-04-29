@@ -15,7 +15,7 @@ body {
 .header-navbar {
   position: fixed;      
   width: 100%;
-  height: 57px;
+  height: 58px;
   z-index: 1000;
   top: 0;
   left: 0;
@@ -28,7 +28,7 @@ body {
 }
 
 .header-logo {
-  height: 60px;
+  height: 65px;
 }
 
 .header-search-container {
@@ -38,8 +38,8 @@ body {
 }
 
 .header-search-bar {
-  width: 300px !important;
-  height: 35px;
+  width: 350px !important;
+  height: 40px;
   padding: 5px 10px;
   font-size: 16px;
   border: none;
@@ -59,8 +59,9 @@ body {
 
 .header-center {
   display: flex;
-  gap: 20px;
+  gap: 60px;
   justify-content: center;
+  align-items: center;
   flex-grow: 1;
   position: absolute;
   left: 50%;
@@ -120,27 +121,39 @@ body {
 
 /* Button Styles */
 .header-button {
-  background-color: #FFA500;
-  color: rgb(0, 0, 0);
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  background-color: #FFA500;  
+  width: 55px;
+  height: 55px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background-color 0.3s ease;
-  font-size: 1em;
-  font-weight: bold;
+  cursor: pointer;
+}
+
+.header-button i {
+  font-size: 34px;    
+  font-weight: 500;  
+  color: #543b0d;    
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.header-button:hover i {
+  transform: scale(1.20);
+  color: #ffffff;        
 }
 
 .header-button:hover {
-  background-color: #FF8700;
-}
-
-.header-button:active {
-  background-color: #be6600;
+  background-color: #FFA500;
 }
 
 .header-button.clicked:hover {
   background-color: #FF8700;
+}
+
+.header-button.active i {
+  color: #ffffff;
 }
 
 /* Dropdown Button Styles */
@@ -194,4 +207,47 @@ body {
 
 .header-dropdown.active .header-dropdown-menu {
   display: block;
+}
+
+/* Tooltip Wrapper */
+.header-tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip Styling */
+.header-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 160px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 6px 10px;
+  position: absolute;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  pointer-events: none;
+}
+
+/* Show tooltip on hover */
+.header-tooltip-wrapper:hover .header-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+/* Login Button Text Styles */
+.header-login-text {
+  font-size: 20px; /* Font size for readability */
+  font-weight: 700; /* Bold font weight for prominence */
+  color: #543b0d; 
+  transition: color 0.3s ease; /* Smooth color transition on hover */
 }
