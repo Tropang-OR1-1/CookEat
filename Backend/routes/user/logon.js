@@ -9,9 +9,9 @@ const cors = require("cors");
 
 const db = require("../../config/db");
 const logger = require('../../config/logger'); // Import the logger
-
 const upload = require("multer")();
 const { usernameRegex, emailValidator, sanitizeInput } = require('../../config/defines');
+const { copyDefaultPfpToProfileDir } = require('../../config/uploads'); // Import the function to copy default profile picture
 
 
 const { generateJWT, verifyToken } = require('../../config/jwt'); // Import the module
@@ -117,8 +117,9 @@ router.post("/register", upload.none(), async (req, res) => {
         
         const userId = result1.rows[0].user_id;
         
-        const insertProf = 'INSERT INTO "user_profile" (id, username) VALUES ($1, $2) RETURNING token_id';
-        const result2 = await db.query(insertProf, [userId, username]);
+        const picture = await copyDefaultPfpToProfileDir(); 
+        const insertProf = 'INSERT INTO "user_profile" (id, username, picture) VALUES ($1, $2, $3) RETURNING token_id';
+        const result2 = await db.query(insertProf, [userId, username, picture]);
         
         profileId = result2.rows[0].token_id;
 

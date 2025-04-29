@@ -1,8 +1,7 @@
-
-
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config(); // Load environment variables from .env
+const logger = require('./config/logger'); // Import the logger
 
 const app = express();
 
@@ -46,7 +45,21 @@ app.listen(process.env.API_PORT, () => {
 
 // Catch-all for unknown routes
 app.use((req, res) => {
-    res.status(404).json({ error: 'Routes not found' });
+    const requestedUrl = req.originalUrl;
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const method = req.method; // Capture the HTTP method (GET, POST, etc.)
+
+    // Log the details including the method
+    logger.warn(`404 Not Found: IP ${clientIp} tried to access ${requestedUrl} with method ${method}`);
+
+    res.status(404).sendFile(path.join(process.env.ERROR_404_PATH), (err) => {
+        if (err) {
+            logger.error(`Error sending 404 page: ${err}`);
+            if (!res.headersSent) {
+                res.status(500).send('Internal Server Error');
+            }
+        }
+    });
 });
 
 /*

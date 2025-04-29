@@ -1,7 +1,7 @@
 // imageRoute.js
 require("dotenv").config({ path: "../.env" });
 //const {verifyMedia} = require('../config/jwt'); // Import JWT verification middleware
-const { logger } = require('../config/logger'); // Import the logger
+const logger = require('../config/logger'); // Import the logger
 const path = require('path');
 const express = require('express');
 const router = express.Router();
