@@ -1,11 +1,12 @@
 
 
-
+/*
 require('@babel/register')({
     extensions: ['.js', '.jsx'],
     ignore: [/node_modules/]  // Prevent Babel from transpiling node_modules
   });
-  
+  */
+ 
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
   
@@ -16,7 +17,7 @@ const cors = require('cors');
 require("dotenv").config(); // Load environment variables from .env
 const logger = require('./config/logger'); // Import the logger
 
-const App = require('./../Frontend/ssr/App.jsx').default;
+//const App = require('./../Frontend/ssr/App.jsx').default;
 
 const app = express();
 
@@ -51,7 +52,7 @@ app.use('/react', reactRoutes);
 
 app.use('/recipe', recipeRoutes);
 app.use('/recipe', rateRoutes);
-
+/*
 app.get('/', (req, res) => {
     const html = ReactDOMServer.renderToString(React.createElement(App));
   
@@ -65,7 +66,7 @@ app.get('/', (req, res) => {
       </html>
     `);
   });
-
+*/
 // Start the server
 app.listen(process.env.API_PORT, () => {
   console.log(`Server running on port ${process.env.API_PORT}`);
