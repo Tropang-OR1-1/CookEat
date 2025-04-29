@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './LoginRegister.css';   
-// need to install axios (npm install axios)
-import axios from 'axios';
+import axios from 'axios'; // need to install axios (npm install axios)
 
 function LoginRegister({ isOpen, onClose }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -21,21 +20,28 @@ function LoginRegister({ isOpen, onClose }) {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/login', loginData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const formData = new FormData();
+      formData.append('email', loginData.email);
+      formData.append('password', loginData.password);
+  
+      const response = await axios.post('https://cookeat.cookeat.space/user/login', formData);
+  
       alert(response.data.token);
     } catch (error) {
       alert(error.response ? error.response.data : error.message);
     }
-  };
+  };  
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/register', registerData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const formData = new FormData();
+      formData.append('username', registerData.username);
+      formData.append('email', registerData.email);
+      formData.append('password', registerData.password);
+  
+      const response = await axios.post('https://cookeat.cookeat.space/user/register', formData);
+  
       alert(response.data.token);
     } catch (error) {
       alert(error.response ? error.response.data : error.message);
