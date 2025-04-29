@@ -118,6 +118,17 @@ body {
   display: block; /* Only show if dropdown is open */
 }
 
+.header-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: auto;
+}
+
+.header-user-actions a {
+  text-decoration: none;
+}
+
 /* Button Styles */
 .header-button {
   background-color: #FFA500;
