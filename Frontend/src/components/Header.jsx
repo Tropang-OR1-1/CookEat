@@ -3,14 +3,16 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import "./styles/header.css";
+import { useEffect } from "react";
 
 function Header({ token, setToken }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation(); // Get current route
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown toggle
+  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
+  const navigate = useNavigate(); // Use navigate hook for redirection
+  
+  // Function to handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken(null);
@@ -20,6 +22,17 @@ function Header({ token, setToken }) {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  // updates for the profile image
+  useEffect(() => {
+    const storedProfile = localStorage.getItem('profile');
+    if (storedProfile) {
+      const parsed = JSON.parse(storedProfile);
+      if (parsed.avatar) {
+        setAvatar(parsed.avatar);
+      }
+    }
+  }, []);
 
   return (
     <header className="header-navbar header">
@@ -45,6 +58,9 @@ function Header({ token, setToken }) {
           </Link>
         </div>
 
+          {token && (
+            <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
+          )}
         <div className="header-tooltip-wrapper">
           <Link
             to="/recipes"
@@ -106,13 +122,16 @@ function Header({ token, setToken }) {
       <LoginRegister isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} setToken={setToken} />
 
       {token && (
+      <div className="header-user-actions">
+        <Link to="/notifications" className="header-button">Notifications</Link>
         <div className="header-profile-dropdown">
-          <img
-            src="/images/profile_img.jpg"
-            alt="User Profile"
-            className="header-profile-pic"
-            onClick={toggleDropdown}
-          />
+        <img 
+          src={avatar} 
+          alt="User Profile" 
+          className="header-profile-pic" 
+          onClick={toggleDropdown} 
+        />
+        
           {isDropdownOpen && (
             <div className="header-dropdown-content">
               <Link to="/profile">Show Profile</Link>
@@ -124,7 +143,9 @@ function Header({ token, setToken }) {
             </div>
           )}
         </div>
-      )}
+      </div>
+    )}
+
     </header>
   );
 }
