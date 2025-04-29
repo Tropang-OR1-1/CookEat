@@ -3,12 +3,15 @@ const db = require("../../config/db");
 
 const upload = require('../../config/multer');  // Import multer configuration
 const { verifyToken } = require('../../config/jwt'); // Import JWT
-const { isValidUUID } = require('../../config/defines');
+const logger = require('../../config/logger');
+
+
+const { isValidUUID, getPaginationParams } = require('../../config/defines');
 require('dotenv').config({ path: '../.env' });
 
 const router = express.Router();
 
-router.post('/save/post/:postId', verifyToken, async (req, res) => {
+router.post('/save/post/:postId', verifyToken, upload.none(), async (req, res) => {
     const { postId } = req.params;
     const userId = req.user.id;
 
@@ -39,7 +42,7 @@ router.post('/save/post/:postId', verifyToken, async (req, res) => {
 
         return res.status(201).json({ message: 'Post saved successfully.' });
     } catch (err) {
-        console.error(err);
+        logger.error(`Error saving post: ${err.message}`, { stack: err.stack }); // Log error details
         return res.status(500).json({ error: 'Database error.', details: err });
     } finally {
         client.release();
@@ -47,7 +50,7 @@ router.post('/save/post/:postId', verifyToken, async (req, res) => {
 });
 
 
-router.post('/save/recipe/:recipeId', verifyToken, async (req, res) => {
+router.post('/save/recipe/:recipeId', verifyToken, upload.none(), async (req, res) => {
     const { recipeId } = req.params;
     const userId = req.user.id;
 
@@ -78,14 +81,14 @@ router.post('/save/recipe/:recipeId', verifyToken, async (req, res) => {
 
         return res.status(201).json({ message: 'Recipe saved successfully.' });
     } catch (err) {
-        console.error(err);
+        logger.error(`Error saving recipe: ${err.message}`, { stack: err.stack }); // Log error details
         return res.status(500).json({ error: 'Database error.', details: err });
     } finally {
         client.release();
     }
 });
 
-router.delete('/save/post/:postId', verifyToken, async (req, res) => {
+router.delete('/save/post/:postId', verifyToken, upload.none(), async (req, res) => {
     const { postId } = req.params;
     const userId = req.user.id;
 
@@ -114,14 +117,14 @@ router.delete('/save/post/:postId', verifyToken, async (req, res) => {
 
         return res.status(200).json({ message: 'Saved post deleted successfully.' });
     } catch (err) {
-        console.error(err);
+        logger.error(`Error deleting saved post: ${err.message}`, { stack: err.stack }); // Log error details
         return res.status(500).json({ error: 'Database error.', details: err });
     } finally {
         client.release();
     }
 });
 
-router.delete('/save/recipe/:recipeId', verifyToken, async (req, res) => {
+router.delete('/save/recipe/:recipeId', verifyToken, upload.none(), async (req, res) => {
     const { recipeId } = req.params;
     const userId = req.user.id;
 
@@ -150,24 +153,18 @@ router.delete('/save/recipe/:recipeId', verifyToken, async (req, res) => {
 
         return res.status(200).json({ message: 'Saved recipe deleted successfully.' });
     } catch (err) {
-        console.error(err);
+        logger.error(`Error deleting saved recipe: ${err.message}`, { stack: err.stack }); // Log error details
         return res.status(500).json({ error: 'Database error.', details: err });
     } finally {
         client.release();
     }
 });
 
-router.get('/saved/recipes', verifyToken, async (req, res) => {
+router.get('/saved/recipes', verifyToken, upload.none(), async (req, res) => {
     const userId = req.user.id;
     
-    // Get page from query params, default to 1 if not provided
-    const page = parseInt(req.query.page) || 1;
-    
-    // Get the page limit from environment variables
-    const limit = parseInt(process.env.SAVES_PAGE_LIMIT) || 10;
-    
-    // Calculate the offset based on the page number
-    const offset = (page - 1) * limit;
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
 
     const client = await db.connect();
     try {
@@ -193,25 +190,18 @@ router.get('/saved/recipes', verifyToken, async (req, res) => {
             totalRecords: totalRecords
         });
     } catch (error) {
-        console.error(error);
+        logger.error(`Error retrieving saved recipe: ${error.message}`, { stack: error.stack }); // Log error details
         return res.status(500).json({ error: 'Error retrieving saved recipes.' });
     } finally {
         client.release();
         }
 });
 
-router.get('/saved/posts', verifyToken, async (req, res) => {
+router.get('/saved/posts', verifyToken, upload.none(), async (req, res) => {
     const userId = req.user.id;
     
-    // Get page from query params, default to 1 if not provided
-    const page = parseInt(req.query.page) || 1;
-    
-    // Get the page limit from environment variables, default to 10 if not provided
-    const limit = parseInt(process.env.SAVES_PAGE_LIMIT) || 10;
-    
-    // Calculate the offset based on the page number
-    const offset = (page - 1) * limit;
-
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
     const client = await db.connect();
     try {
         // Query to get saved posts with pagination
@@ -235,7 +225,7 @@ router.get('/saved/posts', verifyToken, async (req, res) => {
             totalRecords
         });
     } catch (error) {
-        console.error(error);
+        logger.error(`Error retrieving saved post: ${error.message}`, { stack: error.stack }); // Log error details
         return res.status(500).json({ error: 'Error retrieving saved posts.' });
     } finally {
         client.release();

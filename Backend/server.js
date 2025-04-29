@@ -3,7 +3,6 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config(); // Load environment variables from .env
-const multer = require('multer');
 
 const app = express();
 
@@ -46,7 +45,7 @@ app.listen(process.env.API_PORT, () => {
 });
 
 // Catch-all for unknown routes
-app.use((req, res, next) => {
+app.use((req, res) => {
     res.status(404).json({ error: 'Routes not found' });
 });
 

@@ -40,6 +40,7 @@ backend/uploads/
 backend/uploads/*
 
 # Environment and secrets
+ 
 
 # Database files
 # db/*.sqlite

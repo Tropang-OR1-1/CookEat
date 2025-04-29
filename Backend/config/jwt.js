@@ -1,15 +1,14 @@
 require("dotenv").config({ path: "../.env" });
 const jwt = require('jsonwebtoken');
-//const { v4: uuidv4 } = require('uuid');  // Importing the uuid library
+
 const db = require("./db");
+
+const logger = require("./logger");  // Importing the logger
 
 const crypto = require('crypto');  // For generating random strings
 
 const JWT_SECRET = process.env.JWT_SECRET;  // Change to something very secure!
 
-//const generateUUID = () => {
- // return uuidv4();  // Generates a random UUID
-//};
 
 // Function to generate a strong random string for added randomness in the token
 const generateRandomString = (length = 32) => {
@@ -17,6 +16,7 @@ const generateRandomString = (length = 32) => {
 };
 
 // Middleware to generate JWT with UUID for uniqueness and dynamic expiration
+
 const generateJWT = (load, expiresIn = '3h') => {
 //  const uuid = generateUUID();  // Add UUID to the payload for added uniqueness
   const randomString = generateRandomString();  // Add a random string to make the token more unpredictable
@@ -56,87 +56,49 @@ const verifyToken = async (req, res, next) => {
       req.user = decoded.rows[0];  // Store the decoded token (user data) in the request for later use
       next();  // Proceed to the next middleware/handler
     } catch (err) {
+      logger.error('Token verification failed:', err);  // Log the error for debugging
       return res.status(401).json({ message: 'Invalid or expired session token' });  // If token is invalid or expired, return 401
     }
   };
 
-const verifyMedia = (mediaToken) => { // check for args not on auth header
+
+
+const justifyToken = async (req, res, next) => {
+    const token = req.headers['authorization'];
+
+    if (!token) {
+        req.user = undefined;
+        return next();
+    }
+
+    const tokenWithoutBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
+
     try {
-      const decoded = jwt.verify(mediaToken, JWT_SECRET);  // Verify the media token using the secret key
-      return decoded;  // Return the decoded token (user data)
+        const token_id = jwt.verify(tokenWithoutBearer, JWT_SECRET);
+        const decoded = await db.query(
+            `SELECT id FROM user_profile WHERE token_id = $1 AND is_deleted = false LIMIT 1`,
+            [token_id.payload]
+        );
+
+        if (!decoded.rows.length) {
+            return res.status(403).json({ message: 'User not found or got deleted.' });
+        }
+
+        req.user = decoded.rows[0];  // Just { id: ... }
+        next();
     } catch (err) {
-      return null;  // If token is invalid or expired, return null
+        logger.error('Token verification failed:', err);
+        req.user = undefined; // <-- IMPORTANT! still proceed without token
+        return next();
     }
-  
-}
-
-
-function getUserToken(req) {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null;
-    }
-  
-    const token = authHeader.split(' ')[1];
-  
-    try {
-      const decoded = jwt.verify(token, secretKey);
-      return { user: decoded.payload.user_id };
-    } catch (error) {
-      return null;
-    }
-  }
-  
+  };
 
 
 // Export the functions for use in other parts of the app
 module.exports = {
   generateJWT,
   verifyToken,
-  verifyMedia,
-  getUserToken
+  justifyToken
 };
 
 
-
-
-/*
-const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
-
-require('dotenv').config({ path: '../.env' }); // Go up 2 levels to load .env
-
-// Secret key for signing (store this securely, ideally in an environment variable)
-const secretKey = process.env.JWT_SECRET;
-
-// Function to generate a session token
-function generateToken(payload) {
-    //randomizer.data = payload; // Assign the payload to the randomizer object
-    const token = jwt.sign(payload, secretKey, 
-        {
-        algorithm: 'HS256',
-        expiresIn: '1h'  // Token expiration time (optional)
-        });
-    return token;
-}
-
-// Function to verify the session token and handle errors
-function verifyToken(token) {
-    try {
-        const decoded = jwt.verify(token, secretKey);
-        return { success: true, decoded };  // If token is valid, return decoded data
-    } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return { success: false, message: 'Token expired' };
-        }  else {
-            return { success: false, message: 'Token verification failed' };
-        }
-    }
-}
-
-// Export functions to make them accessible in other files
-module.exports = {
-    generateToken,
-    verifyToken
-};
-*/
