@@ -110,7 +110,9 @@ router.post('/profile', verifyToken,  upload.Profile.single('profile'), async (r
         oldFilename = rows[0].picture;
         }
 
-    const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING *;`;
+    const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING 
+        picture, biography, username, nationality, sex, status, birthday, public_id, created_at
+        ;`;
     values.push(userId); // Add the ID as the last value
     let result;
     const client = await db.connect();
