@@ -49,13 +49,17 @@ function LoginRegister({ isOpen, onClose, setToken }) {
   
       const response = await axios.post('https://cookeat.cookeat.space/user/register', formData);
       const token = response.data.token;
-      localStorage.setItem('token', token); // Save to local storage
+      localStorage.setItem('token', token); // Save token
+      localStorage.setItem('username', registerData.username); // Save username
       setToken(token); // Update the app state
-      onClose(); // Close the modal
+      onClose(); // Close modal
+      window.location.reload(); // Refresh the page to fetch the profile
     } catch (error) {
       alert(error.response ? error.response.data : error.message);
     }
   };
+  
+  
 
   if (!isOpen) return null;
 

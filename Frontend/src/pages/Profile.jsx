@@ -1,91 +1,172 @@
+import { jwtDecode } from 'jwt-decode';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import FeedPost from './FeedPost';
-import './styles/profile.css'; 
+import './styles/profile.css';
 
 function Profile() {
-  // State hooks to store profile data, posts, and loading state
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // useEffect(() => {
-  //   const fetchProfile = async () => {
-  //     try {
-  //       const response = await axios.get('https://cookeat.cookeat.space/user/profile/me', {  
-  //         headers: {
-  //           'Authorization': `Bearer ${localStorage.getItem('token')}`,
-  //         },
-  //       });
-  //       if (response.data.profile && response.data.posts) {
-  //         setProfile(response.data.profile);
-  //         setPosts(response.data.posts);
-  //       } else {
-  //         throw new Error('Profile or posts data missing');
-  //       }
-  //     } catch (err) {
-  //       console.error('Error fetching profile:', err);
-  //       setError(err.response?.data?.message || err.message || 'Unknown error');
-  //       alert("Failed to load profile. Please check your token or network connection.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchProfile();
-  // }, []);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [newAvatar, setNewAvatar] = useState(null);
 
-  // Simulate fetching profile and posts data
-  // This is a placeholder for the actual API call to fetch user profile and posts
   useEffect(() => {
     const fetchProfile = async () => {
-      // Simulate sample profile and posts
-      const sampleProfile = {
-        avatar: 'https://www.w3schools.com/howto/img_avatar.png',  // Example avatar image
-        username: 'John Doe',
-        postsCount: 10,
-        followersCount: 150,
-        followingCount: 100,
-        bio: 'This is a sample bio for testing purposes.',
-      };
-      const samplePosts = [
-        {
-          id: 1,
-          time: '2025-04-01',
-          caption: 'This is a sample post.',
-          mediaType: 'image',
-          mediaSrc: 'https://via.placeholder.com/150',
-          ingredients: ['ingredient 1', 'ingredient 2'],
-          instructions: ['step 1', 'step 2'],
-          likes: 50,
-          comments: 10,
-        },
-        // Add more posts if needed
-      ];
-      
-      setProfile(sampleProfile);
-      setPosts(samplePosts);
-      setLoading(false);
+      const storedProfile = localStorage.getItem('profile');
+      let username = localStorage.getItem('username') || 'New User';
+
+      if (storedProfile) {
+        setProfile(JSON.parse(storedProfile));
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get('https://cookeat.cookeat.space/user/profile/me', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (response.data.Profile?.username) {
+          username = response.data.Profile.username;
+        }
+
+        const defaultProfile = {
+          avatar: 'https://www.w3schools.com/howto/img_avatar.png',
+          username: username,
+          postsCount: 0,
+          followersCount: 0,
+          followingCount: 0,
+          bio: 'Welcome to CookEat! Start sharing your delicious creations.',
+        };
+
+        setProfile(defaultProfile);
+        setPosts([]);
+        setLoading(false);
+      } catch (err) {
+        console.warn('Could not fetch username from backend, trying token instead.');
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const decoded = jwtDecode(token);
+            username = decoded.username || username;
+          } catch (decodeErr) {
+            console.warn('Token decode failed:', decodeErr);
+          }
+        }
+
+        const defaultProfile = {
+          avatar: 'https://www.w3schools.com/howto/img_avatar.png',
+          username: username,
+          postsCount: 0,
+          followersCount: 0,
+          followingCount: 0,
+          bio: 'Welcome to CookEat! Start sharing your delicious creations.',
+        };
+
+        setProfile(defaultProfile);
+        setPosts([]);
+        setLoading(false);
+      }
     };
-  
+
     fetchProfile();
   }, []);
+
+  const handleSaveProfile = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return alert("Not logged in.");
   
-  // If loading or error occurs
+    const formData = new FormData();
+    formData.append('username', newUsername);
+    
+    if (newAvatar) {
+      console.log('Appending avatar to form data:', newAvatar);
+      formData.append('profile', newAvatar);  // match backend field
+    }
+  
+    try {
+      console.log('Sending form data:', formData);
+      const response = await axios.post('https://cookeat.cookeat.space/user/profile', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log('API Response:', response);
+  
+      if (response.status === 200) {
+        alert('Profile updated successfully.');
+  
+        // Now fetch the updated profile (required to get full avatar URL)
+        const updatedProfileRes = await axios.get('https://cookeat.cookeat.space/user/profile/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        const updated = updatedProfileRes.data.Profile;
+        const updatedProfile = {
+          avatar: updated.picture
+            ? `https://cookeat.cookeat.space/media/profile/${updated.picture}`
+            : 'https://www.w3schools.com/howto/img_avatar.png',
+          username: updated.username,
+          postsCount: updated.postsCount || 0,
+          followersCount: updated.followersCount || 0,
+          followingCount: updated.followingCount || 0,
+          bio: updated.biography || 'Welcome to CookEat! Start sharing your delicious creations.',
+        };
+  
+        setProfile(updatedProfile);
+        localStorage.setItem('profile', JSON.stringify(updatedProfile));
+      } else {
+        alert('Failed to update profile.');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile.');
+    }
+  };
+  
+
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="profile-page-container">
-      {/* Main Content */}
       <main className="profile-content">
         <header className="profile-header">
           <div className="profile-image">
-            {/* Use dynamic profile image or fallback to placeholder */}
-            <img src={profile.avatar || 'placeholder-avatar.png'} alt="Profile" className="profile-avatar" />
+            <img
+              src={newAvatar ? URL.createObjectURL(newAvatar) : profile.avatar}
+              alt="Profile"
+              className="profile-avatar"
+            />
           </div>
           <div className="profile-info">
-            <h1 className="username">{profile.username}</h1>
+            {isEditing ? (
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setNewAvatar(e.target.files[0])}
+                />
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="Enter new username"
+                />
+              </>
+            ) : (
+              <h1 className="username">{profile.username}</h1>
+            )}
+
             <div className="stats">
               <span><strong>{profile.postsCount}</strong> Posts</span>
               <span><strong>{profile.followersCount}</strong> Followers</span>
@@ -94,17 +175,28 @@ function Profile() {
             <div className="bio">
               <p>{profile.bio}</p>
             </div>
+
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  handleSaveProfile();
+                } else {
+                  setNewUsername(profile.username);
+                }
+                setIsEditing(!isEditing);
+              }}
+            >
+              {isEditing ? 'Save' : 'Edit Profile'}
+            </button>
           </div>
         </header>
 
-        {/* Profile Tabs */}
         <nav className="profile-tabs">
           <button className="active">Posts</button>
           <button>Saved</button>
           <button>Followers</button>
         </nav>
 
-        {/* Posts Grid */}
         <div className="posts-grid">
           {posts.length === 0 ? (
             <p>No posts available.</p>
