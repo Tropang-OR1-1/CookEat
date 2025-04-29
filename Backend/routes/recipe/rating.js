@@ -5,11 +5,17 @@ const { saveFile, deleteFile }  = require('../../config/uploads');
 
 
 const upload = require('../../config/multer');  // Import multer configuration
+const logger = require('../../config/logger'); // Import the logger
+
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 require('dotenv').config({ path: '../.env' });
-const { sanitizeInput, isValidUUID, queryRPID } = require('../../config/defines');
+const { sanitizeInput, isValidUUID, queryRPID, getPaginationParams } = require('../../config/defines');
 
 const router = express.Router();
+
+const validateRatingData = async (rating) => {
+    return !(!Number.isInteger(rating) || rating < 1 || rating > 5);
+    }
 
 router.post('/rate/:recipeId', verifyToken, upload.Media.single("media"), async (req, res) => {
     const { recipeId: public_recipe_id } = req.params;
@@ -28,7 +34,7 @@ router.post('/rate/:recipeId', verifyToken, upload.Media.single("media"), async 
     if (isNaN(parsedRating))
         return res.status(400).json({ error: 'Rating must be a number.' });
 
-    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5)
+    if (!validateRatingData(parsedRating))
         return res.status(400).json({ error: 'Rating must be an integer from 1 to 5.' });
 
     // Validate content (must be string if exists)
@@ -57,6 +63,7 @@ router.post('/rate/:recipeId', verifyToken, upload.Media.single("media"), async 
             // Save the uploaded file and get the filename to store in the database
             mediaFilename = await saveFile(process.env.RECIPE_RATING_MEDIA_DIR, req.file);
         } catch (error) {
+            logger.error("Error saving rating media file:", error);
             return res.status(500).json({ error: 'Failed to save media file' });
             }
         }
@@ -68,9 +75,11 @@ router.post('/rate/:recipeId', verifyToken, upload.Media.single("media"), async 
              VALUES ($1, $2, $3, $4, $5)`,
             [recipe_id, userId, parsedRating, sanitizedContent, mediaFilename]
             );
+
+        logger.info(`Rating submitted successfully: ${parsedRating} for recipe ID: ${recipe_id}`);
         return res.status(201).json({ message: 'Rating submitted successfully.' });
     } catch (err) {
-        console.error(err);
+        logger.error("Error inserting rating:", err);
         return res.status(500).json({ error: 'Database error.', details: err });
     }
 });
@@ -95,9 +104,9 @@ router.put('/rate/:public_recipe_id', verifyToken, upload.Media.single("media"),
         if (isNaN(parsedRating))
             return res.status(400).json({ error: 'Rating must be a valid number.' });
 
-        if (parsedRating < 1 || parsedRating > 5)
+        if (!validateRatingData(parsedRating))
             return res.status(400).json({ error: 'Rating must be an integer from 1 to 5.' });
-    }
+        }
     // Validate content (must be string if exists)
     let sanitizedContent = typeof content === 'string' ? sanitizeInput(content) : undefined;
 
@@ -135,6 +144,7 @@ router.put('/rate/:public_recipe_id', verifyToken, upload.Media.single("media"),
 
             mediaFilename = newMediaFilename;
         } catch (error) {
+            logger.error("Error saving rating media file:", error);
             return res.status(500).json({ error: 'Failed to save media file' });
         }
     }
@@ -175,7 +185,7 @@ router.put('/rate/:public_recipe_id', verifyToken, upload.Media.single("media"),
             await client.query('COMMIT'); // Commit transaction
         } catch (err) {
             await client.query('ROLLBACK'); // Rollback transaction in case of error
-            console.error(err);
+            logger.error("Error updating rating:", err);
             return res.status(500).json({ error: 'Database error.', details: err });
             }
         finally {
@@ -228,6 +238,7 @@ router.delete('/rate/:recipeId', verifyToken, async (req, res) => {
             try {
                 deleteFile(process.env.RECIPE_RATING_MEDIA_DIR, fname);
             } catch (err) {
+                logger.error("Error deleting media file:", err);
                 await client.query('ROLLBACK');
                 return res.status(500).json({ error: 'Failed to delete associated media file.', details: err });
             }
@@ -238,11 +249,84 @@ router.delete('/rate/:recipeId', verifyToken, async (req, res) => {
 
     } catch (err) {
         await client.query('ROLLBACK');
-        console.error(err);
+        logger.error("Error deleting rating:", err);
         return res.status(500).json({ error: 'Database error.', details: err });
     } finally {
         client.release();
     }
 });
+
+
+router.get('/rate/:public_recipe_id', verifyToken, upload.none(), async (req, res) => {
+    const { public_recipe_id } = req.params;
+    let { rating } = req.query;
+
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
+
+    if (rating !== undefined) {
+        let parsedRating = parseInt(rating);
+        if (isNaN(parsedRating) || !validateRatingData(parsedRating)) {
+            rating = undefined;
+        } else {
+            rating = parsedRating;
+        }
+    }
+
+    const recipeIdResult = await queryRPID(public_recipe_id);
+    if (!recipeIdResult.success)
+        return res.status(404).json({ error: recipeIdResult.error });
+    const recipeId = recipeIdResult.id;
+
+    try {
+        let query = `
+            SELECT 
+                rr.rating,
+                rr.content,
+                rr.fname,
+                u.username,
+                u.public_id AS user_id,
+                u.picture AS user_picture
+            FROM recipe_rating rr
+            JOIN user_profile u ON rr.user_id = u.id
+            WHERE rr.recipe_id = $1
+        `;
+
+        const values = [recipeId];
+        let paramIndex = 2;
+
+        if (rating !== undefined) {
+            query += ` AND rr.rating = $${paramIndex++}`;
+            values.push(rating);
+        }
+
+        query += ` ORDER BY rr.rating DESC, rr.content DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
+        values.push(limit, offset);
+
+        const ratingsResult = await db.query(query, values);
+
+        const avgQuery = `
+            SELECT AVG(rating) AS average_rating
+            FROM recipe_rating
+            WHERE recipe_id = $1
+        `;
+        const avgResult = await db.query(avgQuery, [recipeId]);
+        const averageRating = avgResult.rows[0]?.average_rating;
+
+        res.status(200).json({
+            recipe_id: public_recipe_id,
+            page,
+            limit,
+            averageRating: averageRating ? parseFloat(averageRating).toFixed(2) : null,
+            ratings: ratingsResult.rows
+        });
+    } catch (err) {
+        logger.error("Error fetching recipe ratings:", err);
+        res.status(500).json({ error: "Failed to fetch recipe ratings." });
+    }
+});
+
+
+
 
 module.exports = router;

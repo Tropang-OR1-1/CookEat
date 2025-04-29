@@ -3,6 +3,9 @@ const validator = require("validator"); // Import the validator library for emai
 const xss = require("xss");
 const db = require('./db');
 
+
+const logger = require('./logger'); // Import the logger for logging errors
+require('dotenv').config({ path: '../.env' }); // Go up 2 levels to load .env
 const allowedSex = ['Male', 'Female'];
 const allowedNationalities = [
   "Afghan", "Albanian", "Algerian", "American", "Andorran",
@@ -73,7 +76,7 @@ const stringArrayParser = (tags) => {
       try {
           const fixedString = tags.replace(/'/g, '"'); // Replace single quotes with double quotes
           return JSON.parse(fixedString); // Try to parse the JSON string
-      } catch (err) {
+      } catch {
           return undefined; // Return empty array if parsing fails
       }
   } else if (Array.isArray(tags)) {
@@ -130,7 +133,7 @@ const queryStatus = async (userId) => { // -> fetch status
   try {
     const { rows } = await db.query("SELECT status FROM user_profile WHERE id = $1", [userId]);
     return rows.length ? { success: true, status: rows[0].status } : { success: false, error: 'User not found' };
-    } catch (err) {
+    } catch {
       return { success: false, error: 'Database error' };
     }
   };
@@ -140,6 +143,7 @@ const queryPPID = async (public_id) => { // query post public ID -> post id
     const { rows } = await db.query("SELECT id FROM posts WHERE public_id = $1", [public_id]);
     return rows.length ? { success: true, id: rows[0].id } : { success: false, error: 'post\'s not found' };
     } catch (err) {
+      logger.error(err); // Log the error for debugging
       return { success: false, error: 'Database error' };
     }
   };
@@ -149,6 +153,7 @@ const queryCPID = async (public_id) => { // query comment public ID -> comment i
       const { rows } = await db.query("SELECT id FROM comments WHERE public_id = $1", [public_id]);
       return rows.length ? { success: true, id: rows[0].id } : { success: false, error: 'comment\'s not found' };
       } catch (err) {
+        logger.error(err); // Log the error for debugging
         return { success: false, error: 'Database error' };
       }
     };  
@@ -158,6 +163,7 @@ const queryRPID = async (public_id) => { // query recipe public ID -> recipe id
       const { rows } = await db.query("SELECT id FROM recipe WHERE public_id = $1", [public_id]);
       return rows.length ? { success: true, id: rows[0].id } : { success: false, error: 'recipe not found' };
       } catch (err) {
+        logger.error(err); // Log the error for debugging
         return { success: false, error: 'Database error' };
       }
     };
@@ -167,40 +173,20 @@ const queryPostUID = async (post_id) => { // requires primary post id
     const { rows } = await db.query("SELECT user_id FROM posts WHERE public_id = $1", [post_id]);
     return rows.length ? { success: true, user_id: rows[0].user_id } : { success: false, error: 'user\'s not found' };
     } catch (err) {
-      console.log(err);
+      logger.error(err); // Log the error for debugging
       return { success: false, error: 'Database error' };
     }
 }
 
-const isMutualFollow = async (userA_id, userB_id) => {
+const queryUPID = async (user_public_id) => { // query user public id
   try {
-    // Query to check if userA follows userB and userB follows userA
-    const query = `
-      SELECT EXISTS (
-        SELECT 1
-        FROM public.followers f1
-        WHERE f1.following_user_id = $1
-          AND f1.followed_user_id = $2
-      ) AS userA_follows_userB,
-      
-      EXISTS (
-        SELECT 1
-        FROM public.followers f2
-        WHERE f2.following_user_id = $2
-          AND f2.followed_user_id = $1
-      ) AS userB_follows_userA;
-    `;
-    
-    const res = await db.query(query, [userA_id, userB_id]);
-    
-    // Check if both conditions are true (both users follow each other)
-    const isConnected = res.rows[0].userA_follows_userB && res.rows[0].userB_follows_userA;
-    return { success: true, isConnected: isConnected };  // returns true if both follow each other, false otherwise
-  } catch (err) {
-    console.error('Error checking user connection:', err);
-    return { success : false, error: 'Failed to check connection.' };  // failure response
-  }
-};
+    const { rows } = await db.query("SELECT id FROM user_profile WHERE public_id = $1", [user_public_id]);
+    return rows.length ? { success: true, user_id: rows[0].id } : { success: false, error: 'user not found' };
+    } catch (err) {
+        logger.error(`Error executing queryUPID (${user_public_id}): ${err.stack}`);
+        return { success: false, error: 'Database error' };
+    }
+}
 
 const isValidUUID = (str) => /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(str);
 
@@ -213,15 +199,75 @@ const hasUploadedFiles = (files) => {
     try {
       return xss(dirty);
     } catch (err) {
-      console.error("Error sanitizing input:", err);
+      logger.error(err); // Log the error for debugging
       return dirty; // Return the original input if something goes wrong
     }
   };
 
-const MAX_TAG_NAME_LENGTH = parseInt(process.env.MAX_TAGS_CATEGORY_NAME_LENGTH, 10) || 50;
-
-
 const isAlphanumeric = (str) => typeof str === 'undefined' || typeof str === 'string' && /^[A-Za-z0-9_]+$/.test(str);
+
+
+
+async function canAccessUserData(accId, userId) {
+  try {
+      const query = `
+          SELECT status
+          FROM user_profile
+          WHERE id = $1
+      `;
+      const { rows } = await db.query(query, [userId]);
+      
+      if (!rows.length)
+          return { success: false, error: "User not found." };
+
+      const status = rows[0].status; // 'private', 'restricted', or 'public'
+
+      if (status === 'public')
+          return { success: true };
+
+      if (status === 'private') {
+          if (accId === userId)
+              return { success: true };
+          else
+              return { success: false, error: "Private account." };
+      }
+
+      if (status === 'restricted') {
+          if (accId === userId)
+              return { success: true };
+
+          const followQuery = `
+              SELECT 1
+              FROM followers AS f1
+              JOIN followers AS f2
+                ON f1.following_user_id = f2.follower_user_id
+               AND f1.follower_user_id = f2.following_user_id
+              WHERE f1.following_user_id = $1
+                AND f1.follower_user_id = $2
+              LIMIT 1
+          `;
+          const { rows: followRows } = await db.query(followQuery, [userId, accId]);
+          
+          if (followRows.length)
+              return { success: true };
+          else
+              return { success: false, error: "Restricted account. Only mutual followers can access." };
+      }
+
+      return { success: false, error: "Invalid account status." };
+  } catch (err) {
+      logger.error(err); // Log the error for debugging
+      return { success: false, error: "Database error." };
+      }
+  }
+
+  function getPaginationParams(reqQuery, defaultLimit = 10) {
+    const page = parseInt(reqQuery.page, 10) || 1;
+    const limit = parseInt(reqQuery.limit, 10) || defaultLimit;
+    const offset = (page - 1) * limit;
+    
+    return { page, limit, offset };
+}
 
 
 module.exports = {
@@ -237,7 +283,7 @@ module.exports = {
   usernameRegex,
   allowedMediaTypes,
   allowedImageTypes,
-  isMutualFollow,
+  canAccessUserData,
   hasUploadedFiles,
   emailValidator,
   tagsValidator,
@@ -248,5 +294,6 @@ module.exports = {
   queryPPID,
   queryCPID,
   queryRPID,
-
+  queryUPID,
+  getPaginationParams
 };

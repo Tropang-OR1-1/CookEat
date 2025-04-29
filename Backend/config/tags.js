@@ -21,7 +21,7 @@ const updateTagsToEntity = async (client, entityId, tagNames, entityType) => {
         return await insertTagsToEntity(client, entityId, tagNames, tableName, foreignKey);
     } catch (err) {
         throw new Error(`Error updating tags for ${entityType}.`);
-    }
+        }
 };
 
 
@@ -46,7 +46,10 @@ const insertTagsToEntity = async (client, entityId, tagNames, tableName, foreign
         VALUES ${valuesClause.join(', ')}
         ON CONFLICT DO NOTHING;
     `;
-    await client.query(query, queryValues);
+    try { await client.query(query, queryValues); }
+    catch (err) {
+        throw new Error(`Error inserting tags for ${tableName}.`);
+    }
 };
 
 const getOrCreateTagId = async (tagName) => {
@@ -61,8 +64,12 @@ const getOrCreateTagId = async (tagName) => {
         UNION
         SELECT id FROM tags WHERE name = $1;
     `;
-    const result = await db.query(query, [tagName]);
-    return result.rows[0]?.id;
+    try {
+        const result = await db.query(query, [tagName]);
+        return result.rows[0]?.id;
+    } catch (err) {
+        throw new Error(`Error getting or creating tag ID for ${tagName}.`);
+        }
 };
 
 
