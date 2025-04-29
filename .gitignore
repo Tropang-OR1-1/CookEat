@@ -40,11 +40,9 @@ backend/uploads/
 backend/uploads/*
 
 # Environment and secrets
-<<<<<<< Updated upstream
-=======
  
 #.env.local
->>>>>>> Stashed changes
+
 
 # Database files
 # db/*.sqlite

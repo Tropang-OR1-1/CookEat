@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import './LoginRegister.css';   
-// need to install axios (npm install axios)
 import axios from 'axios';
+import './styles/loginregister.css';   
 
-function LoginRegister({ isOpen, onClose }) {
+
+function LoginRegister({ isOpen, onClose, setToken }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
@@ -21,22 +21,37 @@ function LoginRegister({ isOpen, onClose }) {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/login', loginData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      alert(response.data.token);
+      const formData = new FormData();
+      formData.append('email', loginData.email);
+      formData.append('password', loginData.password);
+  
+      const response = await axios.post('https://cookeat.cookeat.space/user/login', formData);
+      const token = response.data.token;
+      localStorage.setItem('token', token); // Save to local storage
+      setToken(token); // Update the app state
+      onClose(); // Close the modal
     } catch (error) {
-      alert(error.response ? error.response.data : error.message);
+      if (error.response && error.response.data) {
+        alert(error.response.data.error || JSON.stringify(error.response.data));
+      } else {
+        alert(error.message);
+      }
     }
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/register', registerData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      alert(response.data.token);
+      const formData = new FormData();
+      formData.append('username', registerData.username);
+      formData.append('email', registerData.email);
+      formData.append('password', registerData.password);
+  
+      const response = await axios.post('https://cookeat.cookeat.space/user/register', formData);
+      const token = response.data.token;
+      localStorage.setItem('token', token); // Save to local storage
+      setToken(token); // Update the app state
+      onClose(); // Close the modal
     } catch (error) {
       alert(error.response ? error.response.data : error.message);
     }
@@ -135,7 +150,7 @@ function LoginRegister({ isOpen, onClose }) {
             <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
           </div>
           <div className="toggle-panel toggle-right">
-            <h1>Welcome! to Cook Eat</h1>
+            <h1>Welcome to Cook Eat!</h1>
             <p>Already have an account?</p>
             <button className="btn" onClick={() => setIsRegisterMode(false)}>Login</button>
           </div>
