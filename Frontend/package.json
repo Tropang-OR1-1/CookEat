@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "frontend": "file:",
     "axios": "^1.9.0",
+    "frontend": "file:",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.2"
