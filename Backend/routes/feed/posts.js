@@ -7,7 +7,7 @@ require('dotenv').config({ path: '../.env' });
 
 const tagsHandler = require('../../config/tags');
 
-const { allowedStatus, allowedMediaTypes, allowedImageTypes,
+const { allowedStatus, 
         queryStatus, queryPPID, tagsValidator,
         queryPostUID, hasUploadedFiles, stringArrayParser,
         sanitizeInput, isValidUUID, allowedDeleteMedia,
@@ -15,6 +15,7 @@ const { allowedStatus, allowedMediaTypes, allowedImageTypes,
         } = require('../../config/defines');
 
 const { insertMedia, updateMedia, deleteMedia } = require('../../config/uploads');
+const logger = require('../../config/logger');
 
 
 const router = express.Router();
@@ -108,7 +109,7 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
     try {
         await client.query('BEGIN;');
 
-        querypost = 'INSERT INTO posts (title, content, user_id, visibility) VALUES ($1, $2, $3, $4) RETURNING id, public_id';
+        const querypost = 'INSERT INTO posts (title, content, user_id, visibility) VALUES ($1, $2, $3, $4) RETURNING id, public_id';
         const postResult = await client.query(querypost, [title, content, userId, visibility]);
         const {id, public_id} = postResult.rows[0]; // Get the ID of the newly created post
         const postId = id;
@@ -122,11 +123,16 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
             if (!insertmedia.success)
                 return res.status(400).json({error: insertmedia.error });
             }
-
+        
+        logger.info(`Post created with ID: ${public_id}`); // Log the post creation
         await client.query('COMMIT;');
         return res.status(200).json({"PostID": public_id});
+
         } catch (err){
+            logger.error("Error during post creation:", err);
             await client.query('ROLLBACK;');
+            return res.status(500).json({ error: "Database error.", err });
+
         } finally {
             client.release();
             }
@@ -165,15 +171,19 @@ router.post('/:id', verifyToken, upload.none(), async (req, res) => {
     else if (typeof status !== 'string' || !allowedStatus.includes(status)) {
         return res.status(400).json({ error: 'Invalid status value.' });
         }
-    else if (!allowedStatus.includes(status)) {
-        return res.status(400).json({ error: 'Invalid status value.' });
-        }
+        
+    const querypost = 'INSERT INTO posts (title, content, user_id, visibility, ref_id) VALUES ($1, $2, $3, $4, $5) RETURNING public_id';
+    
+    try {
+        const postResult = await db.query(querypost, [title, content, userId, status, rid]);
+        const public_id = postResult.rows[0].public_id;
 
-    querypost = 'INSERT INTO posts (title, content, user_id, visibility, ref_id) VALUES ($1, $2, $3, $4, $5) RETURNING public_id';
-    const postResult = await db.query(querypost, [title, content, userId, status, rid]);
-    const public_id = postResult.rows[0].public_id;
-
-    res.status(200).json({"PostID": public_id});
+        logger.info(`Post created with ID: ${public_id}`); // Log the post creation
+        res.status(200).json({"PostID": public_id});
+        } catch (err) {
+            logger.error("Error during post creation:", err);
+            res.status(500).json({ error: "Database error.", err });
+            }
     });
 
 router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX_POST_MEDIA), async (req, res) => {
@@ -235,8 +245,12 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
     
     const fetchowner = await queryPostUID(pid); // search for the owner of the posts. using public id
     if (!fetchowner.success) return res.status(400).json({error: fetchowner.error});
+
     // make sure user are only allowed to update his own posts.
-    if (fetchowner.user_id != userId) return res.status(400).json({error: "Unathorized Update."});
+    if (fetchowner.user_id != userId){
+        logger.error(`User ${userId} attempted to update post ${pid} without permission.`);
+        return res.status(400).json({error: "Unathorized Update."});
+        }
     
     const client = await db.connect();
     try {
@@ -249,6 +263,7 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
             else { return res.status(404).json({error: `Invalid Deletemedia(image, video, all): ${deletemedia}`}); }
             }
         
+        let resultquery = null;
         if (hasAnyUpdate) {// updates 
             const updates = [];
             const values = [];
@@ -283,9 +298,12 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
             }
 
         await client.query('COMMIT;');
+        logger.info(`Post updated with ID: ${resultquery.rows[0].public_id}`); // Log the post creation
         return res.status(200).json({msg:'Post updated successfully.'});
+
         } catch (err) {
             await client.query('ROLLBACK;');
+            logger.error("Error during post update:", err);
             return res.status(500).json({ error: "Database error.", err });
         } finally {
             client.release();
@@ -309,12 +327,13 @@ router.delete('/:post_id', verifyToken, async (req, res) => {
                 user_id = $2 AND deleted_at IS NULL
                 RETURNING *`;
         const { rows } = await db.query(deleteQuery, [post_id, puid]);
-        if (!rows.length)
-            return res.status(400).json({ error: "Error post not found or already deleted." });
+        
+        if (!rows.length) return res.status(400).json({ error: "Error post not found or already deleted." });
 
-        else res.status(200).json({ msg: `Post(${post_id}) deleted successfully.` });
+        logger.info(`Post deleted with ID: ${post_id}`); // Log the post deletion
+        res.status(200).json({ msg: `Post(${post_id}) deleted successfully.` });
     } catch (err) {
-        console.error("Error during soft delete:", err);
+        logger.error("Error during post deletion:", err);
         return res.status(500).json({ error: "Error deleting a post." });
         }
     });

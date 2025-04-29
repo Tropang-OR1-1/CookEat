@@ -2,11 +2,12 @@ const express = require('express');
 const db = require("../../config/db");
 
 const { 
-        queryPPID, queryCPID,
-        isMutualFollow, sanitizeInput,
-        isValidUUID
+        getPaginationParams,
+        isValidUUID, canAccessUserData,
+        queryUPID
         } = require('../../config/defines');
 
+const logger = require('../../config/logger'); // Import the logger
 const upload = require('../../config/multer');  // Import multer configuration
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 
@@ -37,10 +38,16 @@ router.post('/follow/:user_id', verifyToken, upload.none(), async (req, res) => 
             RETURNING *`;
         const { rows } = await db.query(insertQuery, [following_id, follower_id]);
         
-        if (rows.length) return res.status(200).json({ message: "Follow successful." });
-        else return res.status(200).json({ message: "Followed already" });
+        if (rows.length){
+            logger.info(`User with ID ${follower_id} followed user with ID ${following_id}`);
+            return res.status(200).json({ message: "Follow successful." });
+            }
+        else {
+            logger.info(`User with ID ${follower_id} tried to follow user ${following_id}, but they are already following.`);
+            return res.status(200).json({ message: "Followed already" });
+        }
     } catch (err) {
-        console.log(err);
+        logger.error(`Error executing follow query: ${err.stack}`);
         return res.status(500).json({ error: "Database error." });
     }
 });
@@ -67,22 +74,125 @@ router.post('/unfollow/:user_id', verifyToken, upload.none(), async (req, res) =
             WHERE following_user_id = $1 AND follower_user_id = $2;
         `;
         await db.query(deleteQuery, [following_id, follower_id]);
+        logger.info(`User ${follower_id} unfollowed user ${following_id}`);
         return res.status(200).json({ message: "Unfollow successful." });
     } catch (err) {
+        logger.error(`Error while unfollowing: ${err.stack}`);
         return res.status(500).json({ error: "Database error." });
         }
     });
 
 
+router.get('/followers/:user_id', verifyToken, async (req, res) => {
+    const publicId = req.params.user_id;
 
-const queryUPID = async (user_public_id) => { // query user public id
-  try {
-    const { rows } = await db.query("SELECT id FROM user_profile WHERE public_id = $1", [user_public_id]);
-    return rows.length ? { success: true, user_id: rows[0].id } : { success: false, error: 'user not found' };
-    } catch (err) {
-      return { success: false, error: 'Database error' };
+    if (!isValidUUID(publicId) || publicId === "me")
+        return res.status(400).json({ error: "user_id must be a valid UUID." });
+    
+    let result = {};
+    if (publicId === "me") {
+        result.user_id = req.user.id;
+    } else {
+        result = await queryUPID(publicId);
+        if (!result.success) {
+            return res.status(400).json({ error: "Invalid user ID." });
+        }
     }
-}
+
+    const userId = result.user_id;
+    const accId = req.user.id; // Get the user ID from the token
+
+    // Check if the current user has permission to access this user's data
+    const checkStatus = await canAccessUserData(accId, userId);
+    if (!checkStatus.success) {
+        logger.error(`User ${accId} tried to access data of user ${userId} without permission.`);
+        return res.status(403).json({ error: checkStatus.error });
+    }
+
+    // Pagination params
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
+
+    try {
+        const selectQuery = `
+            SELECT u.public_id, u.username, u.picture
+            FROM followers f
+            INNER JOIN user_profile u ON u.id = f.follower_user_id
+            WHERE f.following_user_id = $1
+            LIMIT $2 OFFSET $3
+        `;
+        const { rows } = await db.query(selectQuery, [userId, limit, offset]);
+
+        logger.info(`Successfully fetched ${rows.length} followers for user ${userId}`);
+
+        return res.status(200).json({
+            followers: rows,
+            pagination: { page, limit, offset }
+        });
+    } catch (err) {
+        logger.error(`Error fetching followers for user ${userId}: ${err.stack}`);
+        return res.status(500).json({ error: "Database error." });
+    }
+});
+
+router.get('/followings/:user_id', verifyToken, async (req, res) => {
+    const publicId = req.params.user_id;
+
+    // Check if user_id is a valid UUID or "me"
+    if (!isValidUUID(publicId) && publicId !== "me") {
+        return res.status(400).json({ error: "user_id must be a valid UUID or 'me'." });
+    }
+    
+    let result = {};
+    
+    // If the user_id is "me", use the logged-in user's ID
+    if (publicId === "me") {
+        result.user_id = req.user.id;
+    } else {
+        result = await queryUPID(publicId);
+        if (!result.success) {
+            return res.status(400).json({ error: "Invalid user ID." });
+        }
+    }
+
+    const userId = result.user_id;
+    const accId = req.user.id; // Get the user ID from the token
+
+    // Check if the current user has permission to access this user's data
+    const checkStatus = await canAccessUserData(accId, userId);
+    if (!checkStatus.success) {
+        logger.error(`User ${accId} tried to access data of user ${userId} without permission.`);
+        return res.status(403).json({ error: checkStatus.error });
+    }
+
+    // Pagination params
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
+
+    try {
+        const selectQuery = `
+            SELECT u.username, u.public_id, u.picture
+            FROM followers f
+            INNER JOIN user_profile u ON u.id = f.follower_user_id
+            WHERE f.following_user_id = $1
+            LIMIT $2 OFFSET $3
+        `;
+        const { rows } = await db.query(selectQuery, [userId, limit, offset]);
+
+        logger.info(`Successfully fetched ${rows.length} followings for user ${userId}`);
+
+        // Return the followers and pagination info
+        return res.status(200).json({
+            followings: rows,
+            pagination: { page, limit, offset }
+        });
+    } catch (err) {
+        logger.error(`Error fetching followings for user ${userId}: ${err.stack}`);
+        return res.status(500).json({ error: "Database error." });
+    }
+});
+
+
 
 
 module.exports = router;

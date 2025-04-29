@@ -1,12 +1,15 @@
 const express = require('express');
 const db = require("../../config/db");
 
-const { insertMedia, deleteFile, updateMedia } = require('../../config/uploads');
+const { insertMedia, deleteFile, updateMedia, deleteMedia } = require('../../config/uploads');
 const upload = require('../../config/multer');  // Import multer configuration
+const logger = require('../../config/logger');
+
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 const { stringArrayParser, validateArrayInput, allowedRecipeDifficulty,
         sanitizeInput, queryRPID, isValidUUID, 
         allowedDeleteMedia } = require('../../config/defines');
+
 require('dotenv').config({ path: '../.env' });
 
 const router = express.Router();
@@ -162,9 +165,11 @@ router.post('/', verifyToken,
                 return res.status(400).json({error: insertmedia.error });
             }
 
+        logger.info(`Recipe created with ID: ${rows[0].public_id}`);
         await client.query('COMMIT');
         return res.status(200).json({ msg: "recipe created successfully.", recipe_id: rows[0].public_id });
         } catch (err) {
+            logger.error("Error in creating recipe:", err);
             await client.query('ROLLBACK;');
             return res.status(500).json({ error: "Database error.", err });
             }
@@ -210,7 +215,6 @@ router.put('/:recipeId', verifyToken,
     
     if (hasUploadedMedia(thumbnail)){
         thumbnail = thumbnail[0];
-        console.log(thumbnail.filename);
         }
     
     let processed_title = undefined;
@@ -319,17 +323,18 @@ router.put('/:recipeId', verifyToken,
                 });
             
             if (result.success && result.oldThumbnail) {
-                console.log(`Deleting ${result.oldThumbnail}`);
+                logger.info(`Deleting: ${result.oldThumbnail}`);
                 deleteFile(process.env.RECIPE_THUMBNAIL_DIR, result.oldThumbnail);
                 }
             }
-
+        
+        logger.info(`Recipe updated with ID: ${public_recipe_id}`);
         await client.query('COMMIT;');
         return res.status(200).json({ msg: "Recipe updated successfully.", recipe_id: public_recipe_id });
         }
     catch (err) {
         await client.query('ROLLBACK;');
-        console.log(err);
+        logger.error("Error in updating recipe:", err);
         return res.status(500).json({ error: "An internal error occurred." });
         }
     finally {
@@ -364,9 +369,10 @@ router.delete('/:recipeId', verifyToken, async (req, res) => { // perform
             [recipe.id]
         );
 
+        logger.info(`Recipe soft-deleted with ID: ${recipeId}`);
         return res.status(200).json({ message: 'Recipe soft-deleted successfully' });
     } catch (error) {
-        console.error(error);
+        logger.error('Error deleting recipe:', error);
         return res.status(500).json({ error: 'An error occurred while deleting the recipe' });
     }
 });
@@ -377,13 +383,13 @@ const updateIngredientsTorecipe = async (client, recipeId, ingredients) => {
 
         await client.query(`DELETE FROM ri_junction WHERE recipe_id = $1;`, [recipeId]);
         return await insertIngredientsToRecipe(client, recipeId, ingredients);
-        } catch (err) { throw new Error("Error updating ingredients."); }
+        } catch { throw new Error("Error updating ingredients."); }
     }
 const updateCategoryTorecipe = async (client, recipeId, category) => {
     try {
     await client.query(`DELETE FROM rc_junction WHERE recipe_id = $1;`, [recipeId]);
     return await insertCategoriesToRecipe(client, recipeId, category);
-        } catch (err) {
+        } catch {
         throw new Error("Error updating category."); }
     }
 
@@ -611,7 +617,6 @@ const updateRecipe = async (recipeId, {
             );
             if (thumbRes.rows.length > 0) {
                 oldThumbnail = thumbRes.rows[0].thumbnail;
-                console.log("old: "+ oldThumbnail);
             }
         }
 
