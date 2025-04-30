@@ -1,6 +1,7 @@
 // imageRoute.js
 require("dotenv").config({ path: "../.env" });
-const {verifyMedia} = require('../config/jwt'); // Import JWT verification middleware
+//const {verifyMedia} = require('../config/jwt'); // Import JWT verification middleware
+const logger = require('../config/logger'); // Import the logger
 const path = require('path');
 const express = require('express');
 const router = express.Router();
@@ -25,7 +26,6 @@ router.get('/:type/:fname', async (req, res) => {
         return res.status(400).json({ error: 'Invalid filename.' });
 
     if (!allowedMediaTypes.includes(ext) && !allowedImageTypes.includes(ext)){
-        console.log(ext);
         return res.status(404).json({ error: 'Invalid file extension.' });
         }
 
@@ -41,17 +41,19 @@ router.get('/:type/:fname', async (req, res) => {
     } else if (type === "thumbnail") {
         FileDir = process.env.RECIPE_THUMBNAIL_DIR;
     } else {
-        console.log(type);
-        return res.status(404).json({ error: 'Route not found.' });
+        logger.error(`Unknown type: ${type}`);
+        return res.status(404).json({ error: 'type not found.' });
     }
 
-    const filePath = path.join(__dirname, '..', FileDir, fname);
-    console.log(filePath);
+    const filePath = path.join(FileDir, fname);
     try {
         await fs.access(filePath); // Check if file exists
+
         res.sendFile(filePath);
+        logger.info(`File transmitted: ${filePath}`);  // Log successful file access
+
     } catch (err) {
-        console.log(err);
+        logger.error(`File not found: ${filePath}. Error: ${err.message}`, { stack: err.stack }); // Log error details
         res.status(404).json({ error: 'File not found.' });
     }
 });

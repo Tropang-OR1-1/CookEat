@@ -1,7 +1,7 @@
 import React from 'react';
-import './Profile.css';
+import './styles/settings.css';
 
-function Profile () {
+function Settings () {
 
   return (
     <> 
@@ -10,4 +10,4 @@ function Profile () {
   )
 }
 
-export default Profile
+export default Settings

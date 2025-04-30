@@ -8,10 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
 dist-ssr
 *.local
-
+.env
+./.env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -32,7 +32,6 @@ dist-ssr
 Thumbs.db
 
 # Build and cache files
-dist/
 .cache/
 *.bak
 
@@ -40,6 +39,9 @@ backend/uploads/
 backend/uploads/*
 
 # Environment and secrets
+ 
+#.env.local
+
 
 # Database files
 # db/*.sqlite
@@ -55,4 +57,3 @@ backend/uploads/*
 
 # Node.js dependencies
 node_modules/
-package-lock.json

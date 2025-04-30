@@ -74,7 +74,7 @@ const insertMedia = async ({
         }
 
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false, error: 'Error inserting media' };
     }
 };
@@ -202,8 +202,7 @@ const deleteFile = (folderPath, filename) => {
     });
 };
 
-
-const saveFile = async (directory = MEDIA_SAVE_PATH, file) => {
+const saveFile = async (directory, file) => {
     // Validate if the file type is allowed (optional, based on your defines)
     const fileType = path.extname(file.originalname).toLowerCase();
     if (![...allowedImageTypes, ...allowedMediaTypes].includes(fileType)) {
@@ -219,14 +218,14 @@ const saveFile = async (directory = MEDIA_SAVE_PATH, file) => {
     // Ensure the destination folder exists
     try {
         await fs.mkdir(directory, { recursive: true });
-    } catch (err) {
+    } catch {
         throw new Error('Failed to create directory');
     }
 
     // Write the file buffer to the disk
     try {
         await fs.writeFile(destination, file.buffer);
-    } catch (err) {
+    } catch {
         throw new Error('Failed to save file');
     }
 
@@ -240,5 +239,33 @@ const computeFileHash = (buffer) => {
     return hash.digest('hex');  // Return the hash as a hexadecimal string
     };
 
+async function copyDefaultPfpToProfileDir() {
+    const defaultPath = process.env.DEFAULT_PROFILE_PATH;
+    const destDir = process.env.PROFILE_DIR;
 
-module.exports = { insertMedia, cleanupMedia, updateMedia, deleteMedia, deleteFile, saveFile };
+    if (!defaultPath || !destDir) {
+        throw new Error('DEFAULT_PFP_PATH or PROFILE_PIC_DIR is not set in .env');
+    }
+
+    // Ensure the directory exists
+    try {
+        await fs.mkdir(destDir, { recursive: true });
+    } catch (err) {
+        throw new Error(`Failed to create directory: ${destDir}\n${err}`);
+    }
+
+    const ext = path.extname(defaultPath); // e.g., ".png"
+    const newFilename = `${uuidv4()}${ext}`;
+    const destPath = path.join(destDir, newFilename);
+
+    try {
+        await fs.copyFile(defaultPath, destPath);
+    } catch (err) {
+        throw new Error(`Failed to copy default PFP: ${err}`);
+    }
+
+    return newFilename;
+}
+
+module.exports = {  insertMedia, cleanupMedia, updateMedia, deleteMedia,
+                    deleteFile, saveFile, copyDefaultPfpToProfileDir };
