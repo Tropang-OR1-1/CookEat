@@ -24,11 +24,11 @@ const About = () => {
             <p className="flirt">"Call me full-stack, 'cause I got everything you're looking for... front, back, and heart."</p>
           </a>
 
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
+          <a href="https://jrhey124.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
             <span className="ripple"></span>
             <img src="/images/about_img/pens.jpeg" alt="John Rhey D. Peña" />
             <h2>John Rhey D. Peña</h2>
-            <p className="role">Backend</p>
+            <p className="role">Backend Developer</p>
             <p className="flirt">"You can’t see me working, but I’ll always be there to support you just like the backend."</p>
           </a>
 
@@ -36,7 +36,7 @@ const About = () => {
             <span className="ripple"></span>
             <img src="/images/about_img/ponce.jpeg" alt="Rham Ryan Ponce" />
             <h2>Rham Ryan Ponce</h2>
-            <p className="role">Frontend</p>
+            <p className="role">Frontend Developer</p>
             <p className="flirt">"Is it hot in here or is it just my CSS making your heart flutter?"</p>
           </a>
 
