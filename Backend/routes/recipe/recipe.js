@@ -42,7 +42,8 @@ const updateRecipeMedia = async (client, files, recipeId) => {
         tableName: 'recipemedia',
         idColumn: 'recipe_id',
         imageDir: process.env.RECIPE_IMAGE_DIR,
-        videoDir: process.env.RECIPE_VIDEO_DIR
+        videoDir: process.env.RECIPE_VIDEO_DIR,
+        includeStepNumbers: true
     });
     }
 
@@ -134,7 +135,6 @@ router.post('/', verifyToken,
         thumbnail = thumbnail[0].filename; // This will be the thumbnail file
     else thumbnail = undefined;
 
-
     const client = await db.connect();
     try {
         await client.query('BEGIN;');
@@ -218,19 +218,25 @@ router.put('/:recipeId', verifyToken,
         }
     
     let processed_title = undefined;
-    if ((title !== undefined && typeof title !== 'string'))
-        return res.status(400).json({error: "Title must be a valid string."});
-    
-    if (typeof title === 'string' && !isvalidtitleLength(title))
-        return res.status(400).json({error: "title is too long."});
-    if (title === "")
-        return res.status(400).json({error: "Title cannot be empty."});
-    else processed_title = sanitizeInput(title); 
+    if (title !== undefined) {
+        if (typeof title !== 'string') {
+            return res.status(400).json({ error: "Title must be a valid string." });
+            }
+        if (title === "") {
+            return res.status(400).json({ error: "Title cannot be empty." });
+            }
+        if (!isvalidtitleLength(title)) {
+            return res.status(400).json({ error: "Title is too long." });
+            }
+        processed_title = sanitizeInput(title);
+        }
 
     let processed_description = undefined;
-    if (description !== undefined && typeof description !== 'string')
-        return res.status(400).json({ error: "Description must be a valid string." });
-    else processed_description = sanitizeInput(description);
+    if (description !== undefined){
+        if (typeof description !== 'string')
+            return res.status(400).json({ error: "Description must be a valid string." });
+        processed_description = sanitizeInput(description);
+        }
 
     let processed_category = undefined;
     if (category !== undefined){
@@ -660,7 +666,7 @@ const updateRecipe = async (recipeId, {
             fields.push(`thumbnail = $${index++}`);
             values.push(null); // or file.path if you store full path    
             }   
-
+        
         // Always update updated_at
         fields.push(`updated_at = NOW()`);
 
