@@ -1,0 +1,302 @@
+.not-found {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #333;
+  padding: 20px;
+}
+
+.boiling-pot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: potBounce 2s ease-in-out infinite;
+}
+
+.not-found-title {
+  font-size: 48px;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #FF4500;
+}
+
+.not-found-message {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #555;
+}
+
+.not-found-link {
+  position: relative;
+  font-size: 20px;
+  font-weight: 600;
+  color: #FFA500;
+  text-decoration: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: hidden;
+}
+
+.not-found-link:hover {
+  background-color: #FFA500;
+  color: #fff;
+}
+
+.not-found-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.pot-body {
+  width: 100px;
+  height: 60px;
+  background: #444;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.pot-body::before,
+.pot-body::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  width: 15px;
+  height: 25px;
+  background-color: #444;
+  border-radius: 8px;
+}
+
+.pot-body::before {
+  left: -18px;
+}
+
+.pot-body::after {
+  right: -18px;
+}
+
+/* Bubbles */
+.bubble {
+  position: absolute;
+  bottom: 10px;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: bubbleUp 2s infinite ease-in-out;
+}
+
+.bubble1 { left: 20px; animation-delay: 0s; }
+.bubble2 { left: 45px; animation-delay: 0.4s; }
+.bubble3 { left: 70px; animation-delay: 0.8s; }
+
+@keyframes bubbleUp {
+  0% { transform: translateY(0) scale(1); opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+}
+
+/* Smoke */
+.smoke {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  top: -40px;
+  z-index: 0;
+  opacity: 0.5;
+  animation: smokeUp 4s infinite ease-in-out;
+}
+
+.smoke1 { left: 30px; animation-delay: 0s; }
+.smoke2 { left: 50px; animation-delay: 1s; }
+.smoke3 { left: 70px; animation-delay: 2s; }
+
+@keyframes smokeUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-40px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+
+.ladle {
+  position: absolute;
+  width: 10px;
+  height: 60px;
+  background: #888;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 5px;
+  transform-origin: bottom center;
+  animation: stir 3s ease-in-out infinite;
+}
+
+@keyframes stir {
+  0%, 100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(20deg);
+  }
+}
+
+
+.fire {
+  position: absolute;
+  bottom: -20px;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 0;
+}
+
+.flame {
+  width: 10px;
+  height: 20px;
+  background: radial-gradient(circle at 50% 0%, #ff9900, #ff3300);
+  border-radius: 50% 50% 0 0;
+  animation: flicker 1s infinite ease-in-out;
+  opacity: 0.9;
+}
+
+.flame1 {
+  height: 18px;
+  animation-delay: 0s;
+}
+
+.flame2 {
+  height: 25px;
+  animation-delay: 0.2s;
+}
+
+.flame3 {
+  height: 20px;
+  animation-delay: 0.4s;
+}
+
+@keyframes flicker {
+  0%, 100% {
+    transform: scaleY(1) translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scaleY(1.2) translateY(-2px);
+    opacity: 1;
+  }
+}
+
+
+@keyframes potBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+
+.button-steam {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+}
+
+.puff {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: puffUp 2s ease-in-out infinite;
+}
+
+.puff1 { animation-delay: 0s; }
+.puff2 { animation-delay: 0.2s; }
+.puff3 { animation-delay: 0.4s; }
+
+@keyframes puffUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.not-found-link:hover .button-steam {
+  opacity: 1;
+}
+
+.button-steam {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+}
+
+.puff {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: puffUp 2s ease-in-out infinite;
+}
+
+.puff1 { animation-delay: 0s; }
+.puff2 { animation-delay: 0.2s; }
+.puff3 { animation-delay: 0.4s; }
+
+@keyframes puffUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.not-found-link:hover .button-steam {
+  opacity: 1;
+}
+

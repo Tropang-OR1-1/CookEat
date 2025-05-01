@@ -1,22 +1,47 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/header/Header.jsx';
-import Profile from './pages/profile/Profile.jsx';
-import Settings from './pages/settings/Settings.jsx';
-import About from './pages/about/About.jsx';
-
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Header from './components/Header.jsx';
+import LoginRegister from './components/LoginRegister.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx';
+import About from './pages/About.jsx';
+import FeedPage from './pages/FeedPage.jsx';
+import NotFound from './pages/NotFound.jsx';
+import Profile from './pages/Profile.jsx';
+import Settings from './pages/Settings.jsx';
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+  useEffect(() => {
+    // Update token state when token changes
+    setToken(localStorage.getItem('token'));
+  }, [token]);
 
   return (
     <Router>
-      <Header />
-      <Routes>
-        <Route path="/profile" element={ <Profile /> } />
-        <Route path="/settings" element={ <Settings /> } />
-        <Route path="/about" element={ <About /> } />
-      </Routes>
+      <div>
+        <Header token={token} setToken={setToken} />
+
+        <main>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Navigate to="/" />} /> {/* Redirect to /feeds */}
+
+            <Route path="/login" element={<LoginRegister setToken={setToken} />} />
+            <Route path="/about" element={<About />} />
+
+            {/* Protected Routes (Private) */}
+            <Route path="/feeds" element={<PrivateRoute><FeedPage /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+
+            {/* Catch-all Route for Undefined Paths (404) */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+      </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

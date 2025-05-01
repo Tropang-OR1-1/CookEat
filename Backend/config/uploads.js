@@ -16,6 +16,7 @@ const insertMedia = async ({
     videoDir,
     includeStepNumbers = false
 }) => {
+    console.log(includeStepNumbers);
     try {
         if (!files || files.length === 0) {
             return { success: false, error: 'No media files provided' };
@@ -86,7 +87,8 @@ const updateMedia = async ({
     tableName,
     idColumn,
     imageDir,
-    videoDir
+    videoDir,
+    includeStepNumbers = false
 }) => {
     try {
         if (!files || files.length === 0) {
@@ -101,7 +103,8 @@ const updateMedia = async ({
             tableName,
             foreignKey: idColumn, // match naming!
             imageDir,
-            videoDir
+            videoDir,
+            includeStepNumbers
             });
         
 
@@ -239,5 +242,33 @@ const computeFileHash = (buffer) => {
     return hash.digest('hex');  // Return the hash as a hexadecimal string
     };
 
+async function copyDefaultPfpToProfileDir() {
+    const defaultPath = process.env.DEFAULT_PROFILE_PATH;
+    const destDir = process.env.PROFILE_DIR;
 
-module.exports = { insertMedia, cleanupMedia, updateMedia, deleteMedia, deleteFile, saveFile };
+    if (!defaultPath || !destDir) {
+        throw new Error('DEFAULT_PFP_PATH or PROFILE_PIC_DIR is not set in .env');
+    }
+
+    // Ensure the directory exists
+    try {
+        await fs.mkdir(destDir, { recursive: true });
+    } catch (err) {
+        throw new Error(`Failed to create directory: ${destDir}\n${err}`);
+    }
+
+    const ext = path.extname(defaultPath); // e.g., ".png"
+    const newFilename = `${uuidv4()}${ext}`;
+    const destPath = path.join(destDir, newFilename);
+
+    try {
+        await fs.copyFile(defaultPath, destPath);
+    } catch (err) {
+        throw new Error(`Failed to copy default PFP: ${err}`);
+    }
+
+    return newFilename;
+}
+
+module.exports = {  insertMedia, cleanupMedia, updateMedia, deleteMedia,
+                    deleteFile, saveFile, copyDefaultPfpToProfileDir };

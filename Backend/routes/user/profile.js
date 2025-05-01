@@ -110,14 +110,16 @@ router.post('/profile', verifyToken,  upload.Profile.single('profile'), async (r
         oldFilename = rows[0].picture;
         }
 
-    const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING *;`;
+    const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING 
+        picture, biography, username, nationality, sex, status, birthday, public_id, created_at
+        ;`;
     values.push(userId); // Add the ID as the last value
-    
+    let result;
     const client = await db.connect();
     try {
         await client.query('BEGIN;');
         if (values.length > 1){
-          const result = await client.query(query, values);
+          result = await client.query(query, values);
           if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found.' });
             }
@@ -134,7 +136,7 @@ router.post('/profile', verifyToken,  upload.Profile.single('profile'), async (r
         await client.query('COMMIT;');
 
         logger.info(`User profile updated successfully for user_id: ${userId}`);
-        return res.status(200).json({message: `Userprofile updated successfully.`});
+        return res.status(200).json({message: `Userprofile updated successfully.`, Profile: result.rows[0]});
       } catch (error) {
 
         logger.error(`Error while updating user: ${error.stack || error.message}`);

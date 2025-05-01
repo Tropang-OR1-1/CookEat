@@ -1,5 +1,4 @@
-
-
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config(); // Load environment variables from .env
@@ -9,22 +8,22 @@ const app = express();
 // Middleware to enable cross-origin requests (CORS)
 app.use(cors());
 
-// Include route file
+
+// Include route files
 const profileRoutes = require('./routes/user/profile');
 const logonRoutes = require('./routes/user/logon');
 const followRoutes = require('./routes/user/follows');
 const savesRoutes = require('./routes/user/saves');
-
-
 const recipeRoutes = require('./routes/recipe/recipe');
 const rateRoutes = require('./routes/recipe/rating');
-
 const mediaRoutes = require('./routes/media');
-const postsRoutes = require('./routes/feed/posts')
+const postsRoutes = require('./routes/feed/posts');
 const commentRoutes = require('./routes/feed/comments');
 const reactRoutes = require('./routes/feed/reactions');
-// Mount the routes
+const feedRoutes = require('./routes/query/feed');
+const searchRoutes = require('./routes/query/search');
 
+// Mount the API routes
 app.use('/user', profileRoutes);
 app.use('/user', logonRoutes);
 app.use('/user', followRoutes);
@@ -38,26 +37,23 @@ app.use('/react', reactRoutes);
 app.use('/recipe', recipeRoutes);
 app.use('/recipe', rateRoutes);
 
+app.use('/query', feedRoutes);
+app.use('/query', searchRoutes);
+
+
+// Serve static assets for the React app
+app.use(express.static(path.join(__dirname, '../Frontend/dist')));
+
+// Redirect the root URL to '/app'
+
+// Handle all other routes for the React app by serving the index.html
+// Correct usage with named wildcard parameter
+// Serve index.html for all non-API routes
+app.get('*path', (req, res) => {
+  res.sendFile(path.join(__dirname, '../Frontend/dist', 'index.html'));
+});
 
 // Start the server
 app.listen(process.env.API_PORT, () => {
   console.log(`Server running on port ${process.env.API_PORT}`);
 });
-
-// Catch-all for unknown routes
-app.use((req, res) => {
-    res.status(404).json({ error: 'Routes not found' });
-});
-
-/*
-// Global error handler
-app.use((err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-        return res.status(400).json({ error: err.message });
-    } else if (err) {
-        return res.status(500).json({ error: 'Something went wrong with the file upload.' });
-    }
-    next();
-});
-
-*/

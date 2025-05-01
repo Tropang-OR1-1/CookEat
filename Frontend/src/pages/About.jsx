@@ -1,5 +1,5 @@
 import React from "react";
-import './about.css';
+import './styles/about.css';
 
 const About = () => {
   return (
@@ -24,11 +24,11 @@ const About = () => {
             <p className="flirt">"Call me full-stack, 'cause I got everything you're looking for... front, back, and heart."</p>
           </a>
 
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
+          <a href="https://jrhey124.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
             <span className="ripple"></span>
             <img src="/images/about_img/pens.jpeg" alt="John Rhey D. Peña" />
             <h2>John Rhey D. Peña</h2>
-            <p className="role">Backend</p>
+            <p className="role">Backend Developer</p>
             <p className="flirt">"You can’t see me working, but I’ll always be there to support you just like the backend."</p>
           </a>
 
@@ -36,16 +36,16 @@ const About = () => {
             <span className="ripple"></span>
             <img src="/images/about_img/ponce.jpeg" alt="Rham Ryan Ponce" />
             <h2>Rham Ryan Ponce</h2>
-            <p className="role">Frontend</p>
+            <p className="role">Frontend Developer</p>
             <p className="flirt">"Is it hot in here or is it just my CSS making your heart flutter?"</p>
           </a>
 
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
+          <a href="https://burniiiii.github.io/Web-Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
             <span className="ripple"></span>
             <img src="/images/about_img/rivera.jpeg" alt="Bernie Jr. Rivera" />
             <h2>Bernie Jr. Rivera</h2>
             <p className="role">JavaScript</p>
-            <p className="flirt">"I must be JavaScript because every time you see me, your heart executes a ❤️ function."</p>
+            <p className="flirt">"Hmmm?"</p>
           </a>
 
           <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
