@@ -38,6 +38,9 @@ const mediaRoutes = require('./routes/media');
 const postsRoutes = require('./routes/feed/posts')
 const commentRoutes = require('./routes/feed/comments');
 const reactRoutes = require('./routes/feed/reactions');
+
+const feedRoutes = require('./routes/query/feed');
+const searchRoutes = require('./routes/query/search');
 // Mount the routes
 
 app.use('/user', profileRoutes);
@@ -52,6 +55,9 @@ app.use('/react', reactRoutes);
 
 app.use('/recipe', recipeRoutes);
 app.use('/recipe', rateRoutes);
+
+app.use('/query', feedRoutes);
+app.use('/query', searchRoutes);
 /*
 app.get('/', (req, res) => {
     const html = ReactDOMServer.renderToString(React.createElement(App));
