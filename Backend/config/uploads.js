@@ -16,6 +16,7 @@ const insertMedia = async ({
     videoDir,
     includeStepNumbers = false
 }) => {
+    console.log(includeStepNumbers);
     try {
         if (!files || files.length === 0) {
             return { success: false, error: 'No media files provided' };
@@ -86,7 +87,8 @@ const updateMedia = async ({
     tableName,
     idColumn,
     imageDir,
-    videoDir
+    videoDir,
+    includeStepNumbers = false
 }) => {
     try {
         if (!files || files.length === 0) {
@@ -101,7 +103,8 @@ const updateMedia = async ({
             tableName,
             foreignKey: idColumn, // match naming!
             imageDir,
-            videoDir
+            videoDir,
+            includeStepNumbers
             });
         
 

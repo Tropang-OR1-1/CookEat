@@ -180,6 +180,8 @@ const queryPostUID = async (post_id) => { // requires primary post id
 
 const queryUPID = async (user_public_id) => { // query user public id
   try {
+    if (!isValidUUID(user_public_id)) return { success: false, error: 'user_id must be a valid UUID.' };
+    
     const { rows } = await db.query("SELECT id FROM user_profile WHERE public_id = $1", [user_public_id]);
     return rows.length ? { success: true, user_id: rows[0].id } : { success: false, error: 'user not found' };
     } catch (err) {
