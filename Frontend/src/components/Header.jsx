@@ -58,9 +58,6 @@ function Header({ token, setToken }) {
           </Link>
         </div>
 
-          {token && (
-            <button className="header-button" onClick={() => setIsPostModalOpen(true)}>Create Post</button>
-          )}
         <div className="header-tooltip-wrapper">
           <Link
             to="/recipes"
@@ -81,16 +78,6 @@ function Header({ token, setToken }) {
                 <i className="bx bx-message-square-add"></i>
                 <span className="header-tooltip">Create Post</span>
               </button>
-            </div>
-
-            <div className="header-tooltip-wrapper">
-              <Link
-                to="/notifications"
-                className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
-              >
-                <i className="bx bx-bell"></i>
-                <span className="header-tooltip">Notifications</span>
-              </Link>
             </div>
           </>
         )}
@@ -123,7 +110,15 @@ function Header({ token, setToken }) {
 
       {token && (
       <div className="header-user-actions">
-        <Link to="/notifications" className="header-button">Notifications</Link>
+        <div className="header-tooltip-wrapper">
+              <Link
+                to="/notifications"
+                className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
+              >
+                <i className="bx bx-bell"></i>
+                <span className="header-tooltip">Notifications</span>
+              </Link>
+            </div>
         <div className="header-profile-dropdown">
         <img 
           src={avatar} 
