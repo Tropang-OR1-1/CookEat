@@ -205,7 +205,7 @@ router.delete('/:comment_id', verifyToken, upload.none(), async (req, res) => {
     }
 });
 
-router.get('/:post_id', async (req, res) => {
+router.get('/:post_id', verifyToken, async (req, res) => {
     const { post_id } = req.params;
     const { replies } = req.query;
 

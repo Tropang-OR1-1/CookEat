@@ -37,9 +37,10 @@ Thumbs.db
 .cache/
 *.bak
 
-backend/uploads/
-backend/uploads/*
+Frontend/dist/
 
+Frontend/dist/index.html
+Frontend/dist/assets
 # Environment and secrets
  
 #.env.local

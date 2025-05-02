@@ -64,6 +64,10 @@ const server = app.listen(process.env.API_PORT, () => {
 
 
 // Initialize Socket.IO
+
+
+const userSocketMap = {};
+
 const io = new Server(server, {
   cors: {
     origin: 'http://127.0.0.1:5500',
@@ -73,12 +77,12 @@ const io = new Server(server, {
 
 // Connection event for new clients
 io.on('connection', (socket) => {
-  console.log('A new client connected');
+  console.log('Client ID: ', socket.id);
 
   // Use imported event handler files
 
   postHandler(io, socket); // Post view related events
-  notificationHandler(io, socket); // Notification related events
+  //notificationHandler(io, socket); // Notification related events
 
   // Handle client disconnection
   socket.on('disconnect', () => {
