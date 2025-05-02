@@ -58,4 +58,4 @@ backend/uploads/*
 *.sublime-workspace
 
 # Node.js dependencies
-node_modules/
+node_modules/Frontend/dist/index.html
