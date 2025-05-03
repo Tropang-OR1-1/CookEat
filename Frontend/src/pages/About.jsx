@@ -21,7 +21,7 @@ const About = () => {
             <img src="/images/about_img/garcia.jpeg" alt="John Michael Garcia" />
             <h2>John Michael Garcia</h2>
             <p className="role">Full Stack Developer</p>
-            <p className="flirt">"Call me full-stack, 'cause I got everything you're looking for... front, back, and heart."</p>
+            <p className="flirt">"IDK at least its working."</p>
           </a>
 
           <a href="https://jrhey124.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
