@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO WebSocket Test</title>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script> <!-- Link to Socket.IO CDN -->
+  <script>
+    // Initialize a connection to the WebSocket server
+    const socket = io('http://localhost:3000');  // Connect to the server at localhost:3000
+
+    // Event listener for connection
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    // Event listener for messages from the server
+    socket.on('message', (data) => {
+      console.log('Message from server:', data);
+      document.getElementById('serverMessage').innerText = `Server says: ${data}`;
+    });
+
+    // Function to send a message to the server
+    function sendMessage() {
+      const message = document.getElementById('messageInput').value;
+      if (message) {
+        socket.emit('message', message); // Send message to the server
+        console.log('Message sent to server:', message);
+      }
+    }
+
+    // Event listener for disconnect
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+  </script>
+</head>
+<body>
+
+  <h1>Socket.IO WebSocket Test</h1>
+
+  <!-- Input field to send a message to the server -->
+  <input type="text" id="messageInput" placeholder="Type a message" />
+  <button onclick="sendMessage()">Send Message</button>
+
+  <p id="serverMessage"></p> <!-- This will display the server's response -->
+
+</body>
+</html>

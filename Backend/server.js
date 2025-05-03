@@ -1,13 +1,17 @@
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const { Server } = require('socket.io');
+const postHandler = require('./config/socket/post'); // Import user connection events
+const notificationHandler = require('./config/socket/notification'); // Import post view events
+
+
 require("dotenv").config(); // Load environment variables from .env
 
 const app = express();
 
 // Middleware to enable cross-origin requests (CORS)
 app.use(cors());
-
 
 // Include route files
 const profileRoutes = require('./routes/user/profile');
@@ -54,6 +58,30 @@ app.get('*path', (req, res) => {
 });
 
 // Start the server
-app.listen(process.env.API_PORT, () => {
+const server = app.listen(process.env.API_PORT, () => {
   console.log(`Server running on port ${process.env.API_PORT}`);
 });
+
+
+// Initialize Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: 'http://127.0.0.1:5500',
+    methods: ['GET', 'POST']
+  }
+});
+
+// Connection event for new clients
+io.on('connection', (socket) => {
+  console.log('A new client connected');
+
+  // Use imported event handler files
+
+  postHandler(io, socket); // Post view related events
+  notificationHandler(io, socket); // Notification related events
+
+  // Handle client disconnection
+  socket.on('disconnect', () => {
+    console.log('A client disconnected');
+    });
+  });
