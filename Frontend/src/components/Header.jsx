@@ -1,18 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import "./styles/header.css";
-import { useEffect } from "react";
 
-function Header({ token, setToken }) {
+function Header({ token, setToken, profile }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown toggle
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [avatar, setAvatar] = useState('/images/profile_img.jpg');
-  const navigate = useNavigate(); // Use navigate hook for redirection
+  const navigate = useNavigate();
+  const location = useLocation();
   
-  // Function to handle logout
+  // Reference for the dropdown
+  const dropdownRef = useRef(null);
+  
+  useEffect(() => {
+    if (profile && profile.avatar) {
+      setAvatar(profile.avatar);
+    }
+  }, [profile]);  // Respond to changes in profile
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken(null);
@@ -23,7 +31,6 @@ function Header({ token, setToken }) {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // updates for the profile image
   useEffect(() => {
     const storedProfile = localStorage.getItem('profile');
     if (storedProfile) {
@@ -32,6 +39,21 @@ function Header({ token, setToken }) {
         setAvatar(parsed.avatar);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    // Close dropdown if clicked outside
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   return (
@@ -47,29 +69,28 @@ function Header({ token, setToken }) {
       </div>
 
       <nav className="header-nav-links">
-      <div className="header-center">
-        <div className="header-tooltip-wrapper">
-          <Link
-            to="/"
-            className={`header-button ${location.pathname === "/" ? "active" : ""}`}
-          >
-            <i className="bx bx-news"></i>
-            <span className="header-tooltip">Feeds</span>
-          </Link>
-        </div>
+        <div className="header-center">
+          <div className="header-tooltip-wrapper">
+            <Link
+              to="/"
+              className={`header-button ${location.pathname === "/" ? "active" : ""}`}
+            >
+              <i className="bx bx-news"></i>
+              <span className="header-tooltip">Feeds</span>
+            </Link>
+          </div>
 
-        <div className="header-tooltip-wrapper">
-          <Link
-            to="/recipes"
-            className={`header-button ${location.pathname === "/recipes" ? "active" : ""}`}
-          >
-            <i className="bx bx-food-menu"></i>
-            <span className="header-tooltip">Recipes</span>
-          </Link>
-        </div>
+          <div className="header-tooltip-wrapper">
+            <Link
+              to="/recipes"
+              className={`header-button ${location.pathname === "/recipes" ? "active" : ""}`}
+            >
+              <i className="bx bx-food-menu"></i>
+              <span className="header-tooltip">Recipes</span>
+            </Link>
+          </div>
 
-        {token && (
-          <>
+          {token && (
             <div className="header-tooltip-wrapper">
               <button
                 className="header-button"
@@ -79,56 +100,53 @@ function Header({ token, setToken }) {
                 <span className="header-tooltip">Create Post</span>
               </button>
             </div>
-          </>
-        )}
+          )}
+
+          {!token && (
+            <div className="header-tooltip-wrapper">
+              <Link
+                to="/about"
+                className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
+              >
+                <i className="bx bxl-dev-to"></i>
+                <span className="header-tooltip">About Us</span>
+              </Link>
+            </div>
+          )}
+        </div>
 
         {!token && (
-          <div className="header-tooltip-wrapper">
-            <Link
-              to="/about"
-              className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
-            >
-              <i className="bx bxl-dev-to"></i>
-              <span className="header-tooltip">About Us</span>
-            </Link>
+          <div className="header-tooltip-wrapper header-button">
+            <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>
+              <span className="header-login-text">Login</span>
+              <span className="header-tooltip">Login / Register</span>
+            </button>
           </div>
         )}
-      </div>
-
-      {!token && (
-        <div className="header-tooltip-wrapper header-button">
-          <button className="header-button" onClick={() => setIsLoginModalOpen(true)}>
-            <span className="header-login-text">Login</span> {/* Apply typography style to the text */}
-            <span className="header-tooltip">Login / Register</span>
-          </button>
-        </div>
-      )}
       </nav>
 
       <CreatePost isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
       <LoginRegister isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} setToken={setToken} />
 
       {token && (
-      <div className="header-user-actions">
-        <div className="header-tooltip-wrapper">
-              <Link
-                to="/notifications"
-                className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
-              >
-                <i className="bx bx-bell"></i>
-                <span className="header-tooltip">Notifications</span>
-              </Link>
-            </div>
-        <div className="header-profile-dropdown">
-        <img 
-          src={avatar} 
-          alt="User Profile" 
-          className="header-profile-pic" 
-          onClick={toggleDropdown} 
-        />
-        
-          {isDropdownOpen && (
-            <div className="header-dropdown-content">
+        <div className="header-user-actions">
+          <div className="header-tooltip-wrapper">
+            <Link
+              to="/notifications"
+              className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
+            >
+              <i className="bx bx-bell"></i>
+              <span className="header-tooltip">Notifications</span>
+            </Link>
+          </div>
+          <div className="header-profile-dropdown" ref={dropdownRef}>
+            <img
+              src={avatar}
+              alt="User Profile"
+              className="header-profile-pic"
+              onClick={toggleDropdown}
+            />
+            <div className={`header-dropdown-content ${isDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
               <Link to="/help">Help and Support</Link>
               <Link to="/incentives">Incentives</Link>
@@ -136,13 +154,12 @@ function Header({ token, setToken }) {
               <Link to="/about">About Us</Link>
               <Link to="#" onClick={handleLogout}>Log Out</Link>
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    )}
-
+      )}
     </header>
   );
 }
 
 export default Header;
+      

@@ -4,8 +4,7 @@ import axios from 'axios';
 import FeedPost from './FeedPost';
 import './styles/profile.css';
 
-function Profile() {
-  const [profile, setProfile] = useState(null);
+function Profile({ profile, setProfile }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,13 +12,14 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newAvatar, setNewAvatar] = useState(null);
+  const [newBio, setNewBio] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const storedProfile = localStorage.getItem('profile');
+      let storedProfile = localStorage.getItem('profile');
       let username = localStorage.getItem('username') || 'New User';
 
-      if (storedProfile) {
+      if (!profile && storedProfile) {
         setProfile(JSON.parse(storedProfile));
         setLoading(false);
         return;
@@ -36,20 +36,23 @@ function Profile() {
           username = response.data.Profile.username;
         }
 
-        const defaultProfile = {
-          avatar: 'https://www.w3schools.com/howto/img_avatar.png',
-          username: username,
-          postsCount: 0,
-          followersCount: 0,
-          followingCount: 0,
-          bio: 'Welcome to CookEat! Start sharing your delicious creations.',
+        const fetchedProfile = {
+          avatar: response.data.Profile.picture
+            ? `https://cookeat.cookeat.space/media/profile/${response.data.Profile.picture}`
+            : 'https://www.w3schools.com/howto/img_avatar.png',
+          username: response.data.Profile.username,
+          postsCount: response.data.Profile.postsCount || 0,
+          followersCount: response.data.Profile.followersCount || 0,
+          followingCount: response.data.Profile.followingCount || 0,
+          bio: response.data.Profile.biography || 'Welcome to CookEat! Start sharing your delicious creations.',
         };
 
-        setProfile(defaultProfile);
-        setPosts([]);
+        setProfile(fetchedProfile);
+        localStorage.setItem('profile', JSON.stringify(fetchedProfile));
+        setPosts([]); // You can replace with actual post fetching
         setLoading(false);
       } catch (err) {
-        console.warn('Could not fetch username from backend, trying token instead.');
+        console.warn('Could not fetch profile from backend, trying token instead.');
         const token = localStorage.getItem('token');
         if (token) {
           try {
@@ -60,57 +63,54 @@ function Profile() {
           }
         }
 
-        const defaultProfile = {
+        const fallbackProfile = {
           avatar: 'https://www.w3schools.com/howto/img_avatar.png',
-          username: username,
+          username,
           postsCount: 0,
           followersCount: 0,
           followingCount: 0,
           bio: 'Welcome to CookEat! Start sharing your delicious creations.',
         };
 
-        setProfile(defaultProfile);
+        setProfile(fallbackProfile);
+        localStorage.setItem('profile', JSON.stringify(fallbackProfile));
         setPosts([]);
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [profile, setProfile]);
 
   const handleSaveProfile = async () => {
     const token = localStorage.getItem('token');
     if (!token) return alert("Not logged in.");
-  
+
     const formData = new FormData();
     formData.append('username', newUsername);
-    
+    formData.append('biography', newBio);
+
     if (newAvatar) {
-      console.log('Appending avatar to form data:', newAvatar);
-      formData.append('profile', newAvatar);  // match backend field
+      formData.append('profile', newAvatar);
     }
-  
+
     try {
-      console.log('Sending form data:', formData);
       const response = await axios.post('https://cookeat.cookeat.space/user/profile', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log('API Response:', response);
-  
+
       if (response.status === 200) {
         alert('Profile updated successfully.');
-  
-        // Now fetch the updated profile (required to get full avatar URL)
+
         const updatedProfileRes = await axios.get('https://cookeat.cookeat.space/user/profile/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-  
+
         const updated = updatedProfileRes.data.Profile;
         const updatedProfile = {
           avatar: updated.picture
@@ -122,7 +122,7 @@ function Profile() {
           followingCount: updated.followingCount || 0,
           bio: updated.biography || 'Welcome to CookEat! Start sharing your delicious creations.',
         };
-  
+
         setProfile(updatedProfile);
         localStorage.setItem('profile', JSON.stringify(updatedProfile));
       } else {
@@ -133,9 +133,8 @@ function Profile() {
       alert('Failed to update profile.');
     }
   };
-  
 
-  if (loading) return <div>Loading...</div>;
+  if (loading || !profile) return <div>Loading...</div>;
 
   return (
     <div className="profile-page-container">
@@ -162,18 +161,23 @@ function Profile() {
                   onChange={(e) => setNewUsername(e.target.value)}
                   placeholder="Enter new username"
                 />
+                <textarea
+                  value={newBio}
+                  onChange={(e) => setNewBio(e.target.value)}
+                  placeholder="Enter new biography"
+                />
               </>
             ) : (
-              <h1 className="username">{profile.username}</h1>
+              <>
+                <h1 className="username">{profile.username}</h1>
+                <p>{profile.bio}</p>
+              </>
             )}
 
             <div className="stats">
               <span><strong>{profile.postsCount}</strong> Posts</span>
               <span><strong>{profile.followersCount}</strong> Followers</span>
               <span><strong>{profile.followingCount}</strong> Following</span>
-            </div>
-            <div className="bio">
-              <p>{profile.bio}</p>
             </div>
 
             <button
@@ -182,6 +186,7 @@ function Profile() {
                   handleSaveProfile();
                 } else {
                   setNewUsername(profile.username);
+                  setNewBio(profile.bio);
                 }
                 setIsEditing(!isEditing);
               }}
@@ -192,7 +197,7 @@ function Profile() {
         </header>
 
         <nav className="profile-tabs">
-          <button className="active">Posts</button>
+          <button>Posts</button>
           <button>Saved</button>
           <button>Followers</button>
         </nav>

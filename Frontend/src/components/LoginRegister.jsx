@@ -55,8 +55,14 @@ function LoginRegister({ isOpen, onClose, setToken }) {
       onClose(); // Close modal
       window.location.reload(); // Refresh the page to fetch the profile
     } catch (error) {
-      alert(error.response ? error.response.data : error.message);
+      if (error.response && error.response.data) {
+        console.error("Registration Error:", error.response.data);
+        alert(error.response.data.error || JSON.stringify(error.response.data));
+      } else {
+        alert(error.message);
+      }
     }
+    
   };
   
   
@@ -149,7 +155,7 @@ function LoginRegister({ isOpen, onClose, setToken }) {
 
         <div className="toggle-box">
           <div className="toggle-panel toggle-left">
-            <h1>Hello! Welcome to Cook Eat</h1>
+            <h1>Welcome to Cook Eat</h1>
             <p>Don't have an account?</p>
             <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
           </div>
