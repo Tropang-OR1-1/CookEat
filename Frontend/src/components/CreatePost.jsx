@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import './styles/createpost.css';
 
@@ -12,36 +12,40 @@ function CreatePost({ isOpen, onClose }) {
     ingredients: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef();
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: files?.[0] ?? value,
     }));
+  };
+
+  const isValidUUID = (str) => {
+    const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    return regex.test(str);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const token = localStorage.getItem('token');
     if (!token) {
       alert("Please log in before creating a post.");
       return;
     }
-  
+
     let userId;
     try {
       const decoded = jwtDecode(token);
-      console.log("Decoded token:", decoded); 
-  
       userId = decoded.payload;
 
       if (!userId || !isValidUUID(userId)) {
         alert("Invalid or missing user ID in the token.");
         return;
       }
-  
-      console.log("Valid user ID:", userId);
     } catch (err) {
       console.error("Token decode error:", err);
       alert("Invalid or corrupted login token. Please log in again.");
@@ -53,6 +57,11 @@ function CreatePost({ isOpen, onClose }) {
       return;
     }
 
+    if (formData.media.size > 5 * 1024 * 1024) {
+      alert("Media file too large. Max size is 5MB.");
+      return;
+    }
+
     const data = new FormData();
     data.append('title', formData.postTitle);
     data.append('description', formData.caption);
@@ -61,11 +70,11 @@ function CreatePost({ isOpen, onClose }) {
     data.append('ingredients', formData.ingredients);
     data.append('user_id', userId);
 
-    console.log("Form Data: ", formData);
-
     try {
+      setIsSubmitting(true);
+
       const response = await axios.post(
-        'https://cookeat.cookeat.space/posts/create',
+        'https://cookeat.cookeat.space/posts/',
         data,
         {
           headers: {
@@ -73,22 +82,29 @@ function CreatePost({ isOpen, onClose }) {
           },
         }
       );
-  
+
+      console.log("Post created successfully, response:", response);
+
       alert("Post created successfully!");
+
+      // Reset form and close modal
       onClose();
+      setFormData({
+        postTitle: '',
+        caption: '',
+        media: null,
+        instructions: '',
+        ingredients: '',
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+      }
     } catch (error) {
       console.error("Post creation failed:", error);
-      if (error.response && error.response.data) {
-        alert(`Error: ${error.response.data.error || JSON.stringify(error.response.data)}`);
-      } else {
-        alert("Failed to create post.");
-      }
+      alert("Failed to create post.");
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-  
-  const isValidUUID = (str) => {
-    const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    return regex.test(str);
   };
 
   if (!isOpen) return null;
@@ -133,6 +149,7 @@ function CreatePost({ isOpen, onClose }) {
             name="media"
             accept="image/*,video/*"
             onChange={handleChange}
+            ref={fileInputRef}
             className="input-field"
           />
 
@@ -156,7 +173,13 @@ function CreatePost({ isOpen, onClose }) {
             className="input-field"
           />
 
-          <button type="submit" className="publish-btn">Publish Post</button>
+          <button
+            type="submit"
+            className="publish-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Publishing...' : 'Publish Post'}
+          </button>
         </form>
       </div>
     </div>
