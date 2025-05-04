@@ -57,4 +57,13 @@
   .publish-btn:hover {
     background-color: #357ae8;
   }
+
+  .error-msg {
+    background-color: #ffe0e0;
+    color: #a00;
+    padding: 10px;
+    margin-bottom: 1em;
+    border-radius: 5px;
+    font-weight: bold;
+  }
   

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "axios": "^1.9.0",
+    "jwt-decode": "^4.0.0",
+    "jwt-decoder": "^0.0.0"
+  }
+}
