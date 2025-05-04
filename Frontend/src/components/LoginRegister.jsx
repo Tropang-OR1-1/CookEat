@@ -149,7 +149,7 @@ function LoginRegister({ isOpen, onClose, setToken }) {
 
         <div className="toggle-box">
           <div className="toggle-panel toggle-left">
-            <h1>Welcome to Cook Eat</h1>
+            <h1>Welcome to Cook Eat!</h1>
             <p>Don't have an account?</p>
             <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
           </div>
