@@ -48,7 +48,7 @@ const About = () => {
             <p className="flirt">"Hmmm?"</p>
           </a>
 
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
+          <a href="https://nixxinix.github.io/my-portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
             <span className="ripple"></span>
             <img src="/images/about_img/samarita.jpeg" alt="King Rey Mark Samarita" />
             <h2>King Rey Mark Samarita</h2>
