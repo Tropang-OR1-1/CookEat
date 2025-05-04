@@ -11,6 +11,10 @@ import Settings from './pages/Settings.jsx';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [profile, setProfile] = useState(() => {
+    const stored = localStorage.getItem('profile');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   useEffect(() => {
     // Update token state when token changes
@@ -20,19 +24,18 @@ function App() {
   return (
     <Router>
       <div>
-        <Header token={token} setToken={setToken} />
+        <Header token={token} setToken={setToken} profile={profile} /> 
 
         <main>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Navigate to="/" />} /> {/* Redirect to /feeds */}
-
             <Route path="/login" element={<LoginRegister setToken={setToken} />} />
             <Route path="/about" element={<About />} />
 
             {/* Protected Routes (Private) */}
             <Route path="/feeds" element={<PrivateRoute><FeedPage /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><Profile profile={profile} setProfile={setProfile} /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
 
             {/* Catch-all Route for Undefined Paths (404) */}
