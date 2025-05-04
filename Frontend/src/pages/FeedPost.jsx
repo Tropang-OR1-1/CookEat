@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/feedpost.css';
 
@@ -17,25 +18,25 @@ function FeedPost({
 }) {
   const [likes, setLikes] = useState(initialLikes);
   const [comments, setComments] = useState(initialComments);
-  const [reaction, setReaction] = useState(null);  // Track the user's reaction
-  const [isReacted, setIsReacted] = useState(false);  // Track if the user has reacted
-  const [commentModalOpen, setCommentModalOpen] = useState(false); // Track if the comment modal is open
-  const [newComment, setNewComment] = useState('');  // Track new comment input
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // Check if user is logged in
+  const [reaction, setReaction] = useState(null);
+  const [isReacted, setIsReacted] = useState(false);
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const loggedInUsername = localStorage.getItem('username'); // assume this is set on login
 
   const handleReaction = async (reactionType) => {
     if (!isLoggedIn) {
       alert('Please log in to react to this post!');
       return;
     }
-    
+
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        '/api/reactions/post', 
-        { reaction: reactionType, post_id: postId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get('https://cookeat.cookeat.space/react/post', {
+        params: { reaction: reactionType, post_id: postId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.status === 200) {
         setReaction(reactionType);
@@ -63,16 +64,17 @@ function FeedPost({
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `/api/comments/post`, 
-        { post_id: postId, content: newComment },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.post('https://cookeat.cookeat.space/react/comment', {
+        post_id: postId,
+        content: newComment,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.status === 200) {
         setComments((prevComments) => prevComments + 1);
         setNewComment('');
-        setCommentModalOpen(false);  // Close the modal after submitting
+        setCommentModalOpen(false);
       }
     } catch (error) {
       console.error('Error submitting comment:', error);
@@ -90,13 +92,15 @@ function FeedPost({
             <p className="time">{time}</p>
           </div>
         </div>
-        <div className="options">
-          <button className="dropdown-btn">⋮</button>
-          <div className="dropdown-content">
-            <a href="#">Edit</a>
-            <a href="#">Delete</a>
+        {isLoggedIn && username === loggedInUsername && (
+          <div className="options">
+            <button className="dropdown-btn">⋮</button>
+            <div className="dropdown-content">
+              <Link to={`/edit/${postId}`}>Edit</Link>
+              <Link to={`/delete/${postId}`}>Delete</Link>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Post Caption */}

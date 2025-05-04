@@ -1,0 +1,56 @@
+.skeleton {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-line,
+.skeleton-circle,
+.skeleton-box {
+  background: linear-gradient(-90deg, #eee 0%, #f5f5f5 50%, #eee 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite linear;
+  border-radius: 4px;
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: 10px;
+}
+
+.skeleton-line.short {
+  width: 100px;
+}
+
+.skeleton-line.tiny {
+  width: 60px;
+}
+
+.skeleton-line.long {
+  width: 100%;
+  height: 14px;
+}
+
+.skeleton-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.skeleton-box.media {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

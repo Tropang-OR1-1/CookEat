@@ -29,7 +29,7 @@ function App() {
         <main>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/" />} /> {/* Redirect to /feeds */}
+            <Route path="/" element={<FeedPage />} /> {/* Redirect to /feeds */}
             <Route path="/login" element={<LoginRegister setToken={setToken} />} />
             <Route path="/about" element={<About />} />
 

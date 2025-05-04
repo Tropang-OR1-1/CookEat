@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FeedPost from './FeedPost';
+
 import './styles/feedpage.css';
 
 function FeedPage() {
@@ -10,7 +11,7 @@ function FeedPage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch('/api/posts');  // Change to your API endpoint for posts
+        const response = await fetch('https://cookeat.cookeat.space/query/feed/post');
         if (!response.ok) {
           throw new Error('Failed to fetch posts');
         }
@@ -38,18 +39,15 @@ function FeedPage() {
         ) : (
           posts.map(post => (
             <FeedPost 
-              key={post.id}
-              profileImage={post.profileImage} 
-              username={post.username}
-              time={post.time}
-              caption={post.caption}
-              mediaType={post.mediaType}
-              mediaSrc={post.mediaSrc}
-              ingredients={post.ingredients}
-              instructions={post.instructions}
-              postId={post.id}  // Add postId for use in reactions/comments
-              initialLikes={post.likes}
-              initialComments={post.comments}
+              key={post.public_id}
+              profileImage={post.author.picture} 
+              username={post.author.username}
+              time={new Date(post.created_at).toLocaleString()}
+              caption={post.title}
+              mediaType={post.media[0]?.media_type}
+              mediaSrc={`path/to/media/${post.media[0]?.media_filename}`}  // Assuming media is accessible via this path
+              reactionsCount={post.reactions_count}
+              postId={post.public_id}  // Pass postId
             />
           ))
         )}
