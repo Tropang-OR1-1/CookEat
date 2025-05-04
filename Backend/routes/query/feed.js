@@ -11,7 +11,7 @@ require('dotenv').config({ path: '../.env' });
 
 
 
-router.get('/feed/post', justifyToken, upload.none(), async (req, res) => {
+router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
   const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
   const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
   const userId = req.user?.id;
@@ -211,7 +211,7 @@ router.get('/feed/post/:public_id', justifyToken, upload.none(), async (req, res
 });
 
 
-router.get('/feed/recipe', justifyToken, async (req, res) => {
+router.get('/feed/recipes', justifyToken, async (req, res) => {
   try {
       const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
       const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
@@ -307,7 +307,7 @@ router.get('/feed/recipe', justifyToken, async (req, res) => {
 
 
 
-router.get('/recipes/author/:public_id', justifyToken, upload.none(), async (req, res) => {
+router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, res) => {
   try {
       const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
       const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
@@ -412,7 +412,7 @@ router.get('/recipes/author/:public_id', justifyToken, upload.none(), async (req
 
 
 
-router.get('/posts/owner/:public_id', justifyToken, upload.none(), async (req, res) => {
+router.get('/user/posts/:public_id', justifyToken, upload.none(), async (req, res) => {
   const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
   const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
   const sort = req.query.sort || 'created_at';

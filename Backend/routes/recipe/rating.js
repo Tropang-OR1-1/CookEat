@@ -257,8 +257,8 @@ router.delete('/rate/:recipeId', verifyToken, async (req, res) => {
 });
 
 
-router.get('/rate/:public_recipe_id', verifyToken, upload.none(), async (req, res) => {
-    const { public_recipe_id } = req.params;
+router.get('/rate/:recipe_id', verifyToken, upload.none(), async (req, res) => {
+    const { recipe_id: public_recipe_id } = req.params;
     let { rating } = req.query;
 
     const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
