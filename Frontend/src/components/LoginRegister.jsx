@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './styles/loginregister.css';   
+import './styles/loginregister.css';
 
+function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
+  const navigate = useNavigate();
 
-function LoginRegister({ isOpen, onClose, setToken }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
@@ -18,24 +20,34 @@ function LoginRegister({ isOpen, onClose, setToken }) {
     setRegisterData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const fetchAndStoreProfile = async (token) => {
+    try {
+      const res = await axios.get('https://cookeat.cookeat.space/user/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      localStorage.setItem('profile', JSON.stringify(res.data));
+      setProfile(res.data);
+    } catch (err) {
+      console.error("Failed to fetch profile:", err);
+    }
+  };
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
       formData.append('email', loginData.email);
       formData.append('password', loginData.password);
-  
-      const response = await axios.post('https://cookeat.cookeat.space/user/login', formData);
-      const token = response.data.token;
-      localStorage.setItem('token', token); // Save to local storage
-      setToken(token); // Update the app state
-      onClose(); // Close the modal
-    } catch (error) {
-      if (error.response && error.response.data) {
-        alert(error.response.data.error || JSON.stringify(error.response.data));
-      } else {
-        alert(error.message);
-      }
+
+      const res = await axios.post('https://cookeat.cookeat.space/user/login', formData);
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+      setToken(token);
+      await fetchAndStoreProfile(token);
+      onClose();
+      navigate('/feeds');
+    } catch (err) {
+      alert(err?.response?.data?.error || err.message);
     }
   };
 
@@ -46,26 +58,18 @@ function LoginRegister({ isOpen, onClose, setToken }) {
       formData.append('username', registerData.username);
       formData.append('email', registerData.email);
       formData.append('password', registerData.password);
-  
-      const response = await axios.post('https://cookeat.cookeat.space/user/register', formData);
-      const token = response.data.token;
-      localStorage.setItem('token', token); // Save token
-      localStorage.setItem('username', registerData.username); // Save username
-      setToken(token); // Update the app state
-      onClose(); // Close modal
-      window.location.reload(); // Refresh the page to fetch the profile
-    } catch (error) {
-      if (error.response && error.response.data) {
-        console.error("Registration Error:", error.response.data);
-        alert(error.response.data.error || JSON.stringify(error.response.data));
-      } else {
-        alert(error.message);
-      }
+
+      const res = await axios.post('https://cookeat.cookeat.space/user/register', formData);
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+      setToken(token);
+      await fetchAndStoreProfile(token);
+      onClose();
+      navigate('/feeds');
+    } catch (err) {
+      alert(err?.response?.data?.error || err.message);
     }
-    
   };
-  
-  
 
   if (!isOpen) return null;
 
