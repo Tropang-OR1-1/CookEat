@@ -1,186 +1,89 @@
-import { jwtDecode } from 'jwt-decode';
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
+import { FaPhotoVideo } from 'react-icons/fa';
 import './styles/createpost.css';
 
 function CreatePost({ isOpen, onClose }) {
-  const [formData, setFormData] = useState({
-    postTitle: '',
-    caption: '',
-    media: null,
-    instructions: '',
-    ingredients: '',
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [caption, setCaption] = useState('');
+  const [media, setMedia] = useState(null);
   const fileInputRef = useRef();
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files?.[0] ?? value,
-    }));
+  const handleMediaChange = (e) => {
+    setMedia(e.target.files?.[0] ?? null);
   };
 
-  const isValidUUID = (str) => {
-    const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    return regex.test(str);
+  const handleRemoveMedia = () => {
+    setMedia(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert("Please log in before creating a post.");
+    if (!caption && !media) {
+      alert("Write something or upload media.");
       return;
     }
+    console.log({ caption, media });
+    alert("Post submitted (check console for payload)");
 
-    let userId;
-    try {
-      const decoded = jwtDecode(token);
-      userId = decoded.payload;
-
-      if (!userId || !isValidUUID(userId)) {
-        alert("Invalid or missing user ID in the token.");
-        return;
-      }
-    } catch (err) {
-      console.error("Token decode error:", err);
-      alert("Invalid or corrupted login token. Please log in again.");
-      return;
-    }
-
-    if (!formData.media) {
-      alert("Please upload an image or video.");
-      return;
-    }
-
-    if (formData.media.size > 5 * 1024 * 1024) {
-      alert("Media file too large. Max size is 5MB.");
-      return;
-    }
-
-    const data = new FormData();
-    data.append('title', formData.postTitle);
-    data.append('description', formData.caption);
-    data.append('media', formData.media);
-    data.append('instructions', formData.instructions);
-    data.append('ingredients', formData.ingredients);
-    data.append('user_id', userId);
-
-    try {
-      setIsSubmitting(true);
-
-      const response = await axios.post(
-        'https://cookeat.cookeat.space/posts/',
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Post created successfully, response:", response);
-
-      alert("Post created successfully!");
-
-      // Reset form and close modal
-      onClose();
-      setFormData({
-        postTitle: '',
-        caption: '',
-        media: null,
-        instructions: '',
-        ingredients: '',
-      });
-      if (fileInputRef.current) {
-        fileInputRef.current.value = null;
-      }
-    } catch (error) {
-      console.error("Post creation failed:", error);
-      alert("Failed to create post.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setCaption('');
+    setMedia(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
+    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="create-post-modal"
-      onClick={(e) => {
-        if (e.currentTarget === e.target) {
-          onClose();
-        }
-      }}
-    >
-      <div className="modal-content">
+    <div className="create-post-modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="post-box">
         <button className="close-btn" onClick={onClose}>&times;</button>
-        <h2>Create New Post</h2>
-        <form onSubmit={handleSubmit} className="form">
-          <label htmlFor="postTitle">Post Title:</label>
-          <input
-            type="text"
-            id="postTitle"
-            name="postTitle"
-            value={formData.postTitle}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
+        <h2 className="modal-title">Create a Post</h2>
 
-          <label htmlFor="caption">Caption:</label>
-          <textarea
-            id="caption"
-            name="caption"
-            value={formData.caption}
-            onChange={handleChange}
-            className="input-field"
-          />
+        {/* User Info Section (Fixed) */}
+        <div className="user-info">
+          <img src="/public/images/feedPost_img/lebrown.jpg" alt="User Icon" className="user-icon" />
+          <div className="user-name">LeBrown James</div>
+        </div>
 
-          <label htmlFor="media">Upload Media (Picture/Video):</label>
-          <input
-            type="file"
-            id="media"
-            name="media"
-            accept="image/*,video/*"
-            onChange={handleChange}
-            ref={fileInputRef}
-            className="input-field"
-          />
+        {/* Scrollable Content */}
+        <div className="scrollable-content">
+          <form onSubmit={handleSubmit}>
+            <textarea
+              className="caption-input"
+              placeholder="Anything you want to share?"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+            ></textarea>
 
-          <label htmlFor="instructions">Instructions (How to Cook):</label>
-          <textarea
-            id="instructions"
-            name="instructions"
-            value={formData.instructions}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
+            {media && (
+              <div className="media-preview">
+                <button className="remove-media-btn" onClick={handleRemoveMedia} type="button">&times;</button>
+                {media.type.startsWith('image') ? (
+                  <img src={URL.createObjectURL(media)} alt="preview" />
+                ) : (
+                  <video controls src={URL.createObjectURL(media)} />
+                )}
+              </div>
+            )}
 
-          <label htmlFor="ingredients">Ingredients:</label>
-          <textarea
-            id="ingredients"
-            name="ingredients"
-            value={formData.ingredients}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
+            <div className="media-upload">
+              <label htmlFor="media" className="custom-file-upload">
+                <FaPhotoVideo className="media-icon" />
+                Add to your post
+              </label>
+              <input
+                id="media"
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+                ref={fileInputRef}
+                hidden
+              />
+            </div>
 
-          <button
-            type="submit"
-            className="publish-btn"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Publishing...' : 'Publish Post'}
-          </button>
-        </form>
+            <button type="submit" className="publish-btn">Publish Post</button>
+          </form>
+        </div>
       </div>
     </div>
   );

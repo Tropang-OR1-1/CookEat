@@ -1,69 +1,203 @@
 .create-post-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    color: black;
-  }
-  
-  .modal-content {
-    background: white;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  input[type="text"],
-  textarea,
-  input[type="file"] {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-  }
-  
-  .publish-btn {
-    padding: 10px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .publish-btn:hover {
-    background-color: #357ae8;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.post-box {
+  background: white;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  padding: 40px 30px;
+  border-radius: 16px;
+  position: relative;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border: 4px solid #FF8700;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #FF8700;
+}
+
+.modal-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: #FF8700;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding-left: 10px;
+  flex-shrink: 0;
+}
+
+.user-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #FF8700;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.scrollable-content {
+  overflow-y: auto;
+  flex-grow: 1;
+  max-height: calc(90vh - 220px); /* Adjust based on fixed content above */
+  padding-right: 10px;
+}
+
+.caption-input {
+  width: 100%;
+  border: none;
+  resize: none;
+  min-height: 130px;
+  max-height: 200px;
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background-color: #f8f8f8;
+  margin-bottom: 15px;
+  outline: none;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.media-upload {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.custom-file-upload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #FF8700;
+  cursor: pointer;
+  font-weight: bold;
+  border: 2px dashed #FF8700;
+  padding: 14px;
+  border-radius: 10px;
+  transition: 0.3s;
+  font-size: 16px;
+}
+
+.custom-file-upload:hover {
+  background-color: #fff4e5;
+}
+
+.media-preview {
+  margin-top: 15px;
+  max-height: 400px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.media-preview img,
+.media-preview video {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  object-fit: contain;
+}
+
+.remove-media-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #FF8700;
+  z-index: 1;
+}
+
+.publish-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #FF8700;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 15px;
+}
+
+.publish-btn:hover {
+  background-color: #cc6f00;
+}
+
+.publish-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .post-box {
+    width: 95%;
+    padding: 25px 20px;
   }
 
-  .error-msg {
-    background-color: #ffe0e0;
-    color: #a00;
-    padding: 10px;
-    margin-bottom: 1em;
-    border-radius: 5px;
-    font-weight: bold;
+  .modal-title {
+    font-size: 20px;
   }
-  
+
+  .caption-input {
+    font-size: 14px;
+  }
+
+  .user-name {
+    max-width: 180px;
+    font-size: 15px;
+  }
+
+  .custom-file-upload {
+    font-size: 14px;
+  }
+}
+
+
