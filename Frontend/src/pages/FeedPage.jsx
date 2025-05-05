@@ -41,7 +41,7 @@ function FeedPage() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="feed-page-container" style={{ border: '2px solid black' }}> {/* remove style later */}
+    <div className="feed-page-container" >
       <div className="feed-posts">
         {posts.length === 0 ? (
           <p>No posts available.</p>
