@@ -8,6 +8,7 @@ import FeedPage from './pages/FeedPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Profile from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
+import HelpSupport from './pages/HelpSupport.jsx';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -32,6 +33,7 @@ function App() {
             <Route path="/" element={<Navigate to="/feeds" replace />} />
             <Route path="/login" element={<LoginRegister setToken={setToken} setProfile={setProfile} />} />
             <Route path="/about" element={<About />} />
+            <Route path="/help" element={<HelpSupport />} />
 
             {/* Protected Routes (Private) */}
             <Route path="/feeds" element={<PrivateRoute><FeedPage /></PrivateRoute>} />
