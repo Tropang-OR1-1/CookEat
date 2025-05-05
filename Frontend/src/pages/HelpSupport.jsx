@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Accordion,
   AccordionSummary,
@@ -62,43 +63,58 @@ const HelpSupport = () => {
   ];
 
   return (
-    <div className="help-page-bg">
-        <Container maxWidth="md" className="help-container">
+    <motion.div
+      className="help-page-bg"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <Container maxWidth="md" className="help-container">
         <Box display="flex" alignItems="center" justifyContent="center" className="help-title" sx={{ gap: 1 }}>
-            <HelpOutlineIcon fontSize="large" style={{ color: '#FF4500' }} />
-                <Typography variant="h4" fontWeight="700" style={{ color: '#FF4500' }}>
-                    Help & Support
-                </Typography>
+          <HelpOutlineIcon fontSize="large" style={{ color: '#FF4500' }} />
+          <Typography variant="h4" fontWeight="700" style={{ color: '#FF4500' }}>
+            Help & Support
+          </Typography>
         </Box>
 
-
         {faqs.map((section, sectionIndex) => (
-            <Paper elevation={3} className="faq-card" key={sectionIndex}>
-                <Typography variant="h6" className="section-title">
-                    {section.section}
-                </Typography>
-                    {section.items.map((item, itemIndex) => (
+          <motion.div
+            key={sectionIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: sectionIndex * 0.2 }}
+          >
+            <Paper elevation={3} className="faq-card">
+              <Typography variant="h6" className="section-title">
+                {section.section}
+              </Typography>
+              {section.items.map((item, itemIndex) => (
                 <Accordion
-                    key={itemIndex} // Use itemIndex to ensure unique keys
-                    expanded={expanded === `panel-${sectionIndex}-${itemIndex}`}
-                    onChange={() =>
-                    setExpanded(expanded === `panel-${sectionIndex}-${itemIndex}` ? false : `panel-${sectionIndex}-${itemIndex}`)
-                    }
-                    className="faq-accordion"
+                  key={itemIndex}
+                  expanded={expanded === `panel-${sectionIndex}-${itemIndex}`}
+                  onChange={() =>
+                    setExpanded(
+                      expanded === `panel-${sectionIndex}-${itemIndex}`
+                        ? false
+                        : `panel-${sectionIndex}-${itemIndex}`
+                    )
+                  }
+                  className="faq-accordion"
                 >
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography className="faq-question">{item.question}</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography className="faq-answer">{item.answer}</Typography>
-                    </AccordionDetails>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography className="faq-question">{item.question}</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography className="faq-answer">{item.answer}</Typography>
+                  </AccordionDetails>
                 </Accordion>
-                ))}
+              ))}
             </Paper>
-            ))}
-        </Container>
-    </div>
-    );
-    };
+          </motion.div>
+        ))}
+      </Container>
+    </motion.div>
+  );
+};
 
 export default HelpSupport;
