@@ -1,65 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
-
 import './styles/feedpage.css';
 
 function FeedPage() {
-  const [posts, setPosts] = useState([]);  // State to store posts
-  const [loading, setLoading] = useState(true);  // State for loading
-  const [error, setError] = useState(null);  // State for errors
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const observer = useRef();
+
+  const lastPostRef = useCallback(
+    node => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting && hasMore) {
+            setPage(prev => prev + 1);
+          }
+        },
+        {
+          threshold: 0.5, // has to view 50% of the ano yung pagination then new post will load
+        }
+      );
+
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch('https://cookeat.cookeat.space/query/feed/posts');  // Updated URL
+        const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`);
+        if (!response.ok) throw new Error('Failed to fetch posts');
 
-        // Check if the response is OK and contains JSON
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-
-        const data = await response.json();  // Parse the response as JSON
-        console.log("Fetched Data:", data);  // Log to inspect the structure
-
+        const data = await response.json();
         if (data && Array.isArray(data.posts)) {
-          setPosts(data.posts);  // Set posts from the API response
+          setPosts(prev => [...prev, ...data.posts]);
+          if (data.posts.length < 10) setHasMore(false); // No more pages
         } else {
-          setError('No posts available or invalid data format');
+          setHasMore(false);
+          setError('Invalid data format or no posts');
         }
       } catch (err) {
-        setError(err.message);  // Catch and set the error message
+        setError(err.message);
       } finally {
-        setLoading(false);  // Set loading to false once done
+        setLoading(false);
       }
     };
 
     fetchPosts();
-  }, []);
-
-  // If loading or error occurs
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  }, [page]);
 
   return (
-    <div className="feed-page-container" >
+    <div className="feed-page-container">
       <div className="feed-posts">
-        {posts.length === 0 ? (
-          <p>No posts available.</p>
-        ) : (
-          posts.map(post => (
-            <FeedPost 
+        {posts.map((post, index) => {
+          const isLast = index === posts.length - 1;
+          return (
+            <FeedPost
               key={post.public_id}
-              profileImage={`path/to/profile/${post.author.picture}`}  // Ensure correct path to profile image
+              profileImage={`path/to/profile/${post.author.picture}`}
               username={post.author.username}
               time={new Date(post.created_at).toLocaleString()}
               caption={post.title}
               mediaType={post.media[0]?.media_type}
-              mediaSrc={`path/to/media/${post.media[0]?.media_filename}`}  // Construct media URL
+              mediaSrc={`path/to/media/${post.media[0]?.media_filename}`}
               reactionsCount={post.reactions_count}
-              postId={post.public_id}  // Pass postId
+              postId={post.public_id}
+              initialLikes={post.reactions_count}
+              initialComments={post.comments_count || 0}
+              ref={isLast ? lastPostRef : null}
             />
-          ))
-        )}
+          );
+        })}
+        {loading && <p>Loading...</p>}
+        {error && <p>Error: {error}</p>}
+        {!hasMore && <p>No more posts to show.</p>}
       </div>
     </div>
   );
