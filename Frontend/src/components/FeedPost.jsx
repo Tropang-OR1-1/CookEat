@@ -10,8 +10,8 @@ function FeedPost({
   caption,
   mediaType,
   mediaSrc,
-  ingredients,
-  instructions,
+  ingredients = [],  // Default to empty array if undefined
+  instructions = [],  // Default to empty array if undefined
   postId,
   initialLikes,
   initialComments
@@ -110,9 +110,10 @@ function FeedPost({
 
       {/* Media Container */}
       <div className="media-container">
-        {mediaType === 'image' ? (
+        {mediaType === 'image' && mediaSrc && (
           <img src={mediaSrc} alt="Post Media" />
-        ) : (
+        )}
+        {mediaType === 'video' && mediaSrc && (
           <video controls>
             <source src={mediaSrc} type="video/mp4" />
             Your browser does not support the video tag.
@@ -122,22 +123,26 @@ function FeedPost({
 
       {/* Recipe Details */}
       <div className="recipe-details">
-        <div className="ingredients">
-          <h4>Ingredients:</h4>
-          <ul>
-            {ingredients.map((ingredient, index) => (
-              <li key={index}>{ingredient}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="instructions">
-          <h4>Instructions:</h4>
-          <ol>
-            {instructions.map((instruction, index) => (
-              <li key={index}>{instruction}</li>
-            ))}
-          </ol>
-        </div>
+        {ingredients.length > 0 && (
+          <div className="ingredients">
+            <h4>Ingredients:</h4>
+            <ul>
+              {ingredients.map((ingredient, index) => (
+                <li key={index}>{ingredient}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {instructions.length > 0 && (
+          <div className="instructions">
+            <h4>Instructions:</h4>
+            <ol>
+              {instructions.map((instruction, index) => (
+                <li key={index}>{instruction}</li>
+              ))}
+            </ol>
+          </div>
+        )}
       </div>
 
       {/* Engagement Section */}
