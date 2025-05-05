@@ -1,12 +1,15 @@
 .feed-post {
+  flex: 0 0 auto;          /* Prevent shrinking/growing */
   width: 100%;
   max-width: 800px;
+  min-width: 800px;        /* Prevent shrinking on small screens */
   margin: 20px auto;
   background-color: #ffffff;
   border-radius: 8px;
   border: 2px solid #FF8700;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  box-sizing: border-box;  /* Ensures padding doesn't add to width */
 }
 
 .profile-section {

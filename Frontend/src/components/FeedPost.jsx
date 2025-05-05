@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/feedpost.css';
 
-function FeedPost({
+const FeedPost = forwardRef(({
   profileImage,
   username,
   time,
   caption,
   mediaType,
   mediaSrc,
-  ingredients = [],  // Default to empty array if undefined
-  instructions = [],  // Default to empty array if undefined
+  ingredients = [],
+  instructions = [],
   postId,
   initialLikes,
   initialComments
-}) {
+}, ref) => {
   const [likes, setLikes] = useState(initialLikes);
   const [comments, setComments] = useState(initialComments);
   const [reaction, setReaction] = useState(null);
@@ -23,7 +23,7 @@ function FeedPost({
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
-  const loggedInUsername = localStorage.getItem('username'); // assume this is set on login
+  const loggedInUsername = localStorage.getItem('username');
 
   const handleReaction = async (reactionType) => {
     if (!isLoggedIn) {
@@ -33,7 +33,7 @@ function FeedPost({
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://cookeat.cookeat.space/react/post', {
+      const response = await axios.get('https://cookeat.cookeat.space/feed/reactions/', {
         params: { reaction: reactionType, post_id: postId },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -64,7 +64,7 @@ function FeedPost({
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('https://cookeat.cookeat.space/react/comment', {
+      const response = await axios.post('https://cookeat.cookeat.space/feed/comments', {
         post_id: postId,
         content: newComment,
       }, {
@@ -82,7 +82,7 @@ function FeedPost({
   };
 
   return (
-    <div className="feed-post">
+    <div className="feed-post" ref={ref}>
       {/* Profile Section */}
       <div className="profile-section">
         <div className="profile-left">
@@ -103,16 +103,14 @@ function FeedPost({
         )}
       </div>
 
-      {/* Post Caption */}
+      {/* Caption */}
       <div className="post-caption">
         <p className="caption">{caption}</p>
       </div>
 
-      {/* Media Container */}
+      {/* Media */}
       <div className="media-container">
-        {mediaType === 'image' && mediaSrc && (
-          <img src={mediaSrc} alt="Post Media" />
-        )}
+        {mediaType === 'image' && mediaSrc && <img src={mediaSrc} alt="Post Media" />}
         {mediaType === 'video' && mediaSrc && (
           <video controls>
             <source src={mediaSrc} type="video/mp4" />
@@ -155,7 +153,11 @@ function FeedPost({
           >
             Like ({likes})
           </button>
-          <button className="comment-btn" onClick={handleCommentClick} disabled={!isLoggedIn}>
+          <button
+            className="comment-btn"
+            onClick={handleCommentClick}
+            disabled={!isLoggedIn}
+          >
             Comment ({comments})
           </button>
           <button className="share-btn">Share</button>
@@ -181,6 +183,6 @@ function FeedPost({
       )}
     </div>
   );
-}
+});
 
 export default FeedPost;
