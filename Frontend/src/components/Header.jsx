@@ -72,7 +72,7 @@ function Header({ token, setToken, profile }) {
         <div className="header-center">
           <div className="header-tooltip-wrapper">
             <Link
-              to="/"
+              to="/feeds"
               className={`header-button ${location.pathname === "/" ? "active" : ""}`}
             >
               <i className="bx bx-news"></i>

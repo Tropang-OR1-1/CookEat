@@ -29,8 +29,8 @@ function App() {
         <main>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/" />} /> {/* Redirect to /feeds */}
-            <Route path="/login" element={<LoginRegister setToken={setToken} />} />
+            <Route path="/" element={<Navigate to="/feeds" replace />} />
+            <Route path="/login" element={<LoginRegister setToken={setToken} setProfile={setProfile} />} />
             <Route path="/about" element={<About />} />
 
             {/* Protected Routes (Private) */}
