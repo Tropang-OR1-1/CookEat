@@ -77,12 +77,12 @@ router.post("/login", upload.none(), async (req, res) => {
     });
 
 router.post("/register", upload.none(), async (req, res) => {
-    if (!usernameRegex.test(username)) {
-        return res.status(400).json({ error: `Invalid username format. Input was: ${username}` });
-    }
-    
     const { password, email } = req.body ?? {}; 
     let { username } = req.body ?? {};
+
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({ error: `Invalid username format. Input was: ${username}` });
+        }
 
     if (!username || !password || !email) {
         return res.status(400).json({ error: "Incomplete credentials." });
