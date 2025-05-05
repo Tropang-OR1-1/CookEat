@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
+import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx';
+
 import './styles/feedpage.css';
 
 function FeedPage() {
@@ -81,7 +83,7 @@ function FeedPage() {
             />
           );
         })}
-        {loading && <p>Loading...</p>}
+        {loading && [...Array(3)].map((_, i) => <FeedPostSkeleton key={`skeleton-${i}`} />)}
         {error && <p>Error: {error}</p>}
         {!hasMore && <p>No more posts to show.</p>}
       </div>
