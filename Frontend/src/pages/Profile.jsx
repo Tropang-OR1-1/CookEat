@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import FeedPost from './FeedPost';
+import FeedPost from './../components/FeedPost.jsx';
 import './styles/profile.css';
 
 function Profile({ profile, setProfile }) {

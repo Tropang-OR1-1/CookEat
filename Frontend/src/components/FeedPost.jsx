@@ -61,7 +61,7 @@ function FeedPost({
       alert('Please enter a comment!');
       return;
     }
-// wtf
+
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post('https://cookeat.cookeat.space/react/comment', {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import FeedPost from './FeedPost';
+import FeedPost from './../components/FeedPost.jsx';
 
 import './styles/feedpage.css';
 
