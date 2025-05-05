@@ -1,41 +1,42 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/feedpost.css';
 
-function FeedPost({
+const FeedPost = forwardRef(({
   profileImage,
   username,
   time,
   caption,
   mediaType,
   mediaSrc,
-  ingredients,
-  instructions,
+  ingredients = [],
+  instructions = [],
   postId,
   initialLikes,
   initialComments
-}) {
+}, ref) => {
   const [likes, setLikes] = useState(initialLikes);
   const [comments, setComments] = useState(initialComments);
-  const [reaction, setReaction] = useState(null);  // Track the user's reaction
-  const [isReacted, setIsReacted] = useState(false);  // Track if the user has reacted
-  const [commentModalOpen, setCommentModalOpen] = useState(false); // Track if the comment modal is open
-  const [newComment, setNewComment] = useState('');  // Track new comment input
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // Check if user is logged in
+  const [reaction, setReaction] = useState(null);
+  const [isReacted, setIsReacted] = useState(false);
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const loggedInUsername = localStorage.getItem('username');
 
   const handleReaction = async (reactionType) => {
     if (!isLoggedIn) {
       alert('Please log in to react to this post!');
       return;
     }
-    
+
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        '/api/reactions/post', 
-        { reaction: reactionType, post_id: postId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get('https://cookeat.cookeat.space/feed/reactions/', {
+        params: { reaction: reactionType, post_id: postId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.status === 200) {
         setReaction(reactionType);
@@ -63,16 +64,17 @@ function FeedPost({
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `/api/comments/post`, 
-        { post_id: postId, content: newComment },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.post('https://cookeat.cookeat.space/feed/comments', {
+        post_id: postId,
+        content: newComment,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.status === 200) {
         setComments((prevComments) => prevComments + 1);
         setNewComment('');
-        setCommentModalOpen(false);  // Close the modal after submitting
+        setCommentModalOpen(false);
       }
     } catch (error) {
       console.error('Error submitting comment:', error);
@@ -80,7 +82,7 @@ function FeedPost({
   };
 
   return (
-    <div className="feed-post">
+    <div className="feed-post" ref={ref}>
       {/* Profile Section */}
       <div className="profile-section">
         <div className="profile-left">
@@ -90,25 +92,26 @@ function FeedPost({
             <p className="time">{time}</p>
           </div>
         </div>
-        <div className="options">
-          <button className="dropdown-btn">⋮</button>
-          <div className="dropdown-content">
-            <a href="#">Edit</a>
-            <a href="#">Delete</a>
+        {isLoggedIn && username === loggedInUsername && (
+          <div className="options">
+            <button className="dropdown-btn">⋮</button>
+            <div className="dropdown-content">
+              <Link to={`/edit/${postId}`}>Edit</Link>
+              <Link to={`/delete/${postId}`}>Delete</Link>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Post Caption */}
+      {/* Caption */}
       <div className="post-caption">
         <p className="caption">{caption}</p>
       </div>
 
-      {/* Media Container */}
+      {/* Media */}
       <div className="media-container">
-        {mediaType === 'image' ? (
-          <img src={mediaSrc} alt="Post Media" />
-        ) : (
+        {mediaType === 'image' && mediaSrc && <img src={mediaSrc} alt="Post Media" />}
+        {mediaType === 'video' && mediaSrc && (
           <video controls>
             <source src={mediaSrc} type="video/mp4" />
             Your browser does not support the video tag.
@@ -118,22 +121,26 @@ function FeedPost({
 
       {/* Recipe Details */}
       <div className="recipe-details">
-        <div className="ingredients">
-          <h4>Ingredients:</h4>
-          <ul>
-            {ingredients.map((ingredient, index) => (
-              <li key={index}>{ingredient}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="instructions">
-          <h4>Instructions:</h4>
-          <ol>
-            {instructions.map((instruction, index) => (
-              <li key={index}>{instruction}</li>
-            ))}
-          </ol>
-        </div>
+        {ingredients.length > 0 && (
+          <div className="ingredients">
+            <h4>Ingredients:</h4>
+            <ul>
+              {ingredients.map((ingredient, index) => (
+                <li key={index}>{ingredient}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {instructions.length > 0 && (
+          <div className="instructions">
+            <h4>Instructions:</h4>
+            <ol>
+              {instructions.map((instruction, index) => (
+                <li key={index}>{instruction}</li>
+              ))}
+            </ol>
+          </div>
+        )}
       </div>
 
       {/* Engagement Section */}
@@ -146,7 +153,11 @@ function FeedPost({
           >
             Like ({likes})
           </button>
-          <button className="comment-btn" onClick={handleCommentClick} disabled={!isLoggedIn}>
+          <button
+            className="comment-btn"
+            onClick={handleCommentClick}
+            disabled={!isLoggedIn}
+          >
             Comment ({comments})
           </button>
           <button className="share-btn">Share</button>
@@ -172,6 +183,6 @@ function FeedPost({
       )}
     </div>
   );
-}
+});
 
 export default FeedPost;
