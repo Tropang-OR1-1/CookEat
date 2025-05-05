@@ -1,4 +1,4 @@
-const { justifyToken } = require("../../config/jwt");
+const { verifyToken } = require("../../config/jwt");
 
 const upload = require('../../config/multer');  // Import multer configuration
 const db = require("../../config/db");

@@ -53,20 +53,18 @@ router.post('/:type', verifyToken, upload.none(), async (req, res) => {
 });
 
 
-
-
-router.delete('/post', verifyToken, upload.none(), async (req, res) => {
-  handleReactionDelete(req, res, 'post', queryPPID, 'post');
+router.delete('/:type/:id', verifyToken, upload.none(), async (req, res) => {
+  const { type, id } = req.params;
+  if (['post','comment'].includes(type) === false) {
+    return res.status(400).json({ error: "Invalid type. Must be 'post' or 'comment'." });
+    }
+    
+  const queryFn = type === 'post' ? queryPPID : queryCPID;  
+  handleReactionDelete(req, res, type, queryFn, id);
 });
 
-router.delete('/comment', verifyToken, upload.none(), async (req, res) => {
-  handleReactionDelete(req, res, 'comment', queryCPID, 'comment');
-});
 
-
-
-const handleReactionDelete = async (req, res, type, queryFunction, table) => {
-  const { [type === 'post' ? 'post_id' : 'comment_id']: id } = req.body ?? {};
+const handleReactionDelete = async (req, res, type, queryFunction, id) => {
 
   if (!id) return res.status(400).json({ error: `${type}_id is required.` });
   if (typeof id !== 'string') return res.status(400).json({ error: "Data values must be string." });
@@ -77,7 +75,7 @@ const handleReactionDelete = async (req, res, type, queryFunction, table) => {
   pid = pid.id;
 
   const userId = req.user.id;
-  const query = `DELETE FROM ${table}_reaction WHERE user_id = $1 AND ${type}_id = $2;`;
+  const query = `DELETE FROM ${type}_reaction WHERE user_id = $1 AND ${type}_id = $2;`;
 
   try {
     const result = await db.query(query, [userId, pid]);
