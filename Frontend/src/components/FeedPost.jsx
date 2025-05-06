@@ -1,9 +1,9 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { formatDate } from './utils/formatDate'; // Import formatDate
 import './styles/feedpost.css';
 
-// Constants for reactions
 const REACTIONS = {
   LIKE: 'UP',
   UNLIKE: 'NEUTRAL',
@@ -31,6 +31,7 @@ const FeedPost = forwardRef(({
   const [newComment, setNewComment] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
   const [isReacting, setIsReacting] = useState(false); // Prevent spamming reactions
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // New state to manage dropdown visibility
   const loggedInUsername = localStorage.getItem('username');
 
   useEffect(() => {
@@ -127,35 +128,12 @@ const FeedPost = forwardRef(({
     }
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev); // Toggle the dropdown visibility
+  };
+
   const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
   const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
-
-  const formatDate = (dateString) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInSeconds = Math.floor((now - date) / 1000);
-  
-    if (diffInSeconds < 60) {
-      return 'just now';
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} hr${hours > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 604800) {
-      const days = Math.floor(diffInSeconds / 86400);
-      return `${days} wk${days > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 2592000) {
-      const months = Math.floor(diffInSeconds / 2592000);
-      return `${months} mth${months > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 31536000) {
-      const years = Math.floor(diffInSeconds / 31536000);
-      return `${years} yr${years > 1 ? 's' : ''} ago`;
-    } else {
-      return date.toLocaleString(); // Full date (e.g., "January 1, 2022, 12:00 PM")
-    }
-  };  
 
   return (
     <div className="feed-post" ref={ref}>
@@ -165,19 +143,22 @@ const FeedPost = forwardRef(({
           <img src={profileImageUrl} alt="Profile" className="profile-img" />
           <div className="profile-info">
             <p className="author_username">{author_username}</p>
-            <p className="time">{formatDate(created_at)}</p>
+            <p className="time">{formatDate(created_at)}</p> {/* Use formatDate here */}
           </div>
         </div>
 
-        {isLoggedIn && author_username === loggedInUsername && (
-          <div className="options">
-            <button className="dropdown-btn">⋮</button>
+        <div className="options">
+          <button className="dropdown-btn" onClick={toggleDropdown}>
+            ...
+          </button>
+          {isDropdownOpen && (
             <div className="dropdown-content">
               <Link to={`/edit/${public_id}`}>Edit</Link>
               <Link to={`/delete/${public_id}`}>Delete</Link>
+              <Link to={`/report/${public_id}`}>Report</Link> {/* New option */}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Title */}
@@ -229,11 +210,9 @@ const FeedPost = forwardRef(({
           </button>
         </div>
 
-        {/* New div added here */}
         <div className="engagement-separator"></div>
 
         <div className="engagement-button-group">
-          {/* No count for shares */}
           <button className="share-btn">Share</button>
         </div>
       </div>

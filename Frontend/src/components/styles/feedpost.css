@@ -1,6 +1,6 @@
 .feed-post {
   flex: 0 0 auto;
-  width: 600px;
+  width: 800px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 2px solid #FF8700;
@@ -249,4 +249,40 @@ button.submit {
 
 button.submit:hover {
   background-color: #165eab;
+}
+
+/* Add this to your feedpost.css */
+
+.options {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  min-width: 150px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
 }
