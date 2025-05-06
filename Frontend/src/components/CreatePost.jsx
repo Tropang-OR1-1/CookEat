@@ -6,7 +6,7 @@ import './styles/createpost.css';
 function CreatePost({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     postTitle: '',
-    caption: '',
+    content: '',
     media: null
   });
 
@@ -62,7 +62,7 @@ function CreatePost({ isOpen, onClose }) {
 
     const data = new FormData();
     data.append('title', formData.postTitle);
-    data.append('description', formData.caption);
+    data.append('description', formData.content);
     data.append('media', formData.media);
     data.append('user_id', userId);
 
@@ -87,7 +87,7 @@ function CreatePost({ isOpen, onClose }) {
       onClose();
       setFormData({
         postTitle: '',
-        caption: '',
+        content: '',
         media: null
       });
       if (fileInputRef.current) {
@@ -131,7 +131,7 @@ function CreatePost({ isOpen, onClose }) {
           <textarea
             id="caption"
             name="caption"
-            value={formData.caption}
+            value={formData.content}
             onChange={handleChange}
             className="input-field"
           />
