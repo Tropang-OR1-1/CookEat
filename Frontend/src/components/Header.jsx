@@ -4,19 +4,20 @@ import CreatePost from "./CreatePost.jsx";
 import CreateRecipe from "./CreateRecipe.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
+import NotificationModal from "./notification.jsx";
 import "./styles/header.css";
 
 function Header({ token, setToken, profile }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false); // added
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [avatar, setAvatar] = useState("/images/profile_img.jpg");
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
 
   const addPostRef = useRef(null);
   const profileDropdownRef = useRef(null);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -122,7 +123,7 @@ function Header({ token, setToken, profile }) {
                   </button>
                   <button
                     onClick={() => {
-                      setIsRecipeModalOpen(true); // open recipe modal
+                      setIsRecipeModalOpen(true);
                       setIsAddPostOpen(false);
                     }}
                   >
@@ -168,7 +169,7 @@ function Header({ token, setToken, profile }) {
 
       <CreatePost isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
       <ErrorBoundary>
-        <CreateRecipe isOpen={isRecipeModalOpen} onClose={() => setIsRecipeModalOpen(false)} /> {/* added */}
+        <CreateRecipe isOpen={isRecipeModalOpen} onClose={() => setIsRecipeModalOpen(false)} />
       </ErrorBoundary>
       <LoginRegister
         isOpen={isLoginModalOpen}
@@ -179,14 +180,15 @@ function Header({ token, setToken, profile }) {
       {token && (
         <div className="header-user-actions">
           <div className="header-tooltip-wrapper">
-            <Link
-              to="/notifications"
-              className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
+            <button
+              className="header-button"
+              onClick={() => setIsNotificationModalOpen(true)}
             >
               <i className="bx bx-bell"></i>
               <span className="header-tooltip">Notifications</span>
-            </Link>
+            </button>
           </div>
+
           <div className="header-profile-dropdown" ref={profileDropdownRef}>
             <img
               src={avatar}
@@ -208,6 +210,8 @@ function Header({ token, setToken, profile }) {
               </Link>
             </div>
           </div>
+
+          <NotificationModal isOpen={isNotificationModalOpen} onClose={() => setIsNotificationModalOpen(false)} />
         </div>
       )}
     </header>
