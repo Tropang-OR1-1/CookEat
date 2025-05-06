@@ -1,32 +1,37 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
 import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx';
-
+import useFeedStore from './../store/feedStore.js';
 import './styles/feedpage.css';
 
 function FeedPage() {
-  const [posts, setPosts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    posts,
+    page,
+    hasMore,
+    setPosts,
+    incrementPage,
+    setHasMore,
+    scrollY,
+    setScrollY,
+  } = useFeedStore();
 
   const observer = useRef();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   const lastPostRef = useCallback(
-    node => {
+    (node) => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver(
-        entries => {
+        (entries) => {
           if (entries[0].isIntersecting && hasMore) {
-            setPage(prev => prev + 1);
+            incrementPage();
           }
         },
-        {
-          threshold: 0.5, // has to view 50% of the ano yung pagination then new post will load
-        }
+        { threshold: 0.5 }
       );
 
       if (node) observer.current.observe(node);
@@ -34,18 +39,18 @@ function FeedPage() {
     [loading, hasMore]
   );
 
+  // Fetch posts data
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`);
         if (!response.ok) throw new Error('Failed to fetch posts');
 
         const data = await response.json();
         if (data && Array.isArray(data.posts)) {
-          setPosts(prev => [...prev, ...data.posts]);
+          setPosts(prevPosts => [...prevPosts, ...data.posts]);  // Append new posts
           if (data.posts.length < 10) setHasMore(false); // No more pages
         } else {
           setHasMore(false);
@@ -61,6 +66,31 @@ function FeedPage() {
     fetchPosts();
   }, [page]);
 
+  // Restore scroll position on mount and save it on unmount
+  useEffect(() => {
+    const restoreScrollPosition = () => {
+      if (scrollY !== undefined) {
+        window.scrollTo(0, scrollY);
+      }
+    };
+
+    // Delay scroll restoration to ensure page is loaded
+    const timeout = setTimeout(restoreScrollPosition, 100); // Delay by 100ms
+
+    return () => {
+      clearTimeout(timeout);
+      setScrollY(window.scrollY);
+    };
+  }, [scrollY]);
+
+  // Track scroll position during page scroll
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [setScrollY]);
+
   return (
     <div className="feed-page-container">
       <div className="feed-posts">
@@ -69,16 +99,20 @@ function FeedPage() {
           return (
             <FeedPost
               key={post.public_id}
-              profileImage={`path/to/profile/${post.author.picture}`}
-              username={post.author.username}
-              time={new Date(post.created_at).toLocaleString()}
-              caption={post.title}
-              mediaType={post.media[0]?.media_type}
-              mediaSrc={`path/to/media/${post.media[0]?.media_filename}`}
-              reactionsCount={post.reactions_count}
-              postId={post.public_id}
-              initialLikes={post.reactions_count}
-              initialComments={post.comments_count || 0}
+              public_id={post.public_id}
+              title={post.title}
+              content={post.content}
+              view_count={post.view_count}
+              created_at={new Date(post.created_at).toLocaleString()}
+              updated_at={new Date(post.updated_at).toLocaleString()}
+              media_filename={post.media[0]?.media_filename}
+              media_type={post.media[0]?.media_type}
+              reactions_count={post.reactions_count}
+              ref_public_id={post.ref_public_id}
+              author_public_id={post.author.public_id}
+              author_username={post.author.username}
+              author_picture={post.author.picture}
+              
               ref={isLast ? lastPostRef : null}
             />
           );

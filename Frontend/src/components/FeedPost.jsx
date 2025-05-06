@@ -4,12 +4,12 @@ import axios from 'axios';
 import './styles/feedpost.css';
 
 const FeedPost = forwardRef(({
-  profileImage,
-  username,
+  authorPicture,
+  authorUsername,
   time,
-  caption,
-  mediaType,
-  mediaSrc,
+  content,
+  media_type,
+  media_filename,
   ingredients = [],
   instructions = [],
   postId,
@@ -81,18 +81,22 @@ const FeedPost = forwardRef(({
     }
   };
 
+  // Construct the full URLs for images and media
+  const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${authorPicture}`;
+  const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
+
   return (
     <div className="feed-post" ref={ref}>
       {/* Profile Section */}
       <div className="profile-section">
         <div className="profile-left">
-          <img src={profileImage} alt="Profile" className="profile-img" />
+          <img src={profileImageUrl} alt="Profile" className="profile-img" />
           <div className="profile-info">
-            <p className="username">{username}</p>
+            <p className="username">{authorUsername}</p>
             <p className="time">{time}</p>
           </div>
         </div>
-        {isLoggedIn && username === loggedInUsername && (
+        {isLoggedIn && authorUsername === loggedInUsername && (
           <div className="options">
             <button className="dropdown-btn">⋮</button>
             <div className="dropdown-content">
@@ -103,17 +107,17 @@ const FeedPost = forwardRef(({
         )}
       </div>
 
-      {/* Caption */}
+      {/* Content */}
       <div className="post-caption">
-        <p className="caption">{caption}</p>
+        <p className="caption">{content}</p>
       </div>
 
       {/* Media */}
       <div className="media-container">
-        {mediaType === 'image' && mediaSrc && <img src={mediaSrc} alt="Post Media" />}
-        {mediaType === 'video' && mediaSrc && (
+        {media_type === 'image' && mediaUrl && <img src={mediaUrl} alt="Post Media" />}
+        {media_type === 'video' && mediaUrl && (
           <video controls>
-            <source src={mediaSrc} type="video/mp4" />
+            <source src={mediaUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         )}
