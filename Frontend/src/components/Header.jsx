@@ -1,38 +1,33 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
+import CreateRecipe from "./CreateRecipe.jsx";
 import LoginRegister from "./LoginRegister.jsx";
+import ErrorBoundary from "./ErrorBoundary.jsx";
 import "./styles/header.css";
 
 function Header({ token, setToken, profile }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false); // added
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
+  const [isAddPostOpen, setIsAddPostOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [avatar, setAvatar] = useState("/images/profile_img.jpg");
+
+  const addPostRef = useRef(null);
+  const profileDropdownRef = useRef(null);
+
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Reference for the dropdown
-  const dropdownRef = useRef(null);
-  
+
   useEffect(() => {
     if (profile && profile.avatar) {
       setAvatar(profile.avatar);
     }
-  }, [profile]);  // Respond to changes in profile
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    navigate("/login");
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  }, [profile]);
 
   useEffect(() => {
-    const storedProfile = localStorage.getItem('profile');
+    const storedProfile = localStorage.getItem("profile");
     if (storedProfile) {
       const parsed = JSON.parse(storedProfile);
       if (parsed.avatar) {
@@ -42,30 +37,52 @@ function Header({ token, setToken, profile }) {
   }, []);
 
   useEffect(() => {
-    // Close dropdown if clicked outside
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+      if (
+        addPostRef.current &&
+        !addPostRef.current.contains(event.target)
+      ) {
+        setIsAddPostOpen(false);
+      }
+
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
+        setIsProfileDropdownOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    navigate("/login");
+  };
+
   return (
     <header className="header-navbar header">
       <div className="header-logo-container">
         <Link to="/">
-          <img src="./images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
+          <img
+            src="./images/CookEat_Logo.png"
+            alt="Cook It Logo"
+            className="header-logo"
+          />
         </Link>
       </div>
 
       <div className="header-search-container">
-        <input type="text" placeholder="Search in CookEat" className="header-search-bar" />
+        <input
+          type="text"
+          placeholder="Search in CookEat"
+          className="header-search-bar"
+        />
       </div>
 
       <nav className="header-nav-links">
@@ -80,6 +97,42 @@ function Header({ token, setToken, profile }) {
             </Link>
           </div>
 
+          {token && (
+            <div className="header-tooltip-wrapper header-add-post-dropdown" ref={addPostRef}>
+              <button
+                className="header-button"
+                onClick={() => {
+                  setIsAddPostOpen((prev) => !prev);
+                  setIsProfileDropdownOpen(false);
+                }}
+              >
+                <i className="bx bx-plus-circle"></i>
+                <span className="header-tooltip">Add Post</span>
+              </button>
+
+              {isAddPostOpen && (
+                <div className="header-add-post-menu">
+                  <button
+                    onClick={() => {
+                      setIsPostModalOpen(true);
+                      setIsAddPostOpen(false);
+                    }}
+                  >
+                    Create Post
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsRecipeModalOpen(true); // open recipe modal
+                      setIsAddPostOpen(false);
+                    }}
+                  >
+                    Create Recipe
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="header-tooltip-wrapper">
             <Link
               to="/recipes"
@@ -89,18 +142,6 @@ function Header({ token, setToken, profile }) {
               <span className="header-tooltip">Recipes</span>
             </Link>
           </div>
-
-          {token && (
-            <div className="header-tooltip-wrapper">
-              <button
-                className="header-button"
-                onClick={() => setIsPostModalOpen(true)}
-              >
-                <i className="bx bx-message-square-add"></i>
-                <span className="header-tooltip">Create Post</span>
-              </button>
-            </div>
-          )}
 
           {!token && (
             <div className="header-tooltip-wrapper">
@@ -126,7 +167,14 @@ function Header({ token, setToken, profile }) {
       </nav>
 
       <CreatePost isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
-      <LoginRegister isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} setToken={setToken} />
+      <ErrorBoundary>
+        <CreateRecipe isOpen={isRecipeModalOpen} onClose={() => setIsRecipeModalOpen(false)} /> {/* added */}
+      </ErrorBoundary>
+      <LoginRegister
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        setToken={setToken}
+      />
 
       {token && (
         <div className="header-user-actions">
@@ -139,20 +187,25 @@ function Header({ token, setToken, profile }) {
               <span className="header-tooltip">Notifications</span>
             </Link>
           </div>
-          <div className="header-profile-dropdown" ref={dropdownRef}>
+          <div className="header-profile-dropdown" ref={profileDropdownRef}>
             <img
               src={avatar}
               alt="User Profile"
               className="header-profile-pic"
-              onClick={toggleDropdown}
+              onClick={() => {
+                setIsProfileDropdownOpen((prev) => !prev);
+                setIsAddPostOpen(false);
+              }}
             />
-            <div className={`header-dropdown-content ${isDropdownOpen ? "open" : ""}`}>
+            <div className={`header-dropdown-content ${isProfileDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
               <Link to="/help">Help and Support</Link>
               <Link to="/incentives">Incentives</Link>
               <Link to="/settings">Settings</Link>
               <Link to="/about">About Us</Link>
-              <Link to="#" onClick={handleLogout}>Log Out</Link>
+              <Link to="#" onClick={handleLogout}>
+                Log Out
+              </Link>
             </div>
           </div>
         </div>
@@ -162,4 +215,3 @@ function Header({ token, setToken, profile }) {
 }
 
 export default Header;
-      
