@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
 import LoginRegister from "./LoginRegister.jsx";
+import NotificationModal from "./notification.jsx"
 import "./styles/header.css";
 
 function Header({ token, setToken, profile }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [avatar, setAvatar] = useState('/images/profile_img.jpg');
   const navigate = useNavigate();
   const location = useLocation();
@@ -130,15 +132,16 @@ function Header({ token, setToken, profile }) {
 
       {token && (
         <div className="header-user-actions">
-          <div className="header-tooltip-wrapper">
-            <Link
-              to="/notifications"
-              className={`header-button ${location.pathname === "/notifications" ? "active" : ""}`}
-            >
-              <i className="bx bx-bell"></i>
-              <span className="header-tooltip">Notifications</span>
-            </Link>
+        <div className="header-tooltip-wrapper">
+          <button
+            className="header-button"
+            onClick={() => setIsNotificationModalOpen(true)}
+          >
+            <i className="bx bx-bell"></i>
+            <span className="header-tooltip">Notifications</span>
+          </button>
           </div>
+        
           <div className="header-profile-dropdown" ref={dropdownRef}>
             <img
               src={avatar}
@@ -155,6 +158,8 @@ function Header({ token, setToken, profile }) {
               <Link to="#" onClick={handleLogout}>Log Out</Link>
             </div>
           </div>
+
+          <NotificationModal isOpen={isNotificationModalOpen} onClose={() => setIsNotificationModalOpen(false)} />
         </div>
       )}
     </header>
