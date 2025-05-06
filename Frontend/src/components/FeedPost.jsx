@@ -1,50 +1,97 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { formatDate } from './utils/formatDate'; // Import formatDate
 import './styles/feedpost.css';
 
+const REACTIONS = {
+  LIKE: 'UP',
+  UNLIKE: 'NEUTRAL',
+};
+
 const FeedPost = forwardRef(({
-  profileImage,
-  username,
-  time,
-  caption,
-  mediaType,
-  mediaSrc,
-  ingredients = [],
-  instructions = [],
-  postId,
-  initialLikes,
-  initialComments
+  public_id,
+  title,
+  content,
+  view_count, // maybe will not use
+  created_at,
+  updated_at, // for auditing, maybe will not use
+  media_filename,
+  media_type,
+  reactions_count,
+  ref_public_id, // pub id if shared
+  author_public_id, // pub id used to view user profile
+  author_username,
+  author_picture,
 }, ref) => {
-  const [likes, setLikes] = useState(initialLikes);
-  const [comments, setComments] = useState(initialComments);
+  const [likes, setLikes] = useState(reactions_count); // Set initial likes to reactions_count
+  const [comments, setComments] = useState(0); // Start with 0 comments
   const [reaction, setReaction] = useState(null);
-  const [isReacted, setIsReacted] = useState(false);
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [isReacting, setIsReacting] = useState(false); // Prevent spamming reactions
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // New state to manage dropdown visibility
   const loggedInUsername = localStorage.getItem('username');
 
-  const handleReaction = async (reactionType) => {
+  useEffect(() => {
+    // Fetch comment count from the API
+    const fetchCommentCount = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Get token from localStorage
+        const response = await axios.get(`https://cookeat.cookeat.space/comments/${public_id}`, {
+          params: { post_id: public_id },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.status === 200) {
+          setComments(response.data.comment_count); // Assuming response contains comment_count
+        }
+      } catch (error) {
+        console.error('Error fetching comment count:', error);
+      }
+    };
+
+    fetchCommentCount();
+  }, [public_id]);
+
+  const handleReaction = async () => {
     if (!isLoggedIn) {
       alert('Please log in to react to this post!');
       return;
     }
 
+    if (isReacting) return; // Prevent multiple reactions at once
+    setIsReacting(true); // Set the reaction to loading state
+
+    const token = localStorage.getItem('token');
+    const newReaction = reaction === REACTIONS.LIKE ? REACTIONS.UNLIKE : REACTIONS.LIKE;
+
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('https://cookeat.cookeat.space/feed/reactions/', {
-        params: { reaction: reactionType, post_id: postId },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(
+        `https://cookeat.cookeat.space/react/post`,
+        [newReaction],
+        {
+          params: { post_id: public_id },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (response.status === 200) {
-        setReaction(reactionType);
-        setIsReacted(true);
-        setLikes((prevLikes) => reactionType === 'like' ? prevLikes + 1 : prevLikes - 1);
+        if (newReaction === REACTIONS.LIKE) {
+          setReaction('like');
+          setLikes((prevLikes) => prevLikes + 1);
+        } else {
+          setReaction(null);
+          setLikes((prevLikes) => Math.max(0, prevLikes - 1));
+        }
       }
     } catch (error) {
       console.error('Error reacting to the post:', error);
+    } finally {
+      setIsReacting(false); // Reset the loading state after reaction
     }
   };
 
@@ -65,8 +112,8 @@ const FeedPost = forwardRef(({
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post('https://cookeat.cookeat.space/feed/comments', {
-        post_id: postId,
-        content: newComment,
+        post_id: public_id,
+        comment: newComment,
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -81,85 +128,91 @@ const FeedPost = forwardRef(({
     }
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev); // Toggle the dropdown visibility
+  };
+
+  const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
+  const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
+
   return (
     <div className="feed-post" ref={ref}>
       {/* Profile Section */}
       <div className="profile-section">
         <div className="profile-left">
-          <img src={profileImage} alt="Profile" className="profile-img" />
+          <img src={profileImageUrl} alt="Profile" className="profile-img" />
           <div className="profile-info">
-            <p className="username">{username}</p>
-            <p className="time">{time}</p>
+            <p className="author_username">{author_username}</p>
+            <p className="time">{formatDate(created_at)}</p> {/* Use formatDate here */}
           </div>
         </div>
-        {isLoggedIn && username === loggedInUsername && (
-          <div className="options">
-            <button className="dropdown-btn">⋮</button>
+
+        <div className="options">
+          <button className="dropdown-btn" onClick={toggleDropdown}>
+            ...
+          </button>
+          {isDropdownOpen && (
             <div className="dropdown-content">
-              <Link to={`/edit/${postId}`}>Edit</Link>
-              <Link to={`/delete/${postId}`}>Delete</Link>
+              <Link to={`/edit/${public_id}`}>Edit</Link>
+              <Link to={`/delete/${public_id}`}>Delete</Link>
+              <Link to={`/report/${public_id}`}>Report</Link> {/* New option */}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Caption */}
-      <div className="post-caption">
-        <p className="caption">{caption}</p>
-      </div>
+      {/* Title */}
+      {title && (
+        <div className="post-title">
+          <h3>{title}</h3>
+        </div>
+      )}
+
+      {/* Caption / Content */}
+      {content && (
+        <div className="post-caption">
+          <p className="caption">{content}</p>
+        </div>
+      )}
 
       {/* Media */}
       <div className="media-container">
-        {mediaType === 'image' && mediaSrc && <img src={mediaSrc} alt="Post Media" />}
-        {mediaType === 'video' && mediaSrc && (
+        {media_type === 'image' && mediaUrl && <img src={mediaUrl} alt="Post Media" />}
+        {media_type === 'video' && mediaUrl && (
           <video controls>
-            <source src={mediaSrc} type="video/mp4" />
+            <source src={mediaUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         )}
       </div>
 
-      {/* Recipe Details */}
-      <div className="recipe-details">
-        {ingredients.length > 0 && (
-          <div className="ingredients">
-            <h4>Ingredients:</h4>
-            <ul>
-              {ingredients.map((ingredient, index) => (
-                <li key={index}>{ingredient}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {instructions.length > 0 && (
-          <div className="instructions">
-            <h4>Instructions:</h4>
-            <ol>
-              {instructions.map((instruction, index) => (
-                <li key={index}>{instruction}</li>
-              ))}
-            </ol>
-          </div>
-        )}
-      </div>
-
       {/* Engagement Section */}
-      <div className="engagement">
-        <div className="engagement-buttons">
+      <div className="engagement-buttons">
+        <div className="engagement-button-group">
+          <span className="count">{likes}</span>
           <button
             className={`like-btn ${reaction === 'like' ? 'reacted' : ''}`}
-            onClick={() => handleReaction(reaction === 'like' ? 'unlike' : 'like')}
-            disabled={!isLoggedIn}
+            onClick={handleReaction}
+            disabled={!isLoggedIn || isReacting}
           >
-            Like ({likes})
+            Like
           </button>
+        </div>
+
+        <div className="engagement-button-group">
+          <span className="count">{comments}</span>
           <button
             className="comment-btn"
             onClick={handleCommentClick}
             disabled={!isLoggedIn}
           >
-            Comment ({comments})
+            Comment
           </button>
+        </div>
+
+        <div className="engagement-separator"></div>
+
+        <div className="engagement-button-group">
           <button className="share-btn">Share</button>
         </div>
       </div>

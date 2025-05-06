@@ -1,8 +1,5 @@
 .feed-post-skeleton {
-  width: 100%;
-  max-width: 800px;
-  min-width: 800px;
-  margin: 20px auto;
+  width: 800px;
   padding: 20px;
   border-radius: 8px;
   background-color: #fff;
