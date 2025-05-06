@@ -7,9 +7,7 @@ function CreatePost({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     postTitle: '',
     caption: '',
-    media: null,
-    instructions: '',
-    ingredients: '',
+    media: null
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,8 +64,6 @@ function CreatePost({ isOpen, onClose }) {
     data.append('title', formData.postTitle);
     data.append('description', formData.caption);
     data.append('media', formData.media);
-    data.append('instructions', formData.instructions);
-    data.append('ingredients', formData.ingredients);
     data.append('user_id', userId);
 
     try {
@@ -92,9 +88,7 @@ function CreatePost({ isOpen, onClose }) {
       setFormData({
         postTitle: '',
         caption: '',
-        media: null,
-        instructions: '',
-        ingredients: '',
+        media: null
       });
       if (fileInputRef.current) {
         fileInputRef.current.value = null;
@@ -150,26 +144,6 @@ function CreatePost({ isOpen, onClose }) {
             accept="image/*,video/*"
             onChange={handleChange}
             ref={fileInputRef}
-            className="input-field"
-          />
-
-          <label htmlFor="instructions">Instructions (How to Cook):</label>
-          <textarea
-            id="instructions"
-            name="instructions"
-            value={formData.instructions}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-
-          <label htmlFor="ingredients">Ingredients:</label>
-          <textarea
-            id="ingredients"
-            name="ingredients"
-            value={formData.ingredients}
-            onChange={handleChange}
-            required
             className="input-field"
           />
 
