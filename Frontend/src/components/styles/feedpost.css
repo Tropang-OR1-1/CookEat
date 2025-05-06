@@ -1,20 +1,20 @@
 .feed-post {
-  flex: 0 0 auto;          /* Prevent shrinking/growing */
-  width: 100%;
-  max-width: 800px;
-  min-width: 800px;        /* Prevent shrinking on small screens */
+  flex: 0 0 auto;
+  width: 600px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 2px solid #FF8700;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 10px;
-  box-sizing: border-box;  /* Ensures padding doesn't add to width */
+  box-sizing: border-box;
+  margin: 0 auto; /* Centers the post container */
 }
 
 .profile-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .profile-left {
@@ -29,19 +29,28 @@
   object-fit: cover;
 }
 
+.post-title {
+  font-size: 1.5rem;
+}
 .profile-info {
   margin-left: 10px;
+
+
 }
 
-.username {
-  font-size: 1.2rem;
+.author_username {
+  font-size: 1.5rem;
   font-weight: bold;
+  display: flex;
+  align-items: start;
   margin: 0;
 }
 
 .time {
-  font-size: 0.9rem;
+  font-size: 0.8rem; !important
   color: #8a96a3;
+  display: flex;
+  align-items: start;
 }
 
 .post-caption {
@@ -63,9 +72,11 @@
 .media-container img,
 .media-container video {
   max-width: 100%;
+  width: 100%;
   border-radius: 10px;
   outline: 2px solid #FF8700;
 }
+
 
 .media-container img {
   width: 100%;
@@ -75,53 +86,104 @@
 .media-container video {
   width: 100%;
   max-width: 600px;
-  height: 400px;
   object-fit: cover;
   border-radius: 10px;
-}
-
-.recipe-details {
-  margin-top: 20px;
-}
-
-.ingredients h4, .instructions h4 {
-  color: #FF8700;
-}
-
-.ingredients ul, .instructions ol {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.ingredients li, .instructions li {
-  font-size: 1rem;
-  color: #333;
+  aspect-ratio: 3 / 2; /* better than fixed height */
 }
 
 .engagement {
   margin-top: 20px;
 }
 
+.counts {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.counts span {
+  font-size: 0.9rem;
+  color: #606770;
+}
+
+.counts span a {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #1877f2;
+}
+
+.counts span a:hover {
+  opacity: 0.8;
+}
+
+/* Engagement Buttons Layout */
 .engagement-buttons {
   display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #e4e6eb;
+  border-bottom: 1px solid #e4e6eb;
   gap: 10px;
 }
 
-.like-btn, .comment-btn, .share-btn {
-  background-color: #FF8700;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
+.engagement-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  flex: 1;
+  gap: 4px;
 }
 
-.like-btn:hover, .comment-btn:hover, .share-btn:hover {
-  background-color: #e26a00;
+.engagement-button-group button {
+  width: 100%;
+  max-width: 120px;
 }
 
-.like-btn .like-count, .comment-btn .comment-count {
+.like-btn,
+.comment-btn,
+.share-btn {
+  background-color: transparent;
+  color: #606770;
+  border: 1px solid #e4e6eb;
+  padding: 6px 12px;
+  border-radius: 18px;
   font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.like-btn:hover,
+.comment-btn:hover,
+.share-btn:hover {
+  background-color: #f0f2f5;
+  border-color: #dddfe2;
+}
+
+.like-btn.react,
+.comment-btn.react,
+.share-btn.react {
+  color: #1877f2;
+}
+
+.like-btn .like-count,
+.comment-btn .comment-count {
+  font-size: 0.9rem;
+}
+
+.like-btn.react .like-count,
+.comment-btn.react .comment-count {
+  font-weight: bold;
+  color: #1877f2;
+}
+
+.count {
+  font-size: 0.85rem;
+  color: #606770;
 }
 
 /* Comment Modal Styles */
@@ -153,6 +215,7 @@ textarea {
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #ccc;
+  resize: none;
 }
 
 .modal-actions {
@@ -180,10 +243,10 @@ button.cancel {
 }
 
 button.submit {
-  background-color: #FF8700;
+  background-color: #1877f2;
   color: white;
 }
 
 button.submit:hover {
-  background-color: #e26a00;
+  background-color: #165eab;
 }

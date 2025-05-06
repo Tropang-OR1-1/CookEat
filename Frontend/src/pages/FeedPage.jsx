@@ -98,28 +98,28 @@ function FeedPage() {
           const isLast = index === posts.length - 1;
           return (
             <FeedPost
-              key={post.public_id}
-              public_id={post.public_id}
-              title={post.title}
-              content={post.content}
-              view_count={post.view_count}
-              created_at={new Date(post.created_at).toLocaleString()}
-              updated_at={new Date(post.updated_at).toLocaleString()}
-              media_filename={post.media[0]?.media_filename}
-              media_type={post.media[0]?.media_type}
-              reactions_count={post.reactions_count}
-              ref_public_id={post.ref_public_id}
-              author_public_id={post.author.public_id}
-              author_username={post.author.username}
-              author_picture={post.author.picture}
+              key = {post.public_id}
+              public_id = {post.public_id}
+              title = {post.title}
+              content = {post.content}
+              view_count = {post.view_count}
+              created_at = {new Date(post.created_at).toLocaleString()}
+              updated_at = {new Date(post.updated_at).toLocaleString()}
+              media_filename = {post.media[0]?.media_filename}
+              media_type = {post.media[0]?.media_type}
+              reactions_count = {post.reactions_count}
+              ref_public_id = {post.ref_public_id}
+              author_public_id = {post.author.public_id}
+              author_username = {post.author.username}
+              author_picture = {post.author.picture}
               
               ref={isLast ? lastPostRef : null}
             />
           );
         })}
         {loading && [...Array(3)].map((_, i) => <FeedPostSkeleton key={`skeleton-${i}`} />)}
-        {error && <p>Error: {error}</p>}
-        {!hasMore && <p>No more posts to show.</p>}
+        {error && <p className="feed-status-message">Error: {error}</p>}
+        {!hasMore && <p className="feed-status-message">No more posts to show.</p>}
       </div>
     </div>
   );

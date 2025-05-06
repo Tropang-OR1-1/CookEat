@@ -1,21 +1,21 @@
 .feed-page-container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
+    padding-top: 5px;
   }
   
   .feed-posts {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 8px;
   }
   
-  .feed-page-container p {
+  .feed-status-message {
     text-align: center;
     font-size: 18px;
     color: #333;
-  }
+    margin-top: 10px;
+  }  
   
   @media (max-width: 768px) {
     .feed-page-container {
@@ -26,7 +26,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 1 0px;
     }
     
   }
