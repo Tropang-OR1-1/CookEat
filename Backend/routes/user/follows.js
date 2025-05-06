@@ -1,6 +1,8 @@
 const express = require('express');
 const db = require("../../config/db");
 
+const notif = require('../../config/socket/notification'); // Import notification module
+
 const { 
         getPaginationParams,
         isValidUUID, canAccessUserData,
@@ -30,26 +32,36 @@ router.post('/follow/:user_id', verifyToken, upload.none(), async (req, res) => 
     if (following_id === follower_id)
         return res.status(400).json({ error: "Invalid cant follow to oneself." });
 
+    const client = await db.connect();
     try {
+        client.query('BEGIN'); // Start a transaction
+
         const insertQuery = `
             INSERT INTO followers (following_user_id, follower_user_id)
             VALUES ($1, $2)
             ON CONFLICT (following_user_id, follower_user_id) DO NOTHING
             RETURNING *`;
-        const { rows } = await db.query(insertQuery, [following_id, follower_id]);
+        const { rows } = await client.query(insertQuery, [following_id, follower_id]);
         
+        let msg;
         if (rows.length){
+            followNotifHandler(client, follower_id, following_id); // Call the notification handler
             logger.info(`User with ID ${follower_id} followed user with ID ${following_id}`);
-            return res.status(200).json({ message: "Follow successful." });
+            msg = "Follow successful."
             }
         else {
             logger.info(`User with ID ${follower_id} tried to follow user ${following_id}, but they are already following.`);
-            return res.status(200).json({ message: "Followed already" });
-        }
+            msg = "Followed already";
+            }
+
+        client.query('COMMIT'); // Commit the transaction if successful
+        return res.status(200).json({ message: msg });
     } catch (err) {
+        client.query('ROLLBACK'); // Rollback the transaction on error
         logger.error(`Error executing follow query: ${err.stack}`);
         return res.status(500).json({ error: "Database error." });
-    }
+        }
+    finally { client.release(); }
 });
 
 
@@ -192,6 +204,44 @@ router.get('/followings/:user_id', verifyToken, async (req, res) => {
     }
 });
 
+
+const followNotifHandler = async (client, follower_id, following_id) => {
+    try {
+        // Insert the follow relationship, avoiding duplicates
+        const insertQuery = `
+            INSERT INTO followers (following_user_id, follower_user_id)
+            VALUES ($1, $2)
+            ON CONFLICT (following_user_id, follower_user_id) DO NOTHING
+            RETURNING *`;
+        
+        const { rows } = await client.query(insertQuery, [following_id, follower_id]);
+        
+        if (rows.length) {
+            // New follow relationship created, now check if it's mutual
+            const mutualRes = await client.query(`
+                SELECT 1 
+                FROM followers 
+                WHERE following_user_id = $1 AND follower_user_id = $2
+            `, [follower_id, following_id]);
+
+            let notifBit = '00000001'; // Default to FOLLOW bit
+            if (mutualRes.rowCount > 0) {
+                // Both follow each other, set the MUTUAL bit
+                notifBit = '00000010';
+            }
+
+            // Insert the notification for the follower
+            const notifId = await insertNotification(follower_id, notifBit, { following_user_id: following_id }, client);
+            if (!notifId) {
+                logger.error("Failed to insert notification into the database.");
+                return;
+                }
+            else logger.info(`Notification ID ${notifId} inserted for user ${follower_id}`);
+        }
+    } catch (err) {
+        logger.error(`Error during follow notification handling: ${err.stack}`);
+    }
+};
 
 
 

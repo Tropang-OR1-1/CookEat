@@ -235,6 +235,43 @@ body {
   display: block;
 }
 
+/* Add Post Dropdown Styles */
+.header-add-post-dropdown {
+  position: relative;
+}
+
+.header-add-post-menu {
+  position: absolute;
+  top: 60px; /* Aligns below the header */
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 6px 0;
+}
+
+.header-add-post-menu button {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  width: 100%;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: #543b0d;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.header-add-post-menu button:hover {
+  background-color: #FFB22C;
+  color: white;
+}
+
 /* Tooltip Wrapper */
 .header-tooltip-wrapper {
   position: relative;
