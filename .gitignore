@@ -11,9 +11,8 @@ node_modules
 dist-ssr
 *.local
 
-.env.local
 .env
-./.env
+./env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -41,6 +40,7 @@ Frontend/dist/
 
 Frontend/dist/index.html
 Frontend/dist/assets
+Frontend/dist/*
 # Environment and secrets
  
 #.env.local

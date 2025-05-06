@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const postHandler = require('./config/socket/post'); // Import user connection events
-const notificationHandler = require('./config/socket/notification'); // Import post view events
 
 
 require("dotenv").config(); // Load environment variables from .env
@@ -65,9 +64,6 @@ const server = app.listen(process.env.API_PORT, () => {
 
 // Initialize Socket.IO
 
-
-const userSocketMap = {};
-
 const io = new Server(server, {
   cors: {
     origin: 'http://127.0.0.1:5500',
@@ -75,11 +71,10 @@ const io = new Server(server, {
   }
 });
 
+
 // Connection event for new clients
 io.on('connection', (socket) => {
   console.log('Client ID: ', socket.id);
-
-  // Use imported event handler files
 
   postHandler(io, socket); // Post view related events
   //notificationHandler(io, socket); // Notification related events
