@@ -25,6 +25,7 @@ function CreateRecipe({ isOpen, onClose }) {
 
   const difficulties = ['easy', 'medium', 'hard'];
 
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prev) => ({
@@ -127,16 +128,15 @@ function CreateRecipe({ isOpen, onClose }) {
     }
   
     const data = new FormData();
-    data.append('title', title);
+  
+    // Combine title and category into the title field in the FormData
+    const titleWithCategory = category ? `${title} - ${category}` : title;
+    data.append('title', titleWithCategory);
     data.append('description', description);
     data.append('ingredients', JSON.stringify(validIngredients));
     data.append('steps', JSON.stringify(validSteps));
   
     // Optional fields – added safely
-    if (category && typeof category === 'string' && category.trim() !== '') {
-      data.append('category', category.trim());
-    }
-  
     if (prep_time && !isNaN(prep_time)) {
       data.append('prep_time', parseInt(prep_time, 10));
     }
@@ -150,9 +150,8 @@ function CreateRecipe({ isOpen, onClose }) {
     }
   
     if (difficulties.includes(difficulty)) {
-        data.append('difficulty', difficulty);
-      }
-      
+      data.append('difficulty', difficulty);
+    }
   
     if (thumbnail) data.append('thumbnail', thumbnail);
     if (media) data.append('media', media);
@@ -177,6 +176,7 @@ function CreateRecipe({ isOpen, onClose }) {
       alert("Recipe created successfully!");
       onClose();
   
+      // Reset form data
       setFormData({
         title: '',
         description: '',
@@ -191,6 +191,7 @@ function CreateRecipe({ isOpen, onClose }) {
         media: null,
       });
   
+      // Clear file inputs
       if (thumbnailRef.current) thumbnailRef.current.value = null;
       if (mediaRef.current) mediaRef.current.value = null;
   
@@ -202,8 +203,6 @@ function CreateRecipe({ isOpen, onClose }) {
     }
   };
   
-  
-
   if (!isOpen) return null;
 
   return (
