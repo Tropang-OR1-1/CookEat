@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
 import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx';
-import useFeedStateStore from './../utils/FeedStateStore.js';
+import FeedStateStore from './../utils/FeedStateStore.js';
 import './styles/feedpage.css';
 
 function FeedPage() {
@@ -14,7 +14,7 @@ function FeedPage() {
     setHasMore,
     scrollY,
     setScrollY,
-  } = useFeedStateStore();
+  } = FeedStateStore();
 
   const observer = useRef();
   const [loading, setLoading] = React.useState(false);
