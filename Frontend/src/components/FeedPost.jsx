@@ -1,7 +1,7 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { formatDate } from './utils/formatDate'; // Import formatDate
+import { formatDate } from './../utils/formatDate.js'; // Import formatDate
 import './styles/feedpost.css';
 
 const REACTIONS = {
