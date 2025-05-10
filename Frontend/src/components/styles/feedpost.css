@@ -47,7 +47,7 @@
 }
 
 .time {
-  font-size: 0.8rem; !important
+  font-size: 0.8rem !important;
   color: #8a96a3;
   display: flex;
   align-items: start;

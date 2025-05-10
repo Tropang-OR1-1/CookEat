@@ -7,7 +7,7 @@ const sampleNotifications = [
     { id: 3, sender: 'Jay', message: 'shared your recipe.', unread: true, avatar: 'avatar3.jpg', time: '1h' },
 ];
 
-function NotificationModal({ isOpen, onClose }) {
+function Notification({ isOpen, onClose }) {
     const [activeTab, setActiveTab] = useState('All');
     const [notifications, setNotifications] = useState(sampleNotifications);
 
@@ -78,4 +78,4 @@ function NotificationModal({ isOpen, onClose }) {
     );
 }
 
-export default NotificationModal;
+export default Notification;
