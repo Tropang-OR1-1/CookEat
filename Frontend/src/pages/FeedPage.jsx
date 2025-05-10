@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
 import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx';
-import useFeedStateStore from './../utils/feedStateStore.js';
+import useFeedStateStore from './../utils/FeedStateStore.js';
 import './styles/feedpage.css';
 
 function FeedPage() {

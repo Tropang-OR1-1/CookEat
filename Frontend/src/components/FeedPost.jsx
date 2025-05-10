@@ -1,7 +1,7 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { formatDate } from './../utils/formatDate.js'; // Import formatDate
+import { formatDate } from './../utils/FormatDate.js';
 import './styles/feedpost.css';
 
 const REACTIONS = {
@@ -25,7 +25,7 @@ const FeedPost = forwardRef(({
   author_picture,
 }, ref) => {
   const [likes, setLikes] = useState(reactions_count); // Set initial likes to reactions_count
-  const [comments, setComments] = useState(0); // Start with 0 comments
+  const [comments, setComments] = useState(0);
   const [reaction, setReaction] = useState(null);
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -35,7 +35,7 @@ const FeedPost = forwardRef(({
   const loggedInUsername = localStorage.getItem('username');
 
   useEffect(() => {
-    // Fetch comment count from the API
+
     const fetchCommentCount = async () => {
       try {
         const token = localStorage.getItem('token'); // Get token from localStorage
@@ -143,7 +143,7 @@ const FeedPost = forwardRef(({
           <img src={profileImageUrl} alt="Profile" className="profile-img" />
           <div className="profile-info">
             <p className="author_username">{author_username}</p>
-            <p className="time">{formatDate(created_at)}</p> {/* Use formatDate here */}
+            <p className="time">{formatDate(created_at)}</p>
           </div>
         </div>
 
