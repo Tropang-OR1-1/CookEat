@@ -4,7 +4,7 @@ import CreatePost from "./CreatePost.jsx";
 import CreateRecipe from "./CreateRecipe.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
-import NotificationModal from "./notification.jsx";
+import NotificationModal from "./Notification.jsx";
 import "./styles/header.css";
 
 function Header({ token, setToken, profile }) {
