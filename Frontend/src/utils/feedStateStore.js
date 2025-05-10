@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-const useFeedStore = create((set) => ({
+const FeedStateStore = create((set) => ({
   posts: [],
   page: 1,
   hasMore: true,
@@ -13,4 +13,4 @@ const useFeedStore = create((set) => ({
   setScrollY: (value) => set({ scrollY: value }),
 }));
 
-export default useFeedStore;
+export default FeedStateStore;
