@@ -1,1 +1,0 @@
-You can create new folder inside videos folder if you want to group them.
