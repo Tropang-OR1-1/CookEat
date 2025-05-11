@@ -24,7 +24,6 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
     const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
     const userId = req.user?.id;
 
-    console.log(userId);
     try {
       let queryParams = [limit, offset];
       let countParams = [];
@@ -85,8 +84,6 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
         LIMIT $1 OFFSET $2
       `;
       
-      console.log(query);
-
       const countQuery = `
         SELECT COUNT(DISTINCT p.id) AS total
         FROM posts p
@@ -101,11 +98,14 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
                           AND f.follower_user_id = $1))` : ''}
         )
       `;
-  
+      
+      console.time('dbQuery');
       const posts = await db.query(query, queryParams);
       const countResult = await db.query(countQuery, countParams);
       const totalPosts = parseInt(countResult.rows[0]?.total || '0');
-  
+      
+      console.timeEnd('dbQuery');
+
       const formattedPosts = posts.rows.map(post => {
         const reactionCounts = post.reactions || {};
         const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
