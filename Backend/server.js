@@ -63,7 +63,7 @@ const server = app.listen(process.env.API_PORT, () => {
 
 
 // Initialize Socket.IO
-
+/*
 const io = new Server(server, {
   cors: {
     origin: 'http://127.0.0.1:5500',
@@ -83,4 +83,4 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('A client disconnected');
     });
-  });
+  });*/

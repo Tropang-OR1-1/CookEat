@@ -148,4 +148,4 @@ function updateDatabaseAtInterval() {
 }
 
 // Run the DB update every 10 seconds
-setInterval(updateDatabaseAtInterval, UPDATE_INTERVAL);
+//setInterval(updateDatabaseAtInterval, UPDATE_INTERVAL);

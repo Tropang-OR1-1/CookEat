@@ -171,7 +171,14 @@ router.post('/:id', verifyToken, upload.none(), async (req, res) => {
     else if (typeof status !== 'string' || !allowedStatus.includes(status)) {
         return res.status(400).json({ error: 'Invalid status value.' });
         }
-        
+    
+    if (process.env.ALLOWEDRECURPOSTS !== "true"){
+        const { rows } = await db.query('SELECT ref_id FROM posts WHERE id = $1', [rid]);
+        if (rows.length > 0 && rows[0].ref_id !== null) {
+            return res.status(400).json({ error: 'This post has already been reposted.' });
+            }
+        }
+    
     const querypost = 'INSERT INTO posts (title, content, user_id, visibility, ref_id) VALUES ($1, $2, $3, $4, $5) RETURNING public_id';
     
     try {
