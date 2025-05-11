@@ -4,7 +4,7 @@ import CreatePost from "./CreatePost.jsx";
 import CreateRecipe from "./CreateRecipe.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
-import NotificationModal from "./notification.jsx";
+import Notification from "./Notification.jsx";
 import "./styles/header.css";
 
 function Header({ token, setToken, profile }) {
@@ -211,7 +211,7 @@ function Header({ token, setToken, profile }) {
             </div>
           </div>
 
-          <NotificationModal isOpen={isNotificationModalOpen} onClose={() => setIsNotificationModalOpen(false)} />
+          <Notification isOpen={isNotificationModalOpen} onClose={() => setIsNotificationModalOpen(false)} />
         </div>
       )}
     </header>
