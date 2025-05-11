@@ -23,7 +23,8 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
     const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
     const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
     const userId = req.user?.id;
-  
+
+    console.log(userId);
     try {
       let queryParams = [limit, offset];
       let countParams = [];
@@ -32,7 +33,7 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
         queryParams.push(userId);
         countParams.push(userId);
       }
-  
+      
       const query = `
         SELECT 
           p.public_id, 
@@ -52,11 +53,11 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
   
           COUNT(DISTINCT cm.id) AS comment_count,
   
-          (
+          ${userId ? `(
             SELECT upr.vote FROM post_reaction upr
             WHERE upr.post_id = p.id AND upr.user_id = $3
             LIMIT 1
-          ) AS user_reacted,
+            ) AS user_reacted,`: ''}
   
           r.public_id AS ref_public_id,
           u.public_id AS author_public_id,
@@ -83,7 +84,9 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
         ORDER BY p.created_at DESC, p.view_count DESC
         LIMIT $1 OFFSET $2
       `;
-  
+      
+      console.log(query);
+
       const countQuery = `
         SELECT COUNT(DISTINCT p.id) AS total
         FROM posts p
