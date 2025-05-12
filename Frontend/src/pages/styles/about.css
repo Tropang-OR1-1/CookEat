@@ -26,8 +26,21 @@ body {
 
 .creators-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Forces 3 columns */
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+/* Responsive Grid Layout */
+@media (max-width: 900px) {
+  .creators-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .creators-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .creator-card {
@@ -38,7 +51,7 @@ body {
   text-decoration: none;
   color: #222;
   box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
   will-change: transform;
@@ -106,7 +119,7 @@ body {
 /* Flirt Quotes */
 .flirt {
   font-size: 0.85rem;
-  color: #ff6600;
+  color: #e65c00; /* Slightly darker for readability */
   margin-top: 10px;
   font-style: italic;
   opacity: 0;

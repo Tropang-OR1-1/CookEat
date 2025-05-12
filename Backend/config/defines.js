@@ -264,10 +264,12 @@ async function canAccessUserData(accId, userId) {
   }
 
   function getPaginationParams(reqQuery, defaultLimit = 10) {
-    const page = parseInt(reqQuery.page, 10) || 1;
+    let page = parseInt(reqQuery.page, 10) || 1;
+    if (isNaN(page) || page < 0) page = 1;
+
     const limit = parseInt(reqQuery.limit, 10) || defaultLimit;
     const offset = (page - 1) * limit;
-    
+
     return { page, limit, offset };
 }
 

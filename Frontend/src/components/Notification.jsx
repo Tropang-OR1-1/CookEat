@@ -13,18 +13,25 @@ function Notification({ isOpen, onClose }) {
 
     const filteredNotifications =
         activeTab === 'Unread'
-        ? notifications.filter(n => n.unread)
-        : notifications;
+            ? notifications.filter(n => n.unread)
+            : notifications;
 
     useEffect(() => {
-        // Could fetch notifications from API here
+        console.log("Notifications component mounted");
     }, []);
+
+    const handleNotificationClick = (id) => {
+        console.log(`Notification ${id} clicked`);
+        setNotifications(prev =>
+            prev.map(n => n.id === id ? { ...n, unread: false } : n)
+        );
+    };
 
     if (!isOpen) return null;
 
     return (
-        <div className={`modal-overlay ${isOpen ? 'show' : ''}`} onClick={(e) => e.target.classList.contains('modal-overlay') && onClose()}>
-            <div className={`notification-panel ${isOpen ? 'show' : ''}`}>
+        <div className="modal-overlay show" onClick={(e) => e.target.classList.contains('modal-overlay') && onClose()}>
+            <div className="notification-panel show">
                 <div className="notification-header">
                     <strong>Notifications</strong>
                     <span className="tabs">
@@ -57,7 +64,11 @@ function Notification({ isOpen, onClose }) {
                             </div>
                         ) : (
                             filteredNotifications.map(notif => (
-                                <li className="notification-item" key={notif.id}>
+                                <li
+                                    className="notification-item"
+                                    key={notif.id}
+                                    onClick={() => handleNotificationClick(notif.id)}
+                                >
                                     <img src={notif.avatar} className="avatar" alt="avatar" />
                                     <div className="text-content">
                                         <p><strong>{notif.sender}</strong> {notif.message}</p>
@@ -71,7 +82,7 @@ function Notification({ isOpen, onClose }) {
                 </div>
 
                 <div className="see-previous">
-                    <button onClick={() => alert('Load more logic here')}>See previous notifications</button>
+                    <button onClick={() => console.log('See previous clicked')}>See previous notifications</button>
                 </div>
             </div>
         </div>
