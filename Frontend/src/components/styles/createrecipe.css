@@ -10,10 +10,11 @@
     align-items: center;
     z-index: 999;
     color: black;
+    overflow-y: auto;
   }
   
-  .modal-content {
-    background: white;
+    .modal-content {
+    background: #ffa500;
     padding: 20px;
     width: 90%;
     max-width: 500px;
@@ -42,8 +43,9 @@
   textarea,
   input[type="file"] {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     box-sizing: border-box;
+    border-radius: 4px;
   }
   
   .publish-btn {
@@ -68,8 +70,9 @@
   }
   
   .form button[type="button"] {
-    background-color: #e0e0e0;
-    border: none;
+    background-color: #ffffff;
+    border: 3px solid #ffa500;
+    box-shadow: 0 0 8px rgb(38 37 37 / 80%);
     padding: 8px;
     cursor: pointer;
   }
