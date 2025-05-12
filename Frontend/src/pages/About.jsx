@@ -1,62 +1,84 @@
 import React from "react";
+import { motion } from "framer-motion";
 import './styles/about.css';
+
+const creators = [
+  {
+    name: "Michael Angelo Z. Diaz",
+    role: "UI/UX",
+    flirt: `"Are you the UI? Because you just made my heart experience smooth transitions."`,
+    img: "/images/about_img/michael.jpeg",
+    link: "#"
+  },
+  {
+    name: "John Michael Garcia",
+    role: "Full Stack Developer",
+    flirt: `"IDK at least its working."`,
+    img: "/images/about_img/garcia.jpeg",
+    link: "https://jaygarciaaa.github.io/MySpace/"
+  },
+  {
+    name: "John Rhey D. Peña",
+    role: "Backend Developer",
+    flirt: `"You can’t see me working, but I’ll always be there to support you just like the backend."`,
+    img: "/images/about_img/pens.jpeg",
+    link: "https://jrhey124.github.io/Portfolio/"
+  },
+  {
+    name: "Rham Ryan Ponce",
+    role: "Frontend Developer",
+    flirt: `"Is it hot in here or is it just my CSS making your heart flutter?"`,
+    img: "/images/about_img/ponce.jpeg",
+    link: "#"
+  },
+  {
+    name: "Bernie Jr. Rivera",
+    role: "JavaScript",
+    flirt: `"Hmmm?"`,
+    img: "/images/about_img/rivera.jpeg",
+    link: "https://burniiiii.github.io/Web-Portfolio/"
+  },
+  {
+    name: "King Rey Mark Samarita",
+    role: "Frontend",
+    flirt: `"Forget React, I’m already hooked on you!"`,
+    img: "/images/about_img/samarita.jpeg",
+    link: "https://nixxinix.github.io/my-portfolio/"
+  }
+];
 
 const About = () => {
   return (
-      <section className="creators-section">
-        <h1>Meet the Creators</h1>
-        <p className="desc">We are OR1-1, the creators of Cook Eat — a site to solve cravings while making friends.</p>
+    <motion.section
+      className="creators-section"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <h1>Meet the Creators</h1>
+      <p className="desc">We are OR1-1, the creators of Cook Eat — a site to solve cravings while making friends.</p>
 
-        <div className="creators-grid">
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
+      <div className="creators-grid">
+        {creators.map((creator, i) => (
+          <motion.a
+            key={i}
+            className="creator-card"
+            href={creator.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.1 }}
+          >
             <span className="ripple"></span>
-            <img src="/images/about_img/michael.jpeg" alt="Michael Angelo Z. Diaz" />
-            <h2>Michael Angelo Z. Diaz</h2>
-            <p className="role">UI/UX</p>
-            <p className="flirt">"Are you the UI? Because you just made my heart experience smooth transitions."</p>
-          </a>
-
-          <a href="https://jaygarciaaa.github.io/MySpace/" target="_blank" rel="noopener noreferrer" className="creator-card">
-            <span className="ripple"></span>
-            <img src="/images/about_img/garcia.jpeg" alt="John Michael Garcia" />
-            <h2>John Michael Garcia</h2>
-            <p className="role">Full Stack Developer</p>
-            <p className="flirt">"IDK at least its working."</p>
-          </a>
-
-          <a href="https://jrhey124.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
-            <span className="ripple"></span>
-            <img src="/images/about_img/pens.jpeg" alt="John Rhey D. Peña" />
-            <h2>John Rhey D. Peña</h2>
-            <p className="role">Backend Developer</p>
-            <p className="flirt">"You can’t see me working, but I’ll always be there to support you just like the backend."</p>
-          </a>
-
-          <a href="#" target="_blank" rel="noopener noreferrer" className="creator-card">
-            <span className="ripple"></span>
-            <img src="/images/about_img/ponce.jpeg" alt="Rham Ryan Ponce" />
-            <h2>Rham Ryan Ponce</h2>
-            <p className="role">Frontend Developer</p>
-            <p className="flirt">"Is it hot in here or is it just my CSS making your heart flutter?"</p>
-          </a>
-
-          <a href="https://burniiiii.github.io/Web-Portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
-            <span className="ripple"></span>
-            <img src="/images/about_img/rivera.jpeg" alt="Bernie Jr. Rivera" />
-            <h2>Bernie Jr. Rivera</h2>
-            <p className="role">JavaScript</p>
-            <p className="flirt">"Hmmm?"</p>
-          </a>
-
-          <a href="https://nixxinix.github.io/my-portfolio/" target="_blank" rel="noopener noreferrer" className="creator-card">
-            <span className="ripple"></span>
-            <img src="/images/about_img/samarita.jpeg" alt="King Rey Mark Samarita" />
-            <h2>King Rey Mark Samarita</h2>
-            <p className="role">Frontend</p>
-            <p className="flirt">"Forget React, I’m already hooked on you!"</p>
-          </a>
-        </div>
-      </section>
+            <img src={creator.img} alt={creator.name} />
+            <h2>{creator.name}</h2>
+            <p className="role">{creator.role}</p>
+            <p className="flirt">{creator.flirt}</p>
+          </motion.a>
+        ))}
+      </div>
+    </motion.section>
   );
 };
 
