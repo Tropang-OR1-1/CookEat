@@ -21,6 +21,18 @@ function CreatePost({ isOpen, onClose }) {
     }));
   };
 
+  const handleFocus = (e) => {
+    if (e.target.value === e.target.defaultValue) {
+      e.target.value = '';
+    }
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value === '') {
+      e.target.value = e.target.defaultValue;
+    }
+  };
+
   const isValidUUID = (str) => {
     const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     return regex.test(str);
@@ -87,7 +99,7 @@ function CreatePost({ isOpen, onClose }) {
       onClose();
       setFormData({
         postTitle: '',
-        content: '', // Reset content
+        content: '',
         media: null
       });
       if (fileInputRef.current) {
@@ -116,13 +128,19 @@ function CreatePost({ isOpen, onClose }) {
         <button className="close-btn" onClick={onClose}>&times;</button>
         <h2>Create New Post</h2>
         <form onSubmit={handleSubmit} className="form">
+          <div className="user-info">
+            <img src="user-icon.jpg" alt="User Icon" className="user-icon" />
+            <span className="user-name">User Name</span>
+          </div>
           <label htmlFor="postTitle">Post Title:</label>
           <input
             type="text"
             id="postTitle"
             name="postTitle"
-            value={formData.postTitle}
+            value={formData.postTitle || 'Be Cravetive'}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             required
             className="input-field"
           />
@@ -131,8 +149,10 @@ function CreatePost({ isOpen, onClose }) {
           <textarea
             id="content"
             name="content"
-            value={formData.content}
+            value={formData.content || 'What’s on your mind?'}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             className="input-field"
           />
 
