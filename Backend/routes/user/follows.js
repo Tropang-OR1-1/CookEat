@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require("../../config/db");
 
-const notif = require('../../config/socket/notification'); // Import notification module
+const { sendNotificationToUsers, getBitByName } = require('../../config/socket/notification');
 
 const { 
         getPaginationParams,
@@ -45,7 +45,7 @@ router.post('/follow/:user_id', verifyToken, upload.none(), async (req, res) => 
         
         let msg;
         if (rows.length){
-            followNotifHandler(client, follower_id, following_id); // Call the notification handler
+            await followNotifHandler(client, follower_id, following_id); // Call the notification handler
             logger.info(`User with ID ${follower_id} followed user with ID ${following_id}`);
             msg = "Follow successful."
             }
@@ -207,6 +207,50 @@ router.get('/followings/:user_id', verifyToken, async (req, res) => {
 
 const followNotifHandler = async (client, follower_id, following_id) => {
     try {
+        // Get the username and public_id of the follower
+        const userRes = await client.query(`
+            SELECT username, public_id 
+            FROM user_profile 
+            WHERE id = $1
+        `, [follower_id]);
+
+        if (userRes.rowCount === 0) {
+            logger.error(`User with ID ${follower_id} not found in user_profile table.`);
+            return;
+        }
+
+        const { username, public_id } = userRes.rows[0];
+
+        // Check if it's a mutual follow
+        const mutualRes = await client.query(`
+            SELECT 1 
+            FROM followers 
+            WHERE following_user_id = $1 AND follower_user_id = $2
+        `, [follower_id, following_id]);
+
+        let notifBit = getBitByName('follow'); // Default to FOLLOW bit
+        if (mutualRes.rowCount > 0) {
+            // Both follow each other, set the MUTUAL bit
+            notifBit = getBitByName('mutual_follow');
+        }
+
+        // Prepare data for the notification
+        const data = { username, ref: public_id };
+
+        // Send the notification to the follower
+        await sendNotificationToUsers([following_id], notifBit, data, client);
+
+        logger.info(`Notification sent to user ${follower_id} regarding follow action.`);
+    } catch (err) {
+        logger.error(`Error during follow notification handling: ${err.stack}`);
+    }
+};
+
+
+
+/*
+const followNotifHandler = async (client, follower_id, following_id) => {
+    try {
         // Insert the follow relationship, avoiding duplicates
         const insertQuery = `
             INSERT INTO followers (following_user_id, follower_user_id)
@@ -243,6 +287,6 @@ const followNotifHandler = async (client, follower_id, following_id) => {
     }
 };
 
-
+*/
 
 module.exports = router;

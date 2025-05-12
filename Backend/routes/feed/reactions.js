@@ -5,6 +5,7 @@ const {allowedReactions, isValidUUID, queryPPID, queryCPID, getPaginationParams 
 const upload = require('../../config/multer');  // Import multer configuration
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 const logger = require('../../config/logger');
+const { sendNotificationToUsers, getBitByName } = require('../../config/socket/notification');
 
 const router = express.Router();
 
@@ -32,15 +33,23 @@ const handleReaction = async (req, res, type, id, queryFunction, table) => {
                  ON CONFLICT (user_id, ${type}_id)
                  DO UPDATE SET vote = EXCLUDED.vote;`;
 
+  const client = await db.connect();
   try {
-    const result = await db.query(query, [userId, pid, reaction]);
+    await client.query('BEGIN;');
+    const result = await client.query(query, [userId, pid, reaction]);
     if (result.rowCount === 0) return res.status(500).json({ error: "Something went wrong while saving the reaction." });
 
+    if (reaction === 'UP') await reactionNotifHandler(client, userId, id, type, reaction);
+
+    await client.query('COMMIT;');
     return res.status(200).send(`${type.charAt(0).toUpperCase() + type.slice(1)} Reaction (${id}): ${reaction}.`);
   } catch (error) {
+    await client.query('ROLLBACK;');
     logger.error("Error in handling reaction:", error);
     return res.status(500).json({ error: error.message });
-  }
+  } finally {
+    client.release();
+    }
 };
 
 router.post('/:type/:id', verifyToken, upload.none(), async (req, res) => {
@@ -136,6 +145,56 @@ router.get('/:type/:id', verifyToken, upload.none(), async (req, res) => {
     res.status(500).json({ error: "Failed to get paginated reactions." });
   }
 });
+
+const reactionNotifHandler = async (client, userId, rawId, type, vote) => {
+    try {
+        // Fetch the username of the user who reacted
+        const userRes = await client.query(`
+            SELECT username 
+            FROM user_profile 
+            WHERE id = $1
+        `, [userId]);
+
+        if (userRes.rowCount === 0) {
+            logger.error(`User with ID ${userId} not found in user_profile table.`);
+            return;
+        }
+
+        const { username } = userRes.rows[0];
+
+        // Fetch the post owner's ID using the posts.user_id reference to user_profile
+        const ownerRes = await client.query(`
+            SELECT up.id AS owner_id 
+            FROM ${type + 's'} x
+            JOIN user_profile up ON x.user_id = up.id
+            WHERE x.public_id = $1
+        `, [rawId]);
+
+        if (ownerRes.rowCount === 0) {
+            logger.error(`Owner of ${type} ID ${rawId} not found.`);
+            return;
+        }
+
+        const ownerId = ownerRes.rows[0].owner_id;
+
+        // Prepare notification data
+        const data = { 
+            username, 
+            reaction: vote,
+            type,
+            ref: type === 'post' ? { post_id: rawId } : { comment_id: rawId }
+            };
+
+        const notif_bit = getBitByName('reaction'); // Use the reaction bit
+
+        // Send the notification to the post owner
+        await sendNotificationToUsers([ownerId], notif_bit, data, client);
+
+        logger.info(`Reaction notification sent to owner ${ownerId} about ${type} ${rawId} with vote ${vote}.`);
+    } catch (err) {
+        logger.error(`Error during reaction notification handling: ${err.stack}`);
+    }
+};
 
 
 module.exports = router;

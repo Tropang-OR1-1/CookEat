@@ -51,7 +51,7 @@ async function checkCredentials(email, password){
     }
 
 router.post("/login", upload.none(), async (req, res) => {
-    const {email, password} = req.body; // Destructure the request body
+    const {email, password} = req.body ?? {}; // Destructure the request body
 
     if (!email || !password) {
         return res.status(400).json({ error: "Invalid Requests Headers." });
