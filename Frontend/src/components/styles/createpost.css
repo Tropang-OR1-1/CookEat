@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
 .create-post-modal {
     position: fixed;
     top: 0;
@@ -10,60 +12,170 @@
     align-items: center;
     z-index: 999;
     color: black;
+    font-family: 'Poppins', sans-serif;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  .modal-content {
-    background: white;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    position: relative;
-    box-sizing: border-box;
+  to {
+    opacity: 1;
   }
-  
-  .close-btn {
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 15px;
+  position: relative;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: slideIn 0.5s forwards;
+  border: 2px solid #FFA500; 
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.close-btn {
     position: absolute;
     top: 10px;
     right: 15px;
-    font-size: 20px;
+    font-size: 25px;
     background: none;
     border: none;
     cursor: pointer;
-  }
-  
-  .form {
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form {
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-  
-  input[type="text"],
-  textarea,
-  input[type="file"] {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-  }
-  
-  .publish-btn {
-    padding: 10px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .publish-btn:hover {
-    background-color: #357ae8;
-  }
+}
 
-  .error-msg {
-    background-color: #ffe0e0;
-    color: #a00;
-    padding: 10px;
-    margin-bottom: 1em;
-    border-radius: 5px;
-    font-weight: bold;
-  }
-  
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-name {
+    font-size: 16px;
+    color: #FFA500;
+    font-weight: 500;
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+textarea.input-field {
+    height: 150px;
+    resize: none;
+}
+
+input.input-field:focus,
+textarea.input-field:focus {
+    border-color: #FFA500;
+    box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+}
+
+.publish-btn {
+  padding: 12px;
+  background-color: #FFA500;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.publish-btn:hover {
+  background-color: #e68900;
+  transform: scale(1.05);
+}
+
+.publish-btn:disabled {
+  background-color: #f1a500;
+  cursor: not-allowed;
+}
+
+.create-post-modal {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.create-post-modal .modal-content {
+    border-radius: 15px;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        width: 90%;
+    }
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+input#postTitle {
+  font-size: 14px;
+  color: gray;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+input#postTitle:focus {
+  opacity: 1;
+}
+
+textarea#content {
+  font-size: 14px;
+  color: gray;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+textarea#content:focus {
+  opacity: 1; 
+}
