@@ -10,6 +10,7 @@ const {
 const logger = require('../../config/logger'); // Import the logger
 const upload = require('../../config/multer');  // Import multer configuration
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
+const { sendNotificationToUsers, getBitByName } = require('../../config/socket/notification');
 
 const router = express.Router();
 
@@ -43,16 +44,25 @@ router.post('/:post_id',verifyToken, upload.none(), async (req, res) => {
         logger.warn(`Unauthorized access attempt by user ${userId} to comment on post ${pid}`);
         return res.status(400).json({ error: 'Unauthorized to comment.' });
         }
-
+    
+    const client = await db.connect();
     try  {
+        await client.query('BEGIN;');
         const querycomment = `INSERT INTO comments (post_id, user_id, comments) VALUES ($1, $2, $3)
             RETURNING public_id, comments, created_at`;
-        const commentResult = await db.query(querycomment, [pid, userId, comments]);
-        return res.status(200).json({"CommentID": commentResult.rows[0] });
+        const {rows} = await client.query(querycomment, [pid, userId, comments]);
+        const comment = rows[0];
+
+        await commentNotifHandler(client, userId, post_id, comment.comments, comment.public_id);
+        await client.query('COMMIT;');
+        return res.status(200).json({msg: "Comment created successfully.", comment});
         } catch (err) {
+            await client.query('ROLLBACK;');
             logger.error(`Comment insertion error for user ${userId} on post ${pid}: ${err.message}`);
             return res.status(500).json({error: "Comment Insertion Error."})
-            }
+        } finally {
+            client.release();
+        }
     });
 
 router.post('/:post_id/reply/:comment_id',verifyToken, upload.none(), async (req, res) => {
@@ -93,16 +103,27 @@ router.post('/:post_id/reply/:comment_id',verifyToken, upload.none(), async (req
         return res.status(400).json({ error: 'Not allowed to comment.' });
         }
 
+    const client = await db.connect();
     try  {
+        await client.query('BEGIN;');
+
         const querycomment = 
                 `INSERT INTO comments (post_id, user_id, ref_id, comments) 
                  VALUES ($1, $2, $3, $4) RETURNING public_id, comments, created_at`;
-        const commentResult = await db.query(querycomment, [pid, userId, cid, comments]);
-        return res.status(200).json({"CommentID": commentResult.rows[0] });
+        const commentResult = await client.query(querycomment, [pid, userId, cid, comments]);
+        const comment = commentResult.rows[0];
+
+        await commentNotifHandler(client, userId, post_id, comment.comments, comment.public_id);
+
+        await client.query('COMMIT;');
+        return res.status(200).json({msg: "Comment created successfully.", comment });
         } catch (err) {
+            await client.query('ROLLBACK;');
             logger.error(`Comment insertion error for user ${userId} on post ${pid}: ${err.message}`);
             return res.status(500).json({error: "Comment Insertion Error."});
-            }
+        } finally {
+            client.release();
+        }
     });
 
 
@@ -206,80 +227,6 @@ router.delete('/:comment_id', verifyToken, upload.none(), async (req, res) => {
 });
 
 
-/*
-router.get('/:post_id', verifyToken, async (req, res) => {
-    const { post_id } = req.params;
-    const { replies } = req.query;
-
-    // Query to get the public_id of the post (assuming queryPPID fetches post details by post_id)
-    let pid = await queryPPID(post_id);
-    if (!pid.success) return res.status(400).json({ error: pid.error });
-    else pid = pid.id;
-
-    let reply_id = undefined;
-    if (replies !== undefined){
-        const replyCheck = await queryCPID(replies);
-        if (!replyCheck.success) {
-            return res.status(400).json({ error: replyCheck.error });
-            }
-        reply_id = replyCheck.id;  // Assign the valid reply_id
-        }
-
-    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
-    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
-
-    const client = await db.connect();
-    try {
-        // Query to get comments for the given post_id with pagination
-        let i = 1;
-        const query1 = `SELECT 
-            comments.public_id AS comment_id,
-            ref_comments.public_id AS replied_id,  -- The comment this comment is replying to (if any)
-            comments.comments AS comment_text,
-            comments.created_at AS comment_created_at,
-            user_profile.username AS user_name,
-            user_profile.picture AS user_picture,
-            user_profile.public_id AS user_public_id,
-            (SELECT COUNT(*) FROM comments AS c2 WHERE c2.ref_id = comments.id AND c2.deleted_at IS NULL) AS reply_count
-                FROM comments
-                JOIN user_profile ON comments.user_id = user_profile.id
-                LEFT JOIN comments AS ref_comments 
-                ON comments.ref_id = ref_comments.id `;
-
-        let query2 = `WHERE comments.post_id = $${i++} AND comments.deleted_at IS NULL `;
-        query2 += reply_id ? ` AND comments.ref_id = $${i++} ` : ' ';
-        const query3 = `ORDER BY comments.created_at DESC LIMIT $${i++} OFFSET $${i++}`;
-        const values = reply_id ? [pid, reply_id, limit, offset] : [pid, limit, offset];
-
-        const result = await client.query(query1 + query2 + query3, values);
-
-        // Query to get the total count of comments for pagination info
-        const countQuery = reply_id 
-        ? 'SELECT COUNT(*) FROM comments WHERE post_id = $1 AND ref_id = $2 AND deleted_at IS NULL'
-        : 'SELECT COUNT(*) FROM comments WHERE post_id = $1 AND deleted_at IS NULL';
-        const countResult = await client.query(countQuery, reply_id ? [pid, reply_id] : [pid]);
-
-
-        const totalRecords = parseInt(countResult.rows[0].count);
-        const totalPages = Math.ceil(totalRecords / limit);
-
-        // Return the paginated data
-        return res.status(200).json({
-            data: result.rows,
-            page,
-            limit,
-            totalPages,
-            totalRecords
-        });
-    } catch (error) {
-        logger.error(`Error retrieving comments for post ${pid}: ${error.message}`);
-        return res.status(500).json({ error: 'Error retrieving comments for the post.' });
-    } finally {
-        client.release();
-    }
-});
-*/
-
 router.get('/:post_id', verifyToken, async (req, res) => {
     const { post_id } = req.params;
     const { replies } = req.query;
@@ -371,6 +318,62 @@ router.get('/:post_id', verifyToken, async (req, res) => {
 
 
 
+const commentNotifHandler = async (client, userId, postId, comment, commentId) => {
+    try {
+        // Fetch the username of the commenter
+        const userRes = await client.query(`
+            SELECT username 
+            FROM user_profile 
+            WHERE id = $1
+        `, [userId]);
+
+        if (userRes.rowCount === 0) {
+            logger.error(`User with ID ${userId} not found in user_profile table.`);
+            return;
+        }
+
+        const { username } = userRes.rows[0];
+
+        // Fetch the post owner's user ID using the posts.user_id reference to user_profile
+        const ownerRes = await client.query(`
+            SELECT up.id AS owner_id 
+            FROM posts p
+            JOIN user_profile up ON p.user_id = up.id
+            WHERE p.public_id = $1
+        `, [postId]);
+
+        if (ownerRes.rowCount === 0) {
+            logger.error(`Owner of post ID ${postId} not found.`);
+            return;
+        }
+
+        const ownerId = ownerRes.rows[0].owner_id;
+
+        // Prepare notification data
+        const data = { 
+            username,
+            comment,
+            ref: { post_id: postId, comment_id: commentId }
+        };
+
+        const notif_bit = getBitByName('comment'); // Use the comment bit
+
+        // Send the notification to the post owner
+        await sendNotificationToUsers([ownerId], notif_bit, data, client);
+
+        logger.info(`Comment notification sent to owner ${ownerId} about post ${postId}.`);
+    } catch (err) {
+        logger.error(`Error during comment notification handling: ${err.stack}`);
+    }
+};
+
+
+
+
+
+
+
+
 const AllowedToViewPost = async (user_id, post_id) => {
   try {
     const postQuery = await db.query(`SELECT user_id, visibility FROM posts WHERE id = $1`, [post_id]);
@@ -413,3 +416,77 @@ const validateCommentIntegrity = async (postId, commentId) => {
 
 
 module.exports = router;
+
+/*
+router.get('/:post_id', verifyToken, async (req, res) => {
+    const { post_id } = req.params;
+    const { replies } = req.query;
+
+    // Query to get the public_id of the post (assuming queryPPID fetches post details by post_id)
+    let pid = await queryPPID(post_id);
+    if (!pid.success) return res.status(400).json({ error: pid.error });
+    else pid = pid.id;
+
+    let reply_id = undefined;
+    if (replies !== undefined){
+        const replyCheck = await queryCPID(replies);
+        if (!replyCheck.success) {
+            return res.status(400).json({ error: replyCheck.error });
+            }
+        reply_id = replyCheck.id;  // Assign the valid reply_id
+        }
+
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
+
+    const client = await db.connect();
+    try {
+        // Query to get comments for the given post_id with pagination
+        let i = 1;
+        const query1 = `SELECT 
+            comments.public_id AS comment_id,
+            ref_comments.public_id AS replied_id,  -- The comment this comment is replying to (if any)
+            comments.comments AS comment_text,
+            comments.created_at AS comment_created_at,
+            user_profile.username AS user_name,
+            user_profile.picture AS user_picture,
+            user_profile.public_id AS user_public_id,
+            (SELECT COUNT(*) FROM comments AS c2 WHERE c2.ref_id = comments.id AND c2.deleted_at IS NULL) AS reply_count
+                FROM comments
+                JOIN user_profile ON comments.user_id = user_profile.id
+                LEFT JOIN comments AS ref_comments 
+                ON comments.ref_id = ref_comments.id `;
+
+        let query2 = `WHERE comments.post_id = $${i++} AND comments.deleted_at IS NULL `;
+        query2 += reply_id ? ` AND comments.ref_id = $${i++} ` : ' ';
+        const query3 = `ORDER BY comments.created_at DESC LIMIT $${i++} OFFSET $${i++}`;
+        const values = reply_id ? [pid, reply_id, limit, offset] : [pid, limit, offset];
+
+        const result = await client.query(query1 + query2 + query3, values);
+
+        // Query to get the total count of comments for pagination info
+        const countQuery = reply_id 
+        ? 'SELECT COUNT(*) FROM comments WHERE post_id = $1 AND ref_id = $2 AND deleted_at IS NULL'
+        : 'SELECT COUNT(*) FROM comments WHERE post_id = $1 AND deleted_at IS NULL';
+        const countResult = await client.query(countQuery, reply_id ? [pid, reply_id] : [pid]);
+
+
+        const totalRecords = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // Return the paginated data
+        return res.status(200).json({
+            data: result.rows,
+            page,
+            limit,
+            totalPages,
+            totalRecords
+        });
+    } catch (error) {
+        logger.error(`Error retrieving comments for post ${pid}: ${error.message}`);
+        return res.status(500).json({ error: 'Error retrieving comments for the post.' });
+    } finally {
+        client.release();
+    }
+});
+*/

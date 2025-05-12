@@ -5,6 +5,9 @@ const upload = require('../../config/multer');  // Import multer configuration
 const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 require('dotenv').config({ path: '../.env' });
 
+const { sendNotificationToUsers, getBitByName } = require('../../config/socket/notification');
+
+
 const tagsHandler = require('../../config/tags');
 
 const { allowedStatus, 
@@ -93,13 +96,13 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
 
     const userId =  req.user.id; // Get the user ID from the token
     
-    if (visibility === undefined) { // fetch the user status if not provided
+    if (visibility === undefined) { // fetch the user visibility if not provided
         const decoded = await queryStatus(userId);  // await the async function
         if (!decoded.success) return res.status(400).json({ error: decoded.error });  // handle the error
-        visibility = decoded.status;  // assign the retrieved status to the visibility of the psot
+        visibility = decoded.status;  // assign the retrieved visibility to the visibility of the post
         }
     else if (typeof visibility !== 'string' || !allowedStatus.includes(visibility)) {
-        return res.status(400).json({ error: 'Invalid status value.' });
+        return res.status(400).json({ error: 'Invalid visibility value.' });
         }
 
     title = sanitizeInput(title);
@@ -111,22 +114,27 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
 
         const querypost = 'INSERT INTO posts (title, content, user_id, visibility) VALUES ($1, $2, $3, $4) RETURNING id, public_id';
         const postResult = await client.query(querypost, [title, content, userId, visibility]);
-        const {id, public_id} = postResult.rows[0]; // Get the ID of the newly created post
-        const postId = id;
-        
+        const {id : pId, public_id: postId} = postResult.rows[0]; // Get the ID of the newly created post
+        // pId are sensitive postId are public
+
         if (tags !== undefined){ // perform tags linking
-            await tagsHandler.insertTagsToEntity(client, postId, tags, 'post_tags', 'post_id');
+            await tagsHandler.insertTagsToEntity(client, pId, tags, 'post_tags', 'post_id');
             }
 
         if (hasUploadedFiles(req.files)){
-            const insertmedia = await insertPostMedia(client, req.files, postId);
+            const insertmedia = await insertPostMedia(client, req.files, pId);
             if (!insertmedia.success)
                 return res.status(400).json({error: insertmedia.error });
             }
         
-        logger.info(`Post created with ID: ${public_id}`); // Log the post creation
+        if (visibility !== 'private'){
+            await postNotifHandler(client, userId, 'post_create', postId);
+            }
+
+        logger.info(`Post created with ID: ${postId}`); // Log the post creation
+
         await client.query('COMMIT;');
-        return res.status(200).json({"PostID": public_id});
+        return res.status(200).json({msg: "Post created successfully.", post_id: postId});
 
         } catch (err){
             logger.error("Error during post creation:", err);
@@ -140,7 +148,7 @@ router.post('/',verifyToken ,upload.Media.array('media', process.env.MAX_POST_ME
 
 router.post('/:id', verifyToken, upload.none(), async (req, res) => {
     const id = req.body.id || req.params.id;
-    let { status, title, content } = req.body ?? {};
+    let { visibility, title, content } = req.body ?? {};
 
     if (typeof id !== 'string'){
         return res.status(400).json({error: "Post_Id required."});
@@ -158,17 +166,17 @@ router.post('/:id', verifyToken, upload.none(), async (req, res) => {
 
     if ((title !== undefined && typeof title !== 'string') ||
         (content !== undefined && typeof content !== 'string') ||
-        (status !== undefined && typeof status !== 'string'))
+        (visibility !== undefined && typeof visibility !== 'string'))
         return res.status(400).json({error: 'Title and content must be strings if provided.'});
     
     const userId =  req.user.id; // Get the user ID from the token
 
-    if (status === undefined) { // fetch the user status if not provided
+    if (visibility === undefined) { // fetch the user visibility if not provided
         const decoded = await queryStatus(userId);  // await the async function
         if (!decoded.success) return res.status(400).json({ error: decoded.error });  // handle the error
-        status = decoded.status;  // assign the retrieved status
+        visibility = decoded.status;  // assign the retrieved status
         }
-    else if (typeof status !== 'string' || !allowedStatus.includes(status)) {
+    else if (typeof visibility !== 'string' || !allowedStatus.includes(visibility)) {
         return res.status(400).json({ error: 'Invalid status value.' });
         }
     
@@ -181,15 +189,27 @@ router.post('/:id', verifyToken, upload.none(), async (req, res) => {
     
     const querypost = 'INSERT INTO posts (title, content, user_id, visibility, ref_id) VALUES ($1, $2, $3, $4, $5) RETURNING public_id';
     
+    const client = await db.connect();
     try {
-        const postResult = await db.query(querypost, [title, content, userId, status, rid]);
-        const public_id = postResult.rows[0].public_id;
+        await client.query('BEGIN;');
 
-        logger.info(`Post created with ID: ${public_id}`); // Log the post creation
-        res.status(200).json({"PostID": public_id});
+        const postResult = await client.query(querypost, [title, content, userId, visibility, rid]);
+        const postId = postResult.rows[0].public_id;
+
+        if (visibility !== 'private'){
+            await postNotifHandler(client, userId, 'post_create', postId);
+            }
+
+        logger.info(`Post created with ID: ${postId}`); // Log the post creation
+
+        await client.query('COMMIT;');
+        return res.status(200).json({msg: "Post created successfully.", post_id: postId});
         } catch (err) {
             logger.error("Error during post creation:", err);
-            res.status(500).json({ error: "Database error.", err });
+            await client.query('ROLLBACK;');
+            return res.status(500).json({ error: "Database error.", err });
+        } finally {
+            client.release();
             }
     });
 
@@ -290,7 +310,7 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
             const query = `UPDATE posts SET ${updates.join(', ')} WHERE id = $${i} RETURNING public_id;`;
             values.push(rid); // Add the post ID as the last value
             
-            try { resultquery = await db.query(query, values); }
+            try { resultquery = await client.query(query, values); }
             catch (error) { res.status(500).json({ error: error }); }
             }
         
@@ -300,13 +320,18 @@ router.put('/:post_id', verifyToken, upload.Media.array('media', process.env.MAX
 
 
         if (hasUploadedFiles(req.files)){ // manage files
-            const result = await updatePostMedia(db, req.files, rid);
+            const result = await updatePostMedia(client, req.files, rid);
             if (!result.success) return {success: false, error: result.error };
             }
+        const postId = resultquery.rows[0].public_id;
 
+        if (visibility !== 'private'){
+            await postNotifHandler(client, userId, 'post_update', postId);
+            }
+        
         await client.query('COMMIT;');
-        logger.info(`Post updated with ID: ${resultquery.rows[0].public_id}`); // Log the post creation
-        return res.status(200).json({msg:'Post updated successfully.'});
+        logger.info(`Post updated with ID: ${postId}`); // Log the post creation
+        return res.status(200).json({msg:'Post updated successfully.', post_id: postId});
 
         } catch (err) {
             await client.query('ROLLBACK;');
@@ -345,6 +370,51 @@ router.delete('/:post_id', verifyToken, async (req, res) => {
         }
     });
 
-      
+
+const postNotifHandler = async (client, owner_id, notif_type, post_id) => {
+    try {
+        // Fetch the username of the owner
+        const userRes = await client.query(`
+            SELECT username 
+            FROM user_profile 
+            WHERE id = $1
+        `, [owner_id]);
+
+        if (userRes.rowCount === 0) {
+            logger.error(`User with ID ${owner_id} not found in user_profile table.`);
+            return;
+        }
+
+        const { username } = userRes.rows[0];
+
+        // Fetch all followers of the owner
+        const followersRes = await client.query(`
+            SELECT follower_user_id 
+            FROM followers 
+            WHERE following_user_id = $1
+        `, [owner_id]);
+
+        if (followersRes.rowCount === 0) {
+            logger.info(`No followers found for user ${owner_id}.`);
+            return;
+        }
+
+        // Extract follower IDs into an array
+        const followerIds = followersRes.rows.map(row => row.follower_user_id);
+
+        // Prepare data for the notification, including username
+        const data = { ref: post_id, username };
+
+        const notif_bit = getBitByName(notif_type);
+        // Send the notification to all followers
+        await sendNotificationToUsers(followerIds, notif_bit, data, client);
+
+        logger.info(`Post notification sent to all followers of user ${owner_id}.`);
+    } catch (err) {
+        logger.error(`Error during post notification handling: ${err.stack}`);
+    }
+};
+
+
 module.exports = router;
 
