@@ -94,11 +94,46 @@ const justifyToken = async (req, res, next) => {
   };
 
 
+const socketAuth = async (socket, next) => {
+    try {
+        // Extract the token from the socket handshake (auth object)
+        const token = socket.handshake.auth.token;
+
+        if (!token) {
+            return next(new Error('No token provided'));
+        }
+
+        // Remove the "Bearer " prefix if it's included
+        const tokenWithoutBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+        // Verify the token using the secret key
+        const token_id = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET);
+
+        const decoded = await db.query(`
+            SELECT id FROM user_profile 
+            WHERE token_id = $1 AND is_deleted = false 
+            LIMIT 1
+        `, [token_id.payload]);
+
+        if (!decoded.rows.length) {
+            return next(new Error('User not found or got deleted.'));
+        }
+
+        // Store the decoded token (user data) in the socket object for later use
+        socket.user = decoded.rows[0];
+        next();  // Allow the connection to proceed
+    } catch (err) {
+        logger.error('Token verification failed:', err);  // Log the error for debugging
+        next(new Error('Invalid or expired session token'));
+        }
+  };
+
 // Export the functions for use in other parts of the app
 module.exports = {
   generateJWT,
   verifyToken,
-  justifyToken
+  justifyToken,
+  socketAuth
 };
 
 
