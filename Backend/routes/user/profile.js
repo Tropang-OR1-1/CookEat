@@ -4,7 +4,7 @@ const db = require("../../config/db");
 const tagsHandler = require('../../config/tags');
 
 const upload = require('../../config/multer');  // Import multer configuration
-const { verifyToken} = require('../../config/jwt'); // Import JWT verification middleware
+const { verifyToken } = require('../../config/jwt'); // Import JWT verification middleware
 
 const { validateArrayInput, isValidUUID, canAccessUserData,
       allowedSex, allowedNationalities, allowedStatus } = require('../../config/defines');
@@ -200,6 +200,10 @@ router.get('/profile/:owner_id', verifyToken, async (req, res)  => {
         return res.status(500).json({ error: 'Database error.' });
         }
     });
+
+
+
+
 
 
 
