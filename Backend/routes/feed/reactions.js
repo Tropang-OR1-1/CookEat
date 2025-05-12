@@ -17,9 +17,8 @@ const validateReactionData = async (reaction, id, type) => {
   return null;
 };
 
-const handleReaction = async (req, res, type, queryFunction, table) => {
-  const { reaction,[type === 'post' ? 'post_id' : 'comment_id']: id } = req.body ?? {};
-
+const handleReaction = async (req, res, type, id, queryFunction, table) => {
+  const { react: reaction } = req.body ?? {};
   const validationError = await validateReactionData(reaction, id, type);
   if (validationError) return res.status(400).json(validationError);
 
@@ -44,14 +43,16 @@ const handleReaction = async (req, res, type, queryFunction, table) => {
   }
 };
 
-router.post('/:type', verifyToken, upload.none(), async (req, res) => {
-  const { type } = req.params;
-  if (['post','comment'].includes(req.params.type) === false) {
+router.post('/:type/:id', verifyToken, upload.none(), async (req, res) => {
+  const { type, id } = req.params;
+
+  if (!['post', 'comment'].includes(type)) {
     return res.status(400).json({ error: "Invalid type. Must be 'post' or 'comment'." });
     }
-  handleReaction(req, res, type, queryPPID, type);
-});
 
+  const queryFn = type === 'post' ? queryPPID : queryCPID;  
+  handleReaction(req, res, type, id, queryFn, type);
+  });
 
 router.delete('/:type/:id', verifyToken, upload.none(), async (req, res) => {
   const { type, id } = req.params;
@@ -86,9 +87,6 @@ const handleReactionDelete = async (req, res, type, queryFunction, id) => {
     return res.status(500).json({ error: error.message });
   }
 };
-
-
-
 
 
 router.get('/:type/:id', verifyToken, upload.none(), async (req, res) => {

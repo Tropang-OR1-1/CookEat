@@ -9,11 +9,13 @@ const sampleNotifications = [
 
 function Notification({ isOpen, onClose }) {
     const [activeTab, setActiveTab] = useState('All');
-    const [notifications, setNotifications] = useState(sampleNotifications);
-
+    const [notifications] = useState(sampleNotifications);
+    // removed setNotifications is not used!!
     const filteredNotifications =
         activeTab === 'Unread'
         ? notifications.filter(n => n.unread)
+
+        
         : notifications;
 
     useEffect(() => {

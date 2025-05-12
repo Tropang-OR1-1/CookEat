@@ -102,13 +102,14 @@ const recipeThumbnail = multer({
 
 const none = () => {
   return multer({
-    storage: multer.memoryStorage(),
-    fileFilter: (req, file, cb) => {
-      cb(null, false); // Silently ignore any files
-    }
-  }).any();
+      storage: multer.memoryStorage(),
+      fileFilter: (req, file, cb) => {
+          // Reject any file uploads explicitly
+          return cb(null, false);
+      },
+      limits: { fileSize: 0 }  // Enforce no file uploads
+  }).none();  // Specifically use `none()` to handle only non-file data
 };
-
 
 
 

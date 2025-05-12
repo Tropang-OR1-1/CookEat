@@ -205,6 +205,8 @@ router.delete('/:comment_id', verifyToken, upload.none(), async (req, res) => {
     }
 });
 
+
+/*
 router.get('/:post_id', verifyToken, async (req, res) => {
     const { post_id } = req.params;
     const { replies } = req.query;
@@ -276,6 +278,97 @@ router.get('/:post_id', verifyToken, async (req, res) => {
         client.release();
     }
 });
+*/
+
+router.get('/:post_id', verifyToken, async (req, res) => {
+    const { post_id } = req.params;
+    const { replies } = req.query;
+    const user_id = req.user.id;
+
+    // Fetch the post's public_id
+    let pid = await queryPPID(post_id);
+    if (!pid.success) return res.status(400).json({ error: pid.error });
+    pid = pid.id;
+
+    let reply_id = undefined;
+    if (replies !== undefined) {
+        const replyCheck = await queryCPID(replies);
+        if (!replyCheck.success) {
+            return res.status(400).json({ error: replyCheck.error });
+        }
+        reply_id = replyCheck.id;
+    }
+
+    const defaultLimit = parseInt(process.env.DEFAULT_LIMIT) || 10;
+    const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
+
+    const client = await db.connect();
+    try {
+        let i = 1;
+
+        const reactionSubquery = `SELECT 
+            comment_id, 
+            jsonb_concat(jsonb_object_agg(vote, count), jsonb_build_object('total', COALESCE(SUM(count), 0))) AS reactions
+        FROM (
+            SELECT comment_id, vote, COUNT(*) AS count
+            FROM comment_reaction
+            GROUP BY comment_id, vote
+        ) AS votes_per_comment
+        GROUP BY comment_id`;
+
+        const query1 = `SELECT 
+            comments.public_id AS comment_id,
+            ref_comments.public_id AS replied_id,
+            comments.comments AS comment_text,
+            comments.created_at AS comment_created_at,
+            user_profile.username AS user_name,
+            user_profile.picture AS user_picture,
+            user_profile.public_id AS user_public_id,
+            (SELECT COUNT(*) FROM comments AS c2 WHERE c2.ref_id = comments.id AND c2.deleted_at IS NULL) AS reply_count,
+            COALESCE(rs.reactions::jsonb, jsonb_build_object('total', 0)) AS reactions,
+            (
+                SELECT ur.vote FROM comment_reaction AS ur
+                WHERE ur.comment_id = comments.id AND ur.user_id = $${i++}
+                LIMIT 1
+            ) AS user_reacted
+        FROM comments
+        JOIN user_profile ON comments.user_id = user_profile.id
+        LEFT JOIN comments AS ref_comments ON comments.ref_id = ref_comments.id
+        LEFT JOIN (${reactionSubquery}) AS rs ON rs.comment_id = comments.id `;
+
+        let query2 = `WHERE comments.post_id = $${i++} AND comments.deleted_at IS NULL `;
+        if (reply_id) {
+            query2 += `AND comments.ref_id = $${i++} `;
+        }
+        const query3 = `GROUP BY comments.id, ref_comments.public_id, user_profile.username, user_profile.picture, user_profile.public_id, rs.reactions
+                       ORDER BY comments.created_at DESC LIMIT $${i++} OFFSET $${i++}`;
+        const values = reply_id ? [user_id, pid, reply_id, limit, offset] : [user_id, pid, limit, offset];
+
+        const result = await client.query(query1 + query2 + query3, values);
+
+        const countQuery = reply_id ?
+            'SELECT COUNT(*) FROM comments WHERE post_id = $1 AND ref_id = $2 AND deleted_at IS NULL' :
+            'SELECT COUNT(*) FROM comments WHERE post_id = $1 AND deleted_at IS NULL';
+        const countResult = await client.query(countQuery, reply_id ? [pid, reply_id] : [pid]);
+
+        const totalRecords = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        return res.status(200).json({
+            data: result.rows,
+            page,
+            limit,
+            totalPages,
+            totalRecords
+        });
+    } catch (error) {
+        logger.error(`Error retrieving comments for post ${pid}: ${error.message}`);
+        return res.status(500).json({ error: 'Error retrieving comments for the post.' });
+    } finally {
+        client.release();
+    }
+});
+
 
 
 const AllowedToViewPost = async (user_id, post_id) => {
