@@ -18,6 +18,7 @@
     "framer-motion": "^12.9.7",
     "frontend": "file:",
     "jwt-decode": "^4.0.0",
+    "jwt-decoder": "^0.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.2",
