@@ -30,13 +30,14 @@ function App() {
         <main>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/feeds" replace />} />
+            <Route path="/" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<LoginRegister setToken={setToken} setProfile={setProfile} />} />
             <Route path="/about" element={<About />} />
             <Route path="/help" element={<HelpSupport />} />
 
             {/* Protected Routes (Private) */}
             <Route path="/feeds" element={<PrivateRoute><FeedPage /></PrivateRoute>} />
+            <Route path="/recipes" element={<PrivateRoute><NotFound /></PrivateRoute>} /> {/* NotFoundTemporary */}
             <Route path="/profile" element={<PrivateRoute><Profile profile={profile} setProfile={setProfile} /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
 
