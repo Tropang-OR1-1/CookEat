@@ -50,7 +50,7 @@ function FeedPage() {
         const token = localStorage.getItem('token');
 
         if (!token) {
-          throw new Error('No token found in localStorage');
+          throw new Error('Please Login');
         }
 
         // Add Authorization header with the token
@@ -127,7 +127,7 @@ function FeedPage() {
               media_type={post.media[0]?.media_type}
               reactions_total={post.reactions.total}
               user_reacted={post.user_reacted}
-              commnent_count={post.commnent_count}
+              comment_count={post.comment_count}
               ref_public_id={post.ref_public_id}
               author_public_id={post.author.public_id}
               author_username={post.author.username}

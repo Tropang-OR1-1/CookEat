@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './styles/commentmodal.css';
 
-const CommentModal = ({post_id, isVisible, isLoggedIn, onCancel }) => {
+const CommentModal = ({public_id, isVisible, isLoggedIn, onCancel }) => {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,14 +22,16 @@ const CommentModal = ({post_id, isVisible, isLoggedIn, onCancel }) => {
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('content', newComment); // ✅ Correct key
+
       const response = await axios.post(
-        'https://cookeat.cookeat.space/feed/comments',
+        `https://cookeat.cookeat.space/comments/${public_id}`,
+        formData,
         {
-          post_id,
-          comment: newComment,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
