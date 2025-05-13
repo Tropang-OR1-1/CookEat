@@ -20,7 +20,7 @@ const creators = [
   {
     name: "John Rhey D. Peña",
     role: "Backend Developer",
-    flirt: `"You can’t see me working, but I’ll always be there to support you just like the backend."`,
+    flirt: `"You can't see me working, but I'll always be there to support you just like the backend."`,
     img: "/images/about_img/pens.jpeg",
     link: "https://jrhey124.github.io/Portfolio/"
   },
@@ -41,7 +41,7 @@ const creators = [
   {
     name: "King Rey Mark Samarita",
     role: "Frontend",
-    flirt: `"Forget React, I’m already hooked on you!"`,
+    flirt: `"Forget React, I'm already hooked on you!"`,
     img: "/images/about_img/samarita.jpeg",
     link: "https://nixxinix.github.io/my-portfolio/"
   }
