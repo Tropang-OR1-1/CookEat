@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-//import NotificationItem from './NotificationItem.jsx'; // Please implement this so that we can repeatedly use NotifItem component instead of our current implementation.
+//import NotificationItem from './subcomponents/NotificationItem.jsx'; // Please implement this so that we can repeatedly use NotifItem component instead of our current implementation.
 import './styles/notification.css';
 
 const sampleNotifications = [
