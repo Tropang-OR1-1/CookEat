@@ -25,132 +25,135 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
     const userId = req.user?.id;
 
     try {
-      let queryParams = [limit, offset];
-      let countParams = [];
-  
-      if (userId) {
-        queryParams.push(userId);
-        countParams.push(userId);
-      }
-      
-      const query = `
-        SELECT 
-          p.public_id, 
-          p.title, 
-          p.content, 
-          p.view_count, 
-          p.created_at, 
-          p.updated_at,
-          COALESCE(json_agg(
-              json_build_object(
-                  'media_filename', postmedia.fname,
-                  'media_type', postmedia.media_type
-              )
-          ) FILTER (WHERE postmedia.fname IS NOT NULL), '[]') AS media,
-  
-          COALESCE(json_object_agg(pr.vote, 1) FILTER (WHERE pr.vote IS NOT NULL), '{}') AS reactions,
-  
-          COUNT(DISTINCT cm.id) AS comment_count,
-  
-          ${userId ? `(
-            SELECT upr.vote FROM post_reaction upr
-            WHERE upr.post_id = p.id AND upr.user_id = $3
-            LIMIT 1
-            ) AS user_reacted,`: ''}
-  
-          r.public_id AS ref_public_id,
-          u.public_id AS author_public_id,
-          u.username AS author_username,
-          u.picture AS author_picture
-  
-        FROM posts p
-        LEFT JOIN postmedia ON postmedia.post_id = p.id
-        LEFT JOIN post_reaction pr ON pr.post_id = p.id
-        LEFT JOIN comments cm ON cm.post_id = p.id
-        LEFT JOIN post_tags pt ON pt.post_id = p.id
-        LEFT JOIN tags t ON t.id = pt.tags_id
-        LEFT JOIN user_profile u ON p.user_id = u.id
-        ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $3 AND ut.tags_id = t.id` : ''}
-        LEFT JOIN posts r ON r.id = p.ref_id
-        WHERE (p.visibility = 'public'
-          ${userId ? `OR (p.visibility = 'private' AND p.user_id = $3)
-                     OR (p.visibility = 'restricted' AND EXISTS 
-                         (SELECT 1 FROM followers f 
-                          WHERE f.following_user_id = p.user_id 
-                          AND f.follower_user_id = $3))` : ''}
-        )
-        GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture
-        ORDER BY p.created_at DESC, p.view_count DESC
-        LIMIT $1 OFFSET $2
-      `;
-      
-      const countQuery = `
-        SELECT COUNT(DISTINCT p.id) AS total
-        FROM posts p
-        LEFT JOIN post_tags pt ON pt.post_id = p.id
-        LEFT JOIN tags t ON t.id = pt.tags_id
-        ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $1 AND ut.tags_id = t.id` : ''}
-        WHERE (p.visibility = 'public'
-          ${userId ? `OR (p.visibility = 'private' AND p.user_id = $1)
-                     OR (p.visibility = 'restricted' AND EXISTS 
-                         (SELECT 1 FROM followers f 
-                          WHERE f.following_user_id = p.user_id 
-                          AND f.follower_user_id = $1))` : ''}
-        )
-      `;
-      
-      console.time('dbQuery');
-      const posts = await db.query(query, queryParams);
-      const countResult = await db.query(countQuery, countParams);
-      const totalPosts = parseInt(countResult.rows[0]?.total || '0');
-      
-      console.timeEnd('dbQuery');
+        let queryParams = [limit, offset];
+        let countParams = [];
 
-      const formattedPosts = posts.rows.map(post => {
-        const reactionCounts = post.reactions || {};
-        const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
-  
-        return {
-          public_id: post.public_id,
-          title: post.title,
-          content: post.content,
-          view_count: post.view_count,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          media: post.media,
-          reactions: {
-            ...reactionCounts,
-            total: totalReactions
-          },
-          user_reacted: post.user_reacted || null,
-          comment_count: post.comment_count,
-          ref_public_id: post.ref_public_id,
-          author: {
-            public_id: post.author_public_id,
-            username: post.author_username,
-            picture: post.author_picture
-          }
-        };
-      });
-  
-      const hasNext = offset + limit < totalPosts;
-      const hasPrev = page > 1;
-  
-      res.status(200).json({
-        pagination: {
-          page,
-          limit,
-          total: totalPosts,
-          hasNext,
-          hasPrev
-        },
-        posts: formattedPosts
-      });
+        if (userId) {
+            queryParams.push(userId);
+            countParams.push(userId);
+        }
+
+        const query = `
+            SELECT 
+                p.public_id, 
+                p.title, 
+                p.content, 
+                p.view_count, 
+                p.created_at, 
+                p.updated_at,
+                COALESCE(json_agg(
+                    json_build_object(
+                        'media_filename', postmedia.fname,
+                        'media_type', postmedia.media_type
+                    )
+                ) FILTER (WHERE postmedia.fname IS NOT NULL), '[]') AS media,
+
+                COALESCE(json_object_agg(rct.vote, rct.count) FILTER (WHERE rct.vote IS NOT NULL), '{}') AS reactions,
+
+                COUNT(DISTINCT cm.id) AS comment_count,
+
+                ${userId ? `(
+                    SELECT upr.vote FROM post_reaction upr
+                    WHERE upr.post_id = p.id AND upr.user_id = $3
+                    LIMIT 1
+                ) AS user_reacted,` : 'NULL AS user_reacted,'}
+
+                r.public_id AS ref_public_id,
+                u.public_id AS author_public_id,
+                u.username AS author_username,
+                u.picture AS author_picture
+
+            FROM posts p
+            LEFT JOIN postmedia ON postmedia.post_id = p.id
+            LEFT JOIN (
+                SELECT post_id, vote, COUNT(*) AS count
+                FROM post_reaction
+                GROUP BY post_id, vote
+            ) rct ON rct.post_id = p.id
+            LEFT JOIN comments cm ON cm.post_id = p.id
+            LEFT JOIN post_tags pt ON pt.post_id = p.id
+            LEFT JOIN tags t ON t.id = pt.tags_id
+            LEFT JOIN user_profile u ON p.user_id = u.id
+            ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $3 AND ut.tags_id = t.id` : ''}
+            LEFT JOIN posts r ON r.id = p.ref_id
+            WHERE (p.visibility = 'public'
+                ${userId ? `OR (p.visibility = 'private' AND p.user_id = $3)
+                         OR (p.visibility = 'restricted' AND EXISTS 
+                             (SELECT 1 FROM followers f 
+                              WHERE f.following_user_id = p.user_id 
+                              AND f.follower_user_id = $3))` : ''}
+            )
+            GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture
+            ORDER BY p.created_at DESC, p.view_count DESC
+            LIMIT $1 OFFSET $2
+        `;
+
+        const countQuery = `
+            SELECT COUNT(DISTINCT p.id) AS total
+            FROM posts p
+            LEFT JOIN post_tags pt ON pt.post_id = p.id
+            LEFT JOIN tags t ON t.id = pt.tags_id
+            ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $1 AND ut.tags_id = t.id` : ''}
+            WHERE (p.visibility = 'public'
+                ${userId ? `OR (p.visibility = 'private' AND p.user_id = $1)
+                         OR (p.visibility = 'restricted' AND EXISTS 
+                             (SELECT 1 FROM followers f 
+                              WHERE f.following_user_id = p.user_id 
+                              AND f.follower_user_id = $1))` : ''}
+            )
+        `;
+
+        console.time('dbQuery');
+        const posts = await db.query(query, queryParams);
+        const countResult = await db.query(countQuery, countParams);
+        const totalPosts = parseInt(countResult.rows[0]?.total || '0');
+        console.timeEnd('dbQuery');
+
+        const formattedPosts = posts.rows.map(post => {
+            const reactionCounts = post.reactions || {};
+            const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
+
+            return {
+                public_id: post.public_id,
+                title: post.title,
+                content: post.content,
+                view_count: post.view_count,
+                created_at: post.created_at,
+                updated_at: post.updated_at,
+                media: post.media,
+                reactions: {
+                    ...reactionCounts,
+                    total: totalReactions
+                },
+                user_reacted: post.user_reacted,
+                comment_count: post.comment_count,
+                ref_public_id: post.ref_public_id,
+                author: {
+                    public_id: post.author_public_id,
+                    username: post.author_username,
+                    picture: post.author_picture
+                }
+            };
+        });
+
+        const hasNext = offset + limit < totalPosts;
+        const hasPrev = page > 1;
+
+        res.status(200).json({
+            pagination: {
+                page,
+                limit,
+                total: totalPosts,
+                hasNext,
+                hasPrev
+            },
+            posts: formattedPosts
+        });
     } catch (error) {
-      console.error('Error fetching posts:', error);
-      res.status(500).json({ message: 'An error occurred while fetching posts.' });
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ message: 'An error occurred while fetching posts.' });
     }
-  });
+});
 
 // user posts
 // File: routes/user.js
@@ -160,134 +163,136 @@ router.get('/user/posts/:public_id', justifyToken, upload.none(), async (req, re
     const sort = req.query.sort || 'created_at';
     const authorPublicId = req.params.public_id;
     const userId = req.user?.id;
-    
+
     let orderClause = `p.created_at DESC`;
     if (sort === 'views') {
-      orderClause = `p.view_count DESC NULLS LAST, p.created_at DESC`;
+        orderClause = `p.view_count DESC NULLS LAST, p.created_at DESC`;
     } else if (sort === 'updated_at') {
-      orderClause = `p.updated_at DESC`;
+        orderClause = `p.updated_at DESC`;
     }
-  
+
     try {
-      const query = `
-        SELECT 
-          p.public_id, 
-          p.title, 
-          p.content, 
-          p.view_count, 
-          p.created_at, 
-          p.updated_at,
-          COALESCE(json_agg(
-              json_build_object(
-                'fname', postmedia.fname,
-                'type', postmedia.media_type
-              )
-          ) FILTER (WHERE postmedia.fname IS NOT NULL), '[]') AS media,
-  
-          COALESCE(json_object_agg(pr.vote, 1) FILTER (WHERE pr.vote IS NOT NULL), '{}') AS reactions,
-  
-          COUNT(DISTINCT cm.id) AS comment_count,
-  
-          (
-            SELECT upr.vote FROM post_reaction upr
-            WHERE upr.post_id = p.id AND upr.user_id = $4
-            LIMIT 1
-          ) AS user_reacted,
-  
-          r.public_id AS ref_public_id,
-          u.public_id AS author_public_id,
-          u.username AS author_username,
-          u.picture AS author_picture
-        FROM posts p
-        LEFT JOIN user_profile u ON p.user_id = u.id
-        LEFT JOIN postmedia ON postmedia.post_id = p.id
-        LEFT JOIN post_reaction pr ON pr.post_id = p.id
-        LEFT JOIN comments cm ON cm.post_id = p.id
-        LEFT JOIN posts r ON r.id = p.ref_id
-        WHERE u.public_id = $3
-        GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture
-        ORDER BY ${orderClause}
-        LIMIT $1 OFFSET $2
-      `;
-  
-      const countQuery = `
-        SELECT COUNT(*) AS total
-        FROM posts p
-        LEFT JOIN user_profile u ON p.user_id = u.id
-        WHERE u.public_id = $1
-      `;
-  
-      const postsResult = await db.query(query, [limit, offset, authorPublicId, userId]);
-      const countResult = await db.query(countQuery, [authorPublicId]);
-      const totalPosts = parseInt(countResult.rows[0]?.total || '0');
-      const rows = postsResult.rows;
-  
-      if (rows.length === 0) {
-        return res.status(200).json({
-          pagination: {
-            page,
-            limit,
-            total: 0,
-            hasNext: false,
-            hasPrev: false
-          },
-          owner: null,
-          posts: []
+        let queryParams = [limit, offset, authorPublicId];
+        if (userId) {
+            queryParams.push(userId);
+        }
+
+        const query = `
+            SELECT 
+                p.public_id, 
+                p.title, 
+                p.content, 
+                p.view_count, 
+                p.created_at, 
+                p.updated_at,
+                COALESCE(json_agg(
+                    json_build_object(
+                        'fname', postmedia.fname,
+                        'type', postmedia.media_type
+                    )
+                ) FILTER (WHERE postmedia.fname IS NOT NULL), '[]') AS media,
+
+                COALESCE(json_object_agg(rct.vote, rct.count) FILTER (WHERE rct.vote IS NOT NULL), '{}') AS reactions,
+
+                COUNT(DISTINCT cm.id) AS comment_count,
+
+                ${userId ? `(
+                    SELECT upr.vote FROM post_reaction upr
+                    WHERE upr.post_id = p.id AND upr.user_id = $4
+                    LIMIT 1
+                ) AS user_reacted,` : 'NULL AS user_reacted,'}
+
+                r.public_id AS ref_public_id,
+                u.public_id AS author_public_id,
+                u.username AS author_username,
+                u.picture AS author_picture
+            FROM posts p
+            LEFT JOIN user_profile u ON p.user_id = u.id
+            LEFT JOIN postmedia ON postmedia.post_id = p.id
+            LEFT JOIN (
+                SELECT post_id, vote, COUNT(*) AS count
+                FROM post_reaction
+                GROUP BY post_id, vote
+            ) rct ON rct.post_id = p.id
+            LEFT JOIN comments cm ON cm.post_id = p.id
+            LEFT JOIN posts r ON r.id = p.ref_id
+            WHERE u.public_id = $3
+            GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture
+            ORDER BY ${orderClause}
+            LIMIT $1 OFFSET $2
+        `;
+
+        const countQuery = `
+            SELECT COUNT(*) AS total
+            FROM posts p
+            LEFT JOIN user_profile u ON p.user_id = u.id
+            WHERE u.public_id = $1
+        `;
+
+        const postsResult = await db.query(query, queryParams);
+        const countResult = await db.query(countQuery, [authorPublicId]);
+        const totalPosts = parseInt(countResult.rows[0]?.total || '0');
+        const rows = postsResult.rows;
+
+        if (rows.length === 0) {
+            return res.status(200).json({
+                pagination: {
+                    page,
+                    limit,
+                    total: 0,
+                    hasNext: false,
+                    hasPrev: false
+                },
+                owner: null,
+                posts: []
+            });
+        }
+
+        const formattedPosts = rows.map(post => {
+            const reactionCounts = post.reactions || {};
+            const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
+
+            return {
+                public_id: post.public_id,
+                title: post.title,
+                content: post.content,
+                view_count: post.view_count,
+                created_at: post.created_at,
+                updated_at: post.updated_at,
+                media: Array.isArray(post.media) ? post.media : [],
+                reactions: {
+                    ...reactionCounts,
+                    total: totalReactions
+                },
+                user_reacted: post.user_reacted,
+                comment_count: post.comment_count,
+                ref_public_id: post.ref_public_id
+            };
         });
-      }
-  
-      const formattedPosts = rows.map(post => {
-        const reactionCounts = post.reactions || {};
-        const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
-  
-        return {
-          public_id: post.public_id,
-          title: post.title,
-          content: post.content,
-          view_count: post.view_count,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          media: Array.isArray(post.media) ? post.media : [],
-          reactions: {
-            ...reactionCounts,
-            total: totalReactions
-          },
-          user_reacted: post.user_reacted || null,
-          comment_count: post.comment_count,
-          ref_public_id: post.ref_public_id
-        };
-      });
-  
-      const hasNext = offset + limit < totalPosts;
-      const hasPrev = page > 1;
-  
-      res.status(200).json({
-        owner: {
-          public_id: rows[0].author_public_id,
-          username: rows[0].author_username,
-          picture: rows[0].author_picture
-        },
-        pagination: {
-          page,
-          limit,
-          total: totalPosts,
-          hasNext,
-          hasPrev
-        },
-        posts: formattedPosts
-      });
+
+        const hasNext = offset + limit < totalPosts;
+        const hasPrev = page > 1;
+
+        res.status(200).json({
+            owner: {
+                public_id: rows[0].author_public_id,
+                username: rows[0].author_username,
+                picture: rows[0].author_picture
+            },
+            pagination: {
+                page,
+                limit,
+                total: totalPosts,
+                hasNext,
+                hasPrev
+            },
+            posts: formattedPosts
+        });
     } catch (error) {
-      console.error('Error fetching user posts:', error);
-      res.status(500).json({ message: 'An error occurred while fetching user posts.' });
+        console.error('Error fetching user posts:', error);
+        res.status(500).json({ message: 'An error occurred while fetching user posts.' });
     }
-  });
-
-
-
-
-
-
-
+});
 
 
 
@@ -295,100 +300,105 @@ router.get('/user/posts/:public_id', justifyToken, upload.none(), async (req, re
 router.get('/feed/post/:public_id', justifyToken, upload.none(), async (req, res) => {
     const { public_id } = req.params;
     const userId = req.user?.id;
-  
+
     try {
-      let queryParams = [public_id];
-      if (userId) queryParams.push(userId);
-  
-      let query = `
-        SELECT 
-          p.public_id, 
-          p.title, 
-          p.content, 
-          p.view_count, 
-          p.created_at, 
-          p.updated_at,
-  
-          COALESCE(json_agg(
-            json_build_object(
-              'media_filename', postmedia.fname,
-              'media_type', postmedia.media_type
-            )
-          ) FILTER (WHERE postmedia.fname IS NOT NULL), '[]') AS media,
-  
-          COALESCE(json_object_agg(pr.vote, 1) FILTER (WHERE pr.vote IS NOT NULL), '{}') AS reactions,
-  
-          COUNT(DISTINCT cm.id) AS comment_count,
-  
-          (
-            SELECT upr.vote FROM post_reaction upr
-            WHERE upr.post_id = p.id AND upr.user_id = $2
-            LIMIT 1
-          ) AS user_reacted,
-  
-          r.public_id AS ref_public_id,
-          u.public_id AS author_public_id,
-          u.username AS author_username,
-          u.picture AS author_picture,
-          u.biography AS author_bio
-  
-        FROM posts p
-        LEFT JOIN postmedia ON postmedia.post_id = p.id
-        LEFT JOIN post_reaction pr ON pr.post_id = p.id
-        LEFT JOIN comments cm ON cm.post_id = p.id
-        LEFT JOIN post_tags pt ON pt.post_id = p.id
-        LEFT JOIN tags t ON t.id = pt.tags_id
-        LEFT JOIN user_profile u ON p.user_id = u.id
-        ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $2 AND ut.tags_id = t.id` : ''}
-        LEFT JOIN posts r ON r.id = p.ref_id
-        WHERE p.public_id = $1
-          AND (p.visibility = 'public'
-               ${userId ? `OR (p.visibility = 'private' AND p.user_id = $2)
-                          OR (p.visibility = 'restricted' AND EXISTS 
-                              (SELECT 1 FROM followers f 
-                               WHERE f.following_user_id = p.user_id 
-                               AND f.follower_user_id = $2))` : ''})
-        GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture, u.biography
-      `;
-  
-      const posts = await db.query(query, queryParams);
-      if (posts.rows.length === 0) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-  
-      const post = posts.rows[0];
-      const reactionCounts = post.reactions || {};
-      const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
-  
-      const formattedPost = {
-        public_id: post.public_id,
-        title: post.title,
-        content: post.content,
-        view_count: post.view_count,
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        media: post.media,
-        reactions: {
-          ...reactionCounts,
-          total: totalReactions
-        },
-        user_reacted: post.user_reacted || null,
-        comment_count: post.comment_count,
-        ref_public_id: post.ref_public_id,
-        author: {
-          public_id: post.author_public_id,
-          username: post.author_username,
-          picture: post.author_picture,
-          biography: post.author_bio
+        let queryParams = [public_id];
+        if (userId) queryParams.push(userId);
+
+        let query = `
+            SELECT 
+                p.public_id, 
+                p.title, 
+                p.content, 
+                p.view_count, 
+                p.created_at, 
+                p.updated_at,
+
+                COALESCE(json_agg(
+                    json_build_object(
+                        'media_filename', postmedia.fname,
+                        'media_type', postmedia.media_type
+                    )
+                ) FILTER (WHERE postmedia.fname IS NOT NULL), '[]') AS media,
+
+                COALESCE(json_object_agg(rct.vote, rct.count) FILTER (WHERE rct.vote IS NOT NULL), '{}') AS reactions,
+
+                COUNT(DISTINCT cm.id) AS comment_count,
+
+                (
+                    SELECT upr.vote FROM post_reaction upr
+                    WHERE upr.post_id = p.id AND upr.user_id = $2
+                    LIMIT 1
+                ) AS user_reacted,
+
+                r.public_id AS ref_public_id,
+                u.public_id AS author_public_id,
+                u.username AS author_username,
+                u.picture AS author_picture,
+                u.biography AS author_bio
+
+            FROM posts p
+            LEFT JOIN postmedia ON postmedia.post_id = p.id
+            LEFT JOIN (
+                SELECT post_id, vote, COUNT(*) AS count
+                FROM post_reaction
+                GROUP BY post_id, vote
+            ) rct ON rct.post_id = p.id
+            LEFT JOIN comments cm ON cm.post_id = p.id
+            LEFT JOIN post_tags pt ON pt.post_id = p.id
+            LEFT JOIN tags t ON t.id = pt.tags_id
+            LEFT JOIN user_profile u ON p.user_id = u.id
+            ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $2 AND ut.tags_id = t.id` : ''}
+            LEFT JOIN posts r ON r.id = p.ref_id
+            WHERE p.public_id = $1
+              AND (p.visibility = 'public'
+                   ${userId ? `OR (p.visibility = 'private' AND p.user_id = $2)
+                              OR (p.visibility = 'restricted' AND EXISTS 
+                                  (SELECT 1 FROM followers f 
+                                   WHERE f.following_user_id = p.user_id 
+                                   AND f.follower_user_id = $2))` : ''})
+            GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture, u.biography
+        `;
+
+        const posts = await db.query(query, queryParams);
+        if (posts.rows.length === 0) {
+            return res.status(404).json({ message: 'Post not found' });
         }
-      };
-  
-      res.status(200).json({ post: formattedPost });
+
+        const post = posts.rows[0];
+        const reactionCounts = post.reactions || {};
+        const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
+
+        const formattedPost = {
+            public_id: post.public_id,
+            title: post.title,
+            content: post.content,
+            view_count: post.view_count,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            media: post.media,
+            reactions: {
+                ...reactionCounts,
+                total: totalReactions
+            },
+            user_reacted: post.user_reacted || null,
+            comment_count: post.comment_count,
+            ref_public_id: post.ref_public_id,
+            author: {
+                public_id: post.author_public_id,
+                username: post.author_username,
+                picture: post.author_picture,
+                biography: post.author_bio
+            }
+        };
+
+        res.status(200).json({ post: formattedPost });
     } catch (error) {
-      logger.error('Error fetching post:', error);
-      res.status(500).json({ message: 'An error occurred while fetching the post.' });
+        logger.error('Error fetching post:', error);
+        res.status(500).json({ message: 'An error occurred while fetching the post.' });
     }
-  });
+});
+
 
 
 router.get('/feed/recipes', justifyToken, async (req, res) => {
