@@ -1,0 +1,119 @@
+.engagement-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid #e4e6eb;
+  border-bottom: 1px solid #e4e6eb;
+  gap: 15px;
+}
+
+.engagement-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  flex: 1;
+  gap: 6px;
+}
+
+.engagement-button-group button {
+  width: 100%;
+  max-width: 120px;
+}
+
+.like-btn,
+.comment-btn {
+  background-color: transparent;
+  color: #606770;
+  border: 1px solid #e4e6eb;
+  padding: 6px 12px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.like-btn.react,
+.comment-btn.react {
+  color: #1877f2;
+  font-weight: bold;
+}
+
+.like-btn:hover,
+.comment-btn:hover {
+  background-color: #f0f2f5;
+  border-color: #dddfe2;
+}
+
+.count {
+  font-size: 0.85rem;
+  color: #606770;
+}
+
+/* Comment Modal Styles */
+.comment-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  resize: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:focus {
+  outline: none;
+}
+
+button.cancel {
+  background-color: #ccc;
+}
+
+button.submit {
+  background-color: #1877f2;
+  color: white;
+}
+
+button.submit:hover {
+  background-color: #165eab;
+}
