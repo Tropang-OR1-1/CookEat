@@ -1,33 +1,38 @@
-.engagement-buttons {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
+.engagement-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  padding: 10px;
   border-top: 1px solid #e4e6eb;
   border-bottom: 1px solid #e4e6eb;
-  gap: 15px;
-}
-
-.engagement-button-group {
-  display: flex;
-  flex-direction: column;
+  justify-items: center;
   align-items: center;
-  justify-content: end;
-  flex: 1;
-  gap: 6px;
 }
 
-.engagement-button-group button {
-  width: 100%;
-  max-width: 120px;
+.grid-item.top {
+  display: flex;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.grid-item.bottom {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  justify-content: center;
+  text-align: center;
 }
 
 .like-btn,
-.comment-btn {
+.comment-btn,
+.share-btn {
   background-color: transparent;
   color: #606770;
   border: 1px solid #e4e6eb;
+  width: 100%;
   padding: 6px 12px;
-  border-radius: 18px;
   font-size: 0.9rem;
   cursor: pointer;
   display: flex;
@@ -48,12 +53,11 @@
   border-color: #dddfe2;
 }
 
-.count {
+.count-label {
   font-size: 0.85rem;
   color: #606770;
 }
 
-/* Comment Modal Styles */
 .comment-modal {
   position: fixed;
   top: 0;
@@ -75,7 +79,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-textarea {
+.comment-textarea {
   width: 100%;
   height: 100px;
   margin-bottom: 10px;
@@ -90,30 +94,30 @@ textarea {
   justify-content: space-between;
 }
 
-button {
+.modal-button {
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-button:hover {
+.modal-button:hover {
   opacity: 0.8;
 }
 
-button:focus {
+.modal-button:focus {
   outline: none;
 }
 
-button.cancel {
+.modal-button.cancel {
   background-color: #ccc;
 }
 
-button.submit {
+.modal-button.submit {
   background-color: #1877f2;
   color: white;
 }
 
-button.submit:hover {
+.modal-button.submit:hover {
   background-color: #165eab;
 }
