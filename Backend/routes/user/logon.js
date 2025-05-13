@@ -54,11 +54,11 @@ router.post("/login", upload.none(), async (req, res) => {
     const {email, password} = req.body ?? {}; // Destructure the request body
 
     if (!email || !password) {
-        return res.status(400).json({ error: "Invalid Requests Headers." });
+        return res.status(400).json({ error: "Invalid Requests Headers. Email and Password should be provided." });
     } // make sure username and password are provided
     
     if (typeof email !== 'string' || typeof password !== 'string') {
-        return res.status(400).json({ error: "Invalid input types." });
+        return res.status(400).json({ error: "Invalid input types. Data must be in string format" });
         } // Check if the input types are correct
         
     if (!emailValidator(email)) {

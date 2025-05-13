@@ -3,11 +3,11 @@
   width: 800px;
   background-color: #ffffff;
   border-radius: 8px;
-  border: 2px solid #FF8700;
+  border: 2.5px solid #FF8700;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 10px;
   box-sizing: border-box;
-  margin: 0 auto; /* Centers the post container */
+  margin: 0 auto; 
 }
 
 .profile-section {
@@ -29,13 +29,8 @@
   object-fit: cover;
 }
 
-.post-title {
-  font-size: 1.5rem;
-}
 .profile-info {
   margin-left: 10px;
-
-
 }
 
 .author_username {
@@ -51,6 +46,10 @@
   color: #8a96a3;
   display: flex;
   align-items: start;
+}
+
+.post-title {
+  font-size: 1.5rem;
 }
 
 .post-caption {
@@ -77,7 +76,6 @@
   outline: 2px solid #FF8700;
 }
 
-
 .media-container img {
   width: 100%;
   max-width: 600px;
@@ -88,201 +86,5 @@
   max-width: 600px;
   object-fit: cover;
   border-radius: 10px;
-  aspect-ratio: 3 / 2; /* better than fixed height */
-}
-
-.engagement {
-  margin-top: 20px;
-}
-
-.counts {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.counts span {
-  font-size: 0.9rem;
-  color: #606770;
-}
-
-.counts span a {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #1877f2;
-}
-
-.counts span a:hover {
-  opacity: 0.8;
-}
-
-/* Engagement Buttons Layout */
-.engagement-buttons {
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 1px solid #e4e6eb;
-  border-bottom: 1px solid #e4e6eb;
-  gap: 10px;
-}
-
-.engagement-button-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: end;
-  flex: 1;
-  gap: 4px;
-}
-
-.engagement-button-group button {
-  width: 100%;
-  max-width: 120px;
-}
-
-.like-btn,
-.comment-btn,
-.share-btn {
-  background-color: transparent;
-  color: #606770;
-  border: 1px solid #e4e6eb;
-  padding: 6px 12px;
-  border-radius: 18px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-.like-btn:hover,
-.comment-btn:hover,
-.share-btn:hover {
-  background-color: #f0f2f5;
-  border-color: #dddfe2;
-}
-
-.like-btn.react,
-.comment-btn.react,
-.share-btn.react {
-  color: #1877f2;
-}
-
-.like-btn .like-count,
-.comment-btn .comment-count {
-  font-size: 0.9rem;
-}
-
-.like-btn.react .like-count,
-.comment-btn.react .comment-count {
-  font-weight: bold;
-  color: #1877f2;
-}
-
-.count {
-  font-size: 0.85rem;
-  color: #606770;
-}
-
-/* Comment Modal Styles */
-.comment-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-textarea {
-  width: 100%;
-  height: 100px;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  resize: none;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-}
-
-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.8;
-}
-
-button:focus {
-  outline: none;
-}
-
-button.cancel {
-  background-color: #ccc;
-}
-
-button.submit {
-  background-color: #1877f2;
-  color: white;
-}
-
-button.submit:hover {
-  background-color: #165eab;
-}
-
-/* Add this to your feedpost.css */
-
-.options {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: white;
-  min-width: 150px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  border-radius: 5px;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-.dropdown-content a:hover {
-  background-color: #ddd;
+  aspect-ratio: 3 / 2;
 }
