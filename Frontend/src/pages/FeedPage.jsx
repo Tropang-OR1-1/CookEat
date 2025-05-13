@@ -36,7 +36,7 @@ function FeedPage() {
 
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [loading, hasMore, incrementPage]
   );
 
   // Fetch posts data
@@ -44,14 +44,31 @@ function FeedPage() {
     const fetchPosts = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`);
+        // Get the token from localStorage
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          throw new Error('No token found in localStorage');
+        }
+
+        // Add Authorization header with the token
+        const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`, {
+          method: 'GET', // assuming it's a GET request
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json', // Optional if needed
+          },
+        });
+
         if (!response.ok) throw new Error('Failed to fetch posts');
 
         const data = await response.json();
+
         if (data && Array.isArray(data.posts)) {
-          setPosts(prevPosts => [...prevPosts, ...data.posts]);  // Append new posts
-          if (data.posts.length < 10) setHasMore(false); // No more pages
+          setPosts(prevPosts => [...prevPosts, ...data.posts]);
+          if (data.posts.length < 10) setHasMore(false);
         } else {
           setHasMore(false);
           setError('Invalid data format or no posts');
@@ -64,8 +81,9 @@ function FeedPage() {
     };
 
     fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
+  
   // Restore scroll position on mount and save it on unmount
   useEffect(() => {
     const restoreScrollPosition = () => {
@@ -81,7 +99,7 @@ function FeedPage() {
       clearTimeout(timeout);
       setScrollY(window.scrollY);
     };
-  }, [scrollY]);
+  }, [scrollY, setScrollY]);
 
   // Track scroll position during page scroll
   useEffect(() => {
@@ -98,21 +116,23 @@ function FeedPage() {
           const isLast = index === posts.length - 1;
           return (
             <FeedPost
-              key = {post.public_id}
-              public_id = {post.public_id}
-              title = {post.title}
-              content = {post.content}
-              view_count = {post.view_count}
-              created_at = {new Date(post.created_at).toLocaleString()}
-              updated_at = {new Date(post.updated_at).toLocaleString()}
-              media_filename = {post.media[0]?.media_filename}
-              media_type = {post.media[0]?.media_type}
-              reactions_count = {post.reactions_count}
-              ref_public_id = {post.ref_public_id}
-              author_public_id = {post.author.public_id}
-              author_username = {post.author.username}
-              author_picture = {post.author.picture}
-              
+              key={post.public_id}
+              public_id={post.public_id}
+              title={post.title}
+              content={post.content}
+              view_count={post.view_count}
+              created_at={new Date(post.created_at).toLocaleString()}
+              updated_at={new Date(post.updated_at).toLocaleString()}
+              media_filename={post.media[0]?.media_filename}
+              media_type={post.media[0]?.media_type}
+              reactions_total={post.reactions.total}
+              user_reacted={post.user_reacted}
+              commnent_count={post.commnent_count}
+              ref_public_id={post.ref_public_id}
+              author_public_id={post.author.public_id}
+              author_username={post.author.username}
+              author_picture={post.author.picture}
+
               ref={isLast ? lastPostRef : null}
             />
           );

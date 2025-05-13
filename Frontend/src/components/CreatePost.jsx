@@ -1,14 +1,29 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './styles/createpost.css';
 
 function CreatePost({ isOpen, onClose }) {
+  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
+  const [username, setUsername] = useState('');
   const [formData, setFormData] = useState({
     postTitle: '',
     content: '',
     media: null
   });
+
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("profile");
+    if (storedProfile) {
+      const parsed = JSON.parse(storedProfile);
+      if (parsed.avatar) {
+        setAvatar(parsed.avatar);
+      }
+      if (parsed.username) {
+        setUsername(parsed.username);
+      }
+    }
+  }, []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
@@ -19,6 +34,18 @@ function CreatePost({ isOpen, onClose }) {
       ...prev,
       [name]: files?.[0] ?? value,
     }));
+  };
+
+  const handleFocus = (e) => {
+    if (e.target.value === e.target.defaultValue) {
+      e.target.value = '';
+    }
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value === '') {
+      e.target.value = e.target.defaultValue;
+    }
   };
 
   const isValidUUID = (str) => {
@@ -87,7 +114,7 @@ function CreatePost({ isOpen, onClose }) {
       onClose();
       setFormData({
         postTitle: '',
-        content: '', // Reset content
+        content: '',
         media: null
       });
       if (fileInputRef.current) {
@@ -116,13 +143,19 @@ function CreatePost({ isOpen, onClose }) {
         <button className="close-btn" onClick={onClose}>&times;</button>
         <h2>Create New Post</h2>
         <form onSubmit={handleSubmit} className="form">
+          <div className="user-info">
+            <img src={avatar} alt="User Icon" className="user-icon" />
+            <span className="user-name">{username}</span>
+          </div>
           <label htmlFor="postTitle">Post Title:</label>
           <input
             type="text"
             id="postTitle"
             name="postTitle"
-            value={formData.postTitle}
+            value={formData.postTitle || 'Be Cravetive'}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             required
             className="input-field"
           />
@@ -131,8 +164,10 @@ function CreatePost({ isOpen, onClose }) {
           <textarea
             id="content"
             name="content"
-            value={formData.content}
+            value={formData.content || 'What’s on your mind?'}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             className="input-field"
           />
 

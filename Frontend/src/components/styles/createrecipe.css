@@ -21,6 +21,8 @@
     border-radius: 8px;
     position: relative;
     box-sizing: border-box;
+    overflow-y: auto;
+    max-height: 90vh; /* Limits height to keep it within view */
   }
   
   .close-btn {
@@ -37,27 +39,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-  
-  input[type="text"],
-  textarea,
-  input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 4px;
-  }
-  
-  .publish-btn {
-    padding: 10px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .publish-btn:hover {
-    background-color: #357ae8;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 
   .error-msg {
@@ -71,11 +54,43 @@
   
   .form button[type="button"] {
     background-color: #ffffff;
-    border: 3px solid #ffa500;
-    box-shadow: 0 0 8px rgb(38 37 37 / 80%);
+    border: solid 1px #ccc;
     padding: 8px;
     cursor: pointer;
+    
   }
   .form button[type="button"]:hover {
     background-color: #d5d5d5;
+    box-shadow: 0 0 10px #ffa500(217, 89%, 61%); /* Blue Glow */
+    transition: 0.3s ease-in-out;
   }
+
+  input[type="text"],
+  textarea,
+  input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 4px;
+  }
+
+  input[type="text"]:focus, 
+  textarea:focus, 
+  button:active {
+    box-shadow: 0 0 10px #ff0, 0 0 20px #ffa500; /* Yellow & Orange Glow */
+    border-color: #ffa500;
+}
+
+  .publish-btn {
+    padding: 10px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  
+  .publish-btn:hover {
+    background-color: #357ae8;
+  }
+  
