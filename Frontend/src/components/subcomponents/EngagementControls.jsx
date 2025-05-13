@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import CommentModal from './CommentModal';
+import PostComment from './PostComment';  // Import PostComment component
 import './styles/engagementcontrols.css';
-
-const REACTIONS = {
-  LIKE: 'UP',
-  UNLIKE: 'NEUTRAL',
-};
 
 const EngagementControls = ({
   public_id,
@@ -26,9 +23,12 @@ const EngagementControls = ({
   isLoggedIn,
 }) => {
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
-  const [newComment, setNewComment] = useState('');
+  const [reactionCount, setReactionCount] = useState(reactions_total);
   const [isReacting, setIsReacting] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
+  const [isCommentSectionVisible, setIsCommentSectionVisible] = useState(false);
+
+  const commentCount = Number(comment_count ?? 0);
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
@@ -40,23 +40,29 @@ const EngagementControls = ({
     setIsReacting(true);
 
     const token = localStorage.getItem('token');
-    const newReaction = reaction === 'like' ? REACTIONS.UNLIKE : REACTIONS.LIKE;
+    const url = `https://cookeat.cookeat.space/react/post/${public_id}`;
 
     try {
-      const response = await axios.post(
-        'https://cookeat.cookeat.space/react/post',
-        [newReaction],
-        {
-          params: { post_id: public_id },
+      if (reaction === 'like') {
+        await axios.delete(url, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-        }
-      );
+        });
+        setReaction(null);
+        setReactionCount((prev) => prev - 1);
+      } else {
+        const formData = new FormData();
+        formData.append('react', 'UP');
 
-      if (response.status === 200) {
-        setReaction(newReaction === REACTIONS.LIKE ? 'like' : null);
+        await axios.post(url, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setReaction('like');
+        setReactionCount((prev) => prev + 1);
       }
     } catch (error) {
       console.error('Error reacting to the post:', error);
@@ -73,73 +79,81 @@ const EngagementControls = ({
     setIsCommenting(true);
   };
 
-  const handleCommentSubmit = async () => {
-    if (!newComment.trim()) {
-      alert('Please enter a comment!');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'https://cookeat.cookeat.space/feed/comments',
-        {
-          post_id: public_id,
-          comment: newComment,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setNewComment('');
-        setIsCommenting(false);
-      }
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-    }
+  // Handle clicking on the comment count
+  const handleCommentCountClick = () => {
+    setIsCommentSectionVisible(!isCommentSectionVisible); // Toggle the visibility of the comments section
   };
 
   return (
-    <div className="engagement-buttons">
-      <div className="engagement-button-group">
-        <span className="count">{reactions_total}</span>
-        <button
-          className={`like-btn ${reaction === 'like' ? 'reacted' : ''}`}
-          onClick={handleReaction}
-          disabled={!isLoggedIn || isReacting}
-        >
-          Like
-        </button>
+    <div className="engagement-controls-container">
+      {/* Engagement controls grid */}
+      <div className="engagement-controls-grid">
+        <div className="grid-item top">
+          <span className="count-label">
+            {reactionCount === 0
+              ? 'No likes yet'
+              : reactionCount === 1
+              ? '1 like'
+              : `${reactionCount} likes`}
+          </span>
+        </div>
+        <div className="grid-item top">
+          <span
+            className="count-label clickable"
+            onClick={handleCommentCountClick} // Make the comment count clickable
+          >
+            {commentCount === 0
+              ? ''
+              : commentCount === 1
+              ? '1 comment'
+              : `${commentCount} comments`}
+          </span>
+        </div>
+        <div className="grid-item top">
+          {media_type === 'video/mp4' && (
+            <span className="count-label">
+              {view_count} {view_count === 1 ? 'View' : 'Views'}
+            </span>
+          )}
+        </div>
+
+        <div className="grid-item bottom">
+          <button
+            className={`like-btn ${reaction === 'like' ? 'react' : ''}`}
+            onClick={handleReaction}
+            disabled={!isLoggedIn || isReacting}
+          >
+            👍 Like
+          </button>
+        </div>
+        <div className="grid-item bottom">
+          <button
+            className="comment-btn"
+            onClick={handleCommentClick}
+            disabled={!isLoggedIn}
+          >
+            💬 Comment
+          </button>
+        </div>
+        <div className="grid-item bottom">
+          <button className="share-btn" disabled>
+            🔗 Share
+          </button>
+        </div>
       </div>
 
-      <div className="engagement-button-group">
-        <span className="count">{comment_count}</span>
-        <button
-          className="comment-btn"
-          onClick={handleCommentClick}
-          disabled={!isLoggedIn || isCommenting}
-        >
-          Comment
-        </button>
-      </div>
+      {/* Modal for commenting */}
+      <CommentModal
+        isVisible={isCommenting}
+        public_id={public_id}
+        isLoggedIn={isLoggedIn}
+        onCancel={() => setIsCommenting(false)}
+      />
 
-      {/* Comment Modal */}
-      {isCommenting && (
-        <div className="comment-modal">
-          <div className="modal-content">
-            <h3>Post a Comment</h3>
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write your comment..."
-            />
-            <div className="modal-actions">
-              <button onClick={handleCommentSubmit}>Submit</button>
-              <button onClick={() => setIsCommenting(false)}>Cancel</button>
-            </div>
-          </div>
+      {/* Conditionally render the comments section outside the grid */}
+      {isCommentSectionVisible && (
+        <div className="comments-section-wrapper">
+          <PostComment public_id={public_id} />
         </div>
       )}
     </div>

@@ -1,0 +1,110 @@
+/* Container for the comments section */
+.comments-section {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  width: 100%; /* Ensure it fills the available width */
+  max-width: 900px; /* Max width to prevent it from stretching too wide */
+  margin-left: auto;
+  margin-right: auto; /* Center the container */
+}
+
+.comments-section h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Comment list */
+.comments-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comment-item {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px; /* Increased space between comments */
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+  max-width: 100%; /* Maximize width */
+  word-wrap: break-word; /* Prevent text overflow */
+}
+
+.comment-item:hover {
+  background-color: #f1f1f1;
+}
+
+.comment-item p {
+  margin: 0;
+  font-size: 1rem; /* Make the text a bit bigger */
+  line-height: 1.6; /* Increased line height for better readability */
+}
+
+.comment-item strong {
+  color: #2d3a4a;
+  font-size: 1.1rem; /* Slightly bigger font for user's name */
+}
+
+.comment-item .reactions {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.comment-item span {
+  display: block;
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: 5px;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover {
+  background-color: #0056b3;
+}
+
+.pagination-controls button:disabled {
+  background-color: #d6d6d6;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Loading/Error state */
+.comments-section p {
+  font-size: 1rem;
+  color: #777;
+  text-align: center;
+}
+
+/* Error message */
+.comments-section .error {
+  color: red;
+  font-weight: bold;
+}

@@ -70,6 +70,9 @@ body {
 
 .header-nav-links .header-button {
   margin-left: auto;
+  outline: none;
+  border: none;
+
 }
 
 .header-nav-links a {
@@ -153,13 +156,17 @@ body {
   padding: 0;
   display: flex;
   align-items: center;
+  outline: none;
+  border: none;
   justify-content: center;
   transition: background-color 0.3s ease;
   cursor: pointer;
 }
 
 .header-button i {
-  font-size: 34px;    
+  font-size: 34px;
+  outline: none;
+    
   font-weight: 500;  
   color: #543b0d;    
   transition: transform 0.2s ease, color 0.3s ease;
