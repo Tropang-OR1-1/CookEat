@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import CommentModal from './CommentModal';
 import './styles/engagementcontrols.css';
 
 const EngagementControls = ({
@@ -22,7 +23,6 @@ const EngagementControls = ({
 }) => {
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
   const [reactionCount, setReactionCount] = useState(reactions_total);
-  const [newComment, setNewComment] = useState('');
   const [isReacting, setIsReacting] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
 
@@ -77,50 +77,34 @@ const EngagementControls = ({
     setIsCommenting(true);
   };
 
-  const handleCommentSubmit = async () => {
-    if (!newComment.trim()) {
-      alert('Please enter a comment!');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'https://cookeat.cookeat.space/feed/comments',
-        {
-          post_id: public_id,
-          comment: newComment,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setNewComment('');
-        setIsCommenting(false);
-      }
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-    }
-  };
-
   return (
     <div className="engagement-controls-grid">
-      {/* Top Row */}
       <div className="grid-item top">
-        <span className="count-label">{reactionCount} {reactionCount === 1 ? 'Like' : 'Likes'}</span>
+        <span className="count-label">
+          {reactionCount === 0
+            ? 'No likes yet'
+            : reactionCount === 1
+            ? '1 like'
+            : `${reactionCount} likes`}
+        </span>
       </div>
       <div className="grid-item top">
-        <span className="count-label">{comment_count} {comment_count === 1 ? 'Comment' : 'Comments'}</span>
+        <span className="count-label">
+          {comment_count === 0
+            ? ''
+            : comment_count === 1
+            ? '1 comment'
+            : `${comment_count} comments`}
+        </span>
       </div>
       <div className="grid-item top">
         {media_type === 'video/mp4' && (
-          <span className="count-label">{view_count} {view_count === 1 ? 'View' : 'Views'}</span>
+          <span className="count-label">
+            {view_count} {view_count === 1 ? 'View' : 'Views'}
+          </span>
         )}
       </div>
 
-      {/* Bottom Row */}
       <div className="grid-item bottom">
         <button
           className={`like-btn ${reaction === 'like' ? 'react' : ''}`}
@@ -134,7 +118,7 @@ const EngagementControls = ({
         <button
           className="comment-btn"
           onClick={handleCommentClick}
-          disabled={!isLoggedIn || isCommenting}
+          disabled={!isLoggedIn}
         >
           💬 Comment
         </button>
@@ -145,24 +129,12 @@ const EngagementControls = ({
         </button>
       </div>
 
-      {/* Comment Modal */}
-      {isCommenting && (
-        <div className="comment-modal">
-          <div className="modal-content">
-            <h3>Post a Comment</h3>
-            <textarea
-              className="comment-textarea"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write your comment..."
-            />
-            <div className="modal-actions">
-              <button className="modal-button submit" onClick={handleCommentSubmit}>Submit</button>
-              <button className="modal-button cancel" onClick={() => setIsCommenting(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CommentModal
+        isVisible={isCommenting}
+        post_id={public_id}
+        isLoggedIn={isLoggedIn}
+        onCancel={() => setIsCommenting(false)}
+      />
     </div>
   );
 };
