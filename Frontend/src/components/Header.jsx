@@ -14,7 +14,7 @@ function Header({ token, setToken, profile }) {
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
+  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || 'default-avatar.jpg');
 
   const addPostRef = useRef(null);
   const profileDropdownRef = useRef(null);
@@ -30,9 +30,9 @@ function Header({ token, setToken, profile }) {
   useEffect(() => {
     const storedProfile = localStorage.getItem("profile");
     if (storedProfile) {
-      const parsed = JSON.parse(storedProfile);
-      if (parsed.avatar) {
-        setAvatar(parsed.avatar);
+      const parsedProfile = JSON.parse(storedProfile);
+      if (parsedProfile.avatar) {
+        setAvatar(parsedProfile.avatar);
       }
     }
   }, []);
@@ -62,9 +62,11 @@ function Header({ token, setToken, profile }) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("profile");
     setToken(null);
-    navigate("/login");
-  };
+
+    window.location.href = "/feeds"; // ✅ Full reload
+};
 
   return (
     <header className="header-navbar header">
@@ -174,7 +176,15 @@ function Header({ token, setToken, profile }) {
       <LoginRegister
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        setToken={setToken}
+        setToken={(token) => {
+          setToken(token);
+          const stored = localStorage.getItem("profile");
+          if (stored) {
+            const profile = JSON.parse(stored);
+            setAvatar(profile.avatar);  // Set the avatar based on profile in localStorage
+          }
+        }}
+        setAvatar={setAvatar} // Ensure avatar is passed down
       />
 
       {token && (

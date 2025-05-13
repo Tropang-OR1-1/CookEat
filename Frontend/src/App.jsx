@@ -16,6 +16,7 @@ function App() {
     const stored = localStorage.getItem('profile');
     return stored ? JSON.parse(stored) : null;
   });
+  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || null); // Avatar state
 
   useEffect(() => {
     // Update token state when token changes
@@ -25,14 +26,14 @@ function App() {
   return (
     <Router>
       <div>
-        <Header token={token} setToken={setToken} profile={profile} /> 
+        <Header token={token} setToken={setToken} profile={profile} avatar={avatar} /> {/* Pass avatar to Header */}
 
         <main>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<FeedPage />} />
             <Route path="/feeds" element={<FeedPage />} />
-            <Route path="/login" element={<LoginRegister setToken={setToken} setProfile={setProfile} />} />
+            <Route path="/login" element={<LoginRegister setToken={setToken} profile={profile} setProfile={setProfile} setAvatar={setAvatar} />} />
             <Route path="/about" element={<About />} />
             <Route path="/help" element={<HelpSupport />} />
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/loginregister.css';
 
-function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
+function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
   const navigate = useNavigate();
 
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -25,8 +25,13 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
       const res = await axios.get('https://cookeat.cookeat.space/user/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      // Store profile and avatar in localStorage
       localStorage.setItem('profile', JSON.stringify(res.data));
-      setProfile(res.data);
+      localStorage.setItem('avatar', res.data.avatarUrl); // Assuming avatarUrl is the field that contains the image URL
+
+      // Set profile and avatar in the parent state
+      if (setProfile) setProfile(res.data);
+      if (setAvatar) setAvatar(res.data.avatarUrl); // Update avatar state immediately
     } catch (err) {
       console.error("Failed to fetch profile:", err);
     }
@@ -45,7 +50,7 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
-      navigate('/feeds');
+      navigate('/profile');
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
@@ -65,7 +70,7 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
-      navigate('/feeds');
+      navigate('/profile');
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
