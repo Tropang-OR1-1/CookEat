@@ -2,7 +2,8 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const { Server } = require('socket.io');
-const postHandler = require('./config/socket/post'); // Import user connection events
+const { postHandler, handleTypingDisconnect, stopViewingPost } = require('./config/socket/post');
+
 const {notificationHandler, sendNotificationToUsers,
       connectedUsers, getBitByName} = require('./config/socket/notification');
 const { socketAuth } = require('./config/jwt');
@@ -128,6 +129,9 @@ io.on('connection', (socket) => {
       logger.info(`User ${socket.user.id} with socket ID ${socket.id} disconnected`);
       delete connectedUsers[socket.user.id];  // Remove the socket ID from connectedUsers
       }
+      
+    stopViewingPost(io, socket);
+    handleTypingDisconnect(socket);
     console.log('A client disconnected');
     });
   });

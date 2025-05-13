@@ -1,10 +1,10 @@
 const readline = require('readline');
 const io = require('socket.io-client');
-const notification = require('./config/socket/notification');
+//const notification = require('./config/socket/notification');
 
 //const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjYzAyZmQ5ZjQxNGUzMjhmY2Y4YzZiZTE0NjUwMDM1MmJjYTc2YmMyMjdkMzg1N2Y0YjZkNTljZjA2Yjg1Y2IzIiwicGF5bG9hZCI6ImE5MzAxMmM2LTYwNGYtNGQxNS05ZWQ1LTIwY2VmOGUxOTA0MiIsImlhdCI6MTc0NzAyMzYyNSwiZXhwIjoxNzQ3NjI4NDI1fQ.2vZqQgX9hGzRlyoZJbjniIFZEHNJbSdCyBCcrRr6Dn8';
-//const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlODQ1YTdkZmM0ZDBmZmFjZDBmNjdjZGMzNjVjNjZhYmE5ZGY4YjMxM2UwOGViYjAyNzJkZDZiMWVlY2NlYjU2IiwicGF5bG9hZCI6ImFjYjI0Mjg4LTI3ZWMtNDk4My04MmIwLWZlMGZmZmYyMTMwYSIsImlhdCI6MTc0NzA0MTQwMywiZXhwIjoxNzQ3NjQ2MjAzfQ.aBgGzGNiZ3i9GQQ0Bi1Z0YA2WKV5dP2G7LAM1Xg9Cms'
-const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YWZkNjlhNjJkMjlkMzYwNWNkOWU1OGY5ZmE4NDMxODljMWQ2ZmVhMjY0MGJlMTUzZjJiNmU5ZTcwY2MyMTdhIiwicGF5bG9hZCI6ImQ2NTBhNjRkLTAwMDUtNGYwMS05MTFiLTllMzQyYTZkNWE1YyIsImlhdCI6MTc0NzA1NTg4NSwiZXhwIjoxNzQ3NjYwNjg1fQ.rYkw8qJhYGMvqeM331gxI_Ja9NBiXfLjimglYGICyHQ';
+const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlODQ1YTdkZmM0ZDBmZmFjZDBmNjdjZGMzNjVjNjZhYmE5ZGY4YjMxM2UwOGViYjAyNzJkZDZiMWVlY2NlYjU2IiwicGF5bG9hZCI6ImFjYjI0Mjg4LTI3ZWMtNDk4My04MmIwLWZlMGZmZmYyMTMwYSIsImlhdCI6MTc0NzA0MTQwMywiZXhwIjoxNzQ3NjQ2MjAzfQ.aBgGzGNiZ3i9GQQ0Bi1Z0YA2WKV5dP2G7LAM1Xg9Cms'
+//const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YWZkNjlhNjJkMjlkMzYwNWNkOWU1OGY5ZmE4NDMxODljMWQ2ZmVhMjY0MGJlMTUzZjJiNmU5ZTcwY2MyMTdhIiwicGF5bG9hZCI6ImQ2NTBhNjRkLTAwMDUtNGYwMS05MTFiLTllMzQyYTZkNWE1YyIsImlhdCI6MTc0NzA1NTg4NSwiZXhwIjoxNzQ3NjYwNjg1fQ.rYkw8qJhYGMvqeM331gxI_Ja9NBiXfLjimglYGICyHQ';
 // Connect to your server
 const socket = io('http://localhost:3000', {
     auth: {
@@ -22,6 +22,9 @@ socket.on('connect_error', (err) => {
     console.error('[!] Connection error:', err.message);
 });
 
+socket.on('client_error', (err) => {
+    console.error('[!] client error:', err.message);
+    });
 
 socket.on('disconnect', () => {
     console.log('[!] Disconnected');
