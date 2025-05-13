@@ -36,7 +36,7 @@ function FeedPage() {
 
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [loading, hasMore, incrementPage]
   );
 
   // Fetch posts data
@@ -50,8 +50,8 @@ function FeedPage() {
 
         const data = await response.json();
         if (data && Array.isArray(data.posts)) {
-          setPosts(prevPosts => [...prevPosts, ...data.posts]);  // Append new posts
-          if (data.posts.length < 10) setHasMore(false); // No more pages
+          setPosts(prevPosts => [...prevPosts, ...data.posts]);
+          if (data.posts.length < 10) setHasMore(false);
         } else {
           setHasMore(false);
           setError('Invalid data format or no posts');
@@ -64,6 +64,7 @@ function FeedPage() {
     };
 
     fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   // Restore scroll position on mount and save it on unmount
@@ -81,7 +82,7 @@ function FeedPage() {
       clearTimeout(timeout);
       setScrollY(window.scrollY);
     };
-  }, [scrollY]);
+  }, [scrollY, setScrollY]);
 
   // Track scroll position during page scroll
   useEffect(() => {
