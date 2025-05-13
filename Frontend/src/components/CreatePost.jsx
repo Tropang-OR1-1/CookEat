@@ -5,7 +5,7 @@ import './styles/createpost.css';
 
 function CreatePost({ isOpen, onClose }) {
   const [avatar, setAvatar] = useState('/images/profile_img.jpg');
-  let username = localStorage.getItem('username')
+  const [username, setUsername] = useState('');
   const [formData, setFormData] = useState({
     postTitle: '',
     content: '',
@@ -19,9 +19,10 @@ function CreatePost({ isOpen, onClose }) {
       if (parsed.avatar) {
         setAvatar(parsed.avatar);
       }
+      if (parsed.username) {
+        setUsername(parsed.username);
+      }
     }
-
-
   }, []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
