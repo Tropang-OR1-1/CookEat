@@ -1,4 +1,5 @@
-require("dotenv").config({ path: "../.env" });
+
+require("dotenv").config({ path: "../.env.sensitive" });
 const jwt = require('jsonwebtoken');
 
 const db = require("./db");
@@ -107,7 +108,7 @@ const socketAuth = async (socket, next) => {
         const tokenWithoutBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
 
         // Verify the token using the secret key
-        const token_id = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET);
+        const token_id = jwt.verify(tokenWithoutBearer, JWT_SECRET);
 
         const decoded = await db.query(`
             SELECT id FROM user_profile 
