@@ -22,7 +22,7 @@ const logonRoutes = require('./routes/user/logon');
 const followRoutes = require('./routes/user/follows');
 const savesRoutes = require('./routes/user/saves');
 const settingsRoutes = require('./routes/user/settings');
-const verificationRoutes = require('./routes/user/verification');
+//const verificationRoutes = require('./routes/user/verification');
 
 
 const recipeRoutes = require('./routes/recipe/recipe');
@@ -40,7 +40,7 @@ app.use('/user', logonRoutes);
 app.use('/user', followRoutes);
 app.use('/user', savesRoutes);
 app.use('/user/settings', settingsRoutes);
-app.use('user/verification', verificationRoutes);
+//app.use('user/verification', verificationRoutes);
 app.use('/media', mediaRoutes);
 app.use('/posts', postsRoutes);
 app.use('/comments', commentRoutes);
