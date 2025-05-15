@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
 import { formatDate } from '../utils/formatDate.js';
 import './styles/feedpost.css';
-import FeedPostDropdown from './subcomponents/FeedPostDropdown.jsx'; // Import the new dropdown component
+import FeedPostDropdown from './subcomponents/FeedPostDropdown.jsx';
 import EngagementControls from './subcomponents/EngagementControls.jsx';
+import { Link } from 'react-router-dom';
 
 const FeedPost = forwardRef(({
   public_id,
@@ -25,20 +26,26 @@ const FeedPost = forwardRef(({
   const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
   const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
 
+  // Get logged-in user's public_id from localStorage (or wherever you store it)
+  const myPublicId = (localStorage.getItem('public_id') || '').trim();
+
+  // Determine link target
+  const profileLink = (author_public_id === myPublicId) ? '/profile' : `/user/${author_public_id}`;
+  
   return (
     <div className="feed-post" ref={ref}>
       {/* Profile Section */}
       <div className="profile-section">
-        <div className="profile-left">
+        <Link to={profileLink} className="profile-left">
           <img src={profileImageUrl} alt="Profile" className="profile-img" />
           <div className="profile-info">
             <p className="author_username">{author_username}</p>
             <p className="time">{formatDate(created_at)}</p>
           </div>
-        </div>
+        </Link>
 
         {/* Dropdown Component */}
-        <FeedPostDropdown postId={public_id} /> {/* Use the new dropdown component */}
+        <FeedPostDropdown postId={public_id} />
       </div>
 
       {/* Title */}
