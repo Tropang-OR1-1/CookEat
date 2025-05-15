@@ -82,8 +82,8 @@ function CreatePost({ isOpen, onClose }) {
       return;
     }
 
-    if (formData.media.size > 5 * 1024 * 1024) {
-      alert("Media file too large. Max size is 5MB.");
+    if (formData.media.size > 50 * 1024 * 1024) {
+      alert("Media file too large. Max size is 50MB.");
       return;
     }
 
