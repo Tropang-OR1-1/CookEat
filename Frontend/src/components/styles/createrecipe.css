@@ -1,96 +1,94 @@
 .create-post-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    color: black;
-    overflow-y: auto;
-  }
-  
-    .modal-content {
-    background: #ffa500;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    position: relative;
-    box-sizing: border-box;
-    overflow-y: auto;
-    max-height: 90vh; /* Limits height to keep it within view */
-  }
-  
-  .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
-  .error-msg {
-    background-color: #ffe0e0;
-    color: #a00;
-    padding: 10px;
-    margin-bottom: 1em;
-    border-radius: 5px;
-    font-weight: bold;
-  }
-  
-  .form button[type="button"] {
-    background-color: #ffffff;
-    border: solid 1px #ccc;
-    padding: 8px;
-    cursor: pointer;
-    
-  }
-  .form button[type="button"]:hover {
-    background-color: #d5d5d5;
-    box-shadow: 0 0 10px #ffa500(217, 89%, 61%); /* Blue Glow */
-    transition: 0.3s ease-in-out;
-  }
-
-  input[type="text"],
-  textarea,
-  input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 4px;
-  }
-
-  input[type="text"]:focus, 
-  textarea:focus, 
-  button:active {
-    box-shadow: 0 0 10px #ff0, 0 0 20px #ffa500; /* Yellow & Orange Glow */
-    border-color: #ffa500;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  color: black;
+  overflow-y: auto;
 }
 
-  .publish-btn {
-    padding: 10px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  
-  .publish-btn:hover {
-    background-color: #357ae8;
-  }
-  
+.modal-content {
+  background: #ffa500;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  position: relative;
+  box-sizing: border-box;
+  overflow-y: auto;
+  max-height: 90vh; /* Limits height to keep it within view */
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.error-msg {
+  background-color: #ffe0e0;
+  color: #a00;
+  padding: 10px;
+  margin-bottom: 1em;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.form button[type="button"] {
+  background-color: #ffffff;
+  border: solid 1px #ccc;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.form button[type="button"]:hover {
+  background-color: #d5d5d5;
+  transition: 0.3s ease-in-out;
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+input[type="text"]:focus, 
+textarea:focus, 
+button:active {
+  outline: none;
+  border-color: #ccc;
+}
+
+.publish-btn {
+  padding: 10px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.publish-btn:hover {
+  background-color: #357ae8;
+}
