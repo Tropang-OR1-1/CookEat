@@ -6,9 +6,9 @@ const creators = [
   {
     name: "Michael Angelo Z. Diaz",
     role: "UI/UX",
-    flirt: `"Are you the UI? Because you just made my heart experience smooth transitions."`,
+    flirt: `"I like adobo dahil siya ang aking healer."`,
     img: "/images/about_img/michael.jpeg",
-    link: "#"
+    link: "https://just-gelo.github.io/Mi-Portafolio/"
   },
   {
     name: "John Michael Garcia",
