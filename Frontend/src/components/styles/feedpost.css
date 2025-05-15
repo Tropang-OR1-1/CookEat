@@ -88,3 +88,12 @@
   border-radius: 10px;
   aspect-ratio: 3 / 2;
 }
+
+.profile-left {
+  text-decoration: none;
+  color: inherit;
+}
+
+.profile-left * {
+  text-decoration: none !important;
+}
