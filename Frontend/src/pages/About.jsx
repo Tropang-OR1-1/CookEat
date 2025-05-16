@@ -8,7 +8,7 @@ const creators = [
     role: "UI/UX",
     flirt: `"Are you the UI? Because you just made my heart experience smooth transitions."`,
     img: "/images/about_img/michael.jpeg",
-    link: "https://just-gelo.github.io/Mi-Portfolio/"
+    link: "https://just-gelo.github.io/Mi-Portafolio/"
   },
   {
     name: "John Michael Garcia",
