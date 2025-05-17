@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import FeedPost from './../components/FeedPost.jsx';
-import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx';
-import FeedStateStore from '../utils/feedStateStore.js';
-import './styles/feedpage.css';
+import RecipePost from './../components/RecipePost.jsx'; //individual recipe posts
+import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx'; //use when loading
+import RecipeStateStore from '../utils/recipeStateStore.js'; //stores state using zustand
+import './styles/recipepage.css';
 
-function FeedPage() {
+function RecipePage() {
   const {
     posts,
     page,
@@ -14,7 +14,7 @@ function FeedPage() {
     setHasMore,
     scrollY,
     setScrollY,
-  } = FeedStateStore();
+  } = RecipeStateStore();
 
   const observer = useRef();
   const [loading, setLoading] = React.useState(false);
@@ -39,19 +39,18 @@ function FeedPage() {
     [loading, hasMore, incrementPage]
   );
 
-  // Fetch posts data
+  // Fetch recipe data
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Get the token from localStorage
         const token = localStorage.getItem('token');
 
         // Add Authorization header with the token
-        const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`, {
-          method: 'GET', // assuming it's a GET request
+        const response = await fetch(`https://cookeat.cookeat.space/query/feed/recipes?page=${page}`, {
+          method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json', // Optional if needed
@@ -97,6 +96,7 @@ function FeedPage() {
     };
   }, [scrollY, setScrollY]);
 
+
   // Track scroll position during page scroll
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -105,13 +105,14 @@ function FeedPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [setScrollY]);
 
+  
   return (
-    <div className="feed-page-container">
-      <div className="feed-posts">
+    <div className="recipe-page-container">
+      <div className="recipe-posts">
         {posts.map((post, index) => {
           const isLast = index === posts.length - 1;
           return (
-            <FeedPost
+            <RecipePost
               key={post.public_id}
               public_id={post.public_id}
               title={post.title}
@@ -141,4 +142,5 @@ function FeedPage() {
   );
 }
 
-export default FeedPage;
+
+export default RecipePage;
