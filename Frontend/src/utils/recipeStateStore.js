@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 
 const RecipeStateStore = create((set) => ({
-  posts: [],
+  recipes: [],
   page: 1,
   hasMore: true,
   scrollY: 0,
-  setRecipes: (posts) => set((state) => ({
-    posts: typeof posts === 'function' ? posts(state.posts) : posts,
+  setRecipes: (recipes) => set((state) => ({
+    recipes: typeof recipes === 'function' ? recipes(state.recipes) : recipes,
   })),
   incrementPage: () => set((state) => ({ page: state.page + 1 })),
   setHasMore: (value) => set({ hasMore: value }),
