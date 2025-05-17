@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import RecipePost from './../components/RecipePost.jsx';
+import RecipePost from './../components/RecipePage/RecipePost.jsx';
 import PostSkeleton from '../components/PostSkeleton.jsx';
-import RecipeStateStore from '../utils/recipeStateStore.js';
+import RecipeStateStore from './../utils/recipeStateStore.js';
 import './styles/recipepage.css';
 
 function RecipePage() {

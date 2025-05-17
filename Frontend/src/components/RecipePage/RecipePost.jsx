@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { formatDate } from '../utils/formatDate.js';
+import { formatDate } from './../../utils/formatDate.js';
 import './styles/recipepost.css';
 
 import { Link } from 'react-router-dom';
