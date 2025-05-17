@@ -103,12 +103,10 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
             )
         `;
 
-        console.time('dbQuery');
         const posts = await db.query(query, queryParams);
         const countResult = await db.query(countQuery, countParams);
         const totalPosts = parseInt(countResult.rows[0]?.total || '0');
-        console.timeEnd('dbQuery');
-
+        
         const formattedPosts = posts.rows.map(post => {
             const reactionCounts = post.reactions || {};
             const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
@@ -452,6 +450,19 @@ router.get('/feed/recipes', justifyToken, async (req, res) => {
           ) AS media
         FROM recipemedia rm
         GROUP BY rm.recipe_id
+      ),
+      ingredients_grouped AS (
+        SELECT
+          ri.recipe_id,
+          jsonb_agg(
+            jsonb_build_object(
+              'ingredient_id', ri.ingredient_id,
+              'quantity', ri.quantity,
+              'unit', ri.unit
+            )
+          ) AS ingredients
+        FROM ri_junction ri
+        GROUP BY ri.recipe_id
       )
       SELECT
         r.public_id,
@@ -473,12 +484,14 @@ router.get('/feed/recipes', justifyToken, async (req, res) => {
           'public_id', u.public_id,
           'picture', u.picture
         ) AS author,
-        COALESCE(mg.media, '[]') AS media
+        COALESCE(mg.media, '[]') AS media,
+        COALESCE(ig.ingredients, '[]') AS ingredients
       FROM recipe r
       JOIN user_profile u ON u.id = r.author_id
       LEFT JOIN rating_data rd ON rd.recipe_id = r.id
       LEFT JOIN rating_map rm ON rm.recipe_id = r.id
       LEFT JOIN media_grouped mg ON mg.recipe_id = r.id
+      LEFT JOIN ingredients_grouped ig ON ig.recipe_id = r.id
       LEFT JOIN followers f ON f.following_user_id = r.author_id AND f.follower_user_id = $1
       ORDER BY ${orderClause}
       LIMIT $2 OFFSET $3
@@ -525,7 +538,6 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
       const { public_id } = req.params;
       const sort = req.query.sort || 'created_at';
   
-      // Get internal user ID from public_id
       const userResult = await db.query(
         `SELECT id, username, picture FROM user_profile WHERE public_id = $1`,
         [public_id]
@@ -542,7 +554,7 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
         picture: userResult.rows[0].picture
       };
   
-      const userId = req.user?.id || null; // Current logged-in user ID (for user-specific ratings)
+      const userId = req.user?.id || null;
   
       let orderClause = `r.created_at DESC`;
       if (sort === 'rating') {
@@ -550,8 +562,11 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
       }
   
       const recipesQuery = `
-        WITH rating_avg AS (
-          SELECT recipe_id, AVG(rating) AS avg_rating
+        WITH
+        -- Rating Data
+        rating_data AS (
+          SELECT recipe_id, AVG(rating) AS avg_rating,
+            MAX(CASE WHEN user_id = $1 THEN rating ELSE NULL END) AS user_rating
           FROM recipe_rating
           GROUP BY recipe_id
         ),
@@ -561,23 +576,15 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
           GROUP BY recipe_id, rating
         ),
         rating_map AS (
-          SELECT
-            recipe_id,
+          SELECT recipe_id,
             jsonb_object_agg(rating, count) AS ratings,
             COALESCE(jsonb_build_object('total', SUM(count)), jsonb_build_object('total', 0)) AS total
           FROM rating_counts
           GROUP BY recipe_id
         ),
-        user_rating AS (
-          SELECT
-            recipe_id,
-            MAX(CASE WHEN user_id = $1 THEN rating ELSE NULL END) AS user_rating
-          FROM recipe_rating
-          GROUP BY recipe_id
-        ),
+        -- Media Data
         media_grouped AS (
-          SELECT 
-            recipe_id,
+          SELECT recipe_id,
             jsonb_agg(
               jsonb_build_object(
                 'fname', fname,
@@ -587,6 +594,19 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
             ) AS media
           FROM recipemedia
           GROUP BY recipe_id
+        ),
+        -- Ingredients Data
+        ingredients_grouped AS (
+          SELECT ri.recipe_id,
+            jsonb_agg(
+              jsonb_build_object(
+                'ingredient_id', ri.ingredient_id,
+                'quantity', ri.quantity,
+                'unit', ri.unit
+              )
+            ) AS ingredients
+          FROM ri_junction ri
+          GROUP BY ri.recipe_id
         )
         SELECT
           r.public_id,
@@ -600,21 +620,22 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
           r.servings,
           r.difficulty,
           r.steps,
-          COALESCE(ra.avg_rating, 0) AS avg_rating,
-          ur.user_rating,
+          COALESCE(rd.avg_rating, 0) AS avg_rating,
+          rd.user_rating,
           COALESCE(rm.ratings || rm.total, jsonb_build_object('total', 0)) AS ratings,
           jsonb_build_object(
             'username', u.username,
             'public_id', u.public_id,
             'picture', u.picture
           ) AS author,
-          COALESCE(mg.media, '[]') AS media
+          COALESCE(mg.media, '[]') AS media,
+          COALESCE(ig.ingredients, '[]') AS ingredients
         FROM recipe r
         LEFT JOIN user_profile u ON u.id = r.author_id
-        LEFT JOIN rating_avg ra ON ra.recipe_id = r.id
+        LEFT JOIN rating_data rd ON rd.recipe_id = r.id
         LEFT JOIN rating_map rm ON rm.recipe_id = r.id
-        LEFT JOIN user_rating ur ON ur.recipe_id = r.id
         LEFT JOIN media_grouped mg ON mg.recipe_id = r.id
+        LEFT JOIN ingredients_grouped ig ON ig.recipe_id = r.id
         WHERE r.author_id = $2
         ORDER BY ${orderClause}
         LIMIT $3 OFFSET $4
@@ -652,14 +673,7 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
       res.status(500).json({ error: 'Internal server error' });
     }
   });
-  
 
-
-
-
-
-
-  
 
 
 
