@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import LoginRegister from './components/LoginRegister.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -9,50 +8,44 @@ import NotFound from './pages/NotFound.jsx';
 import Profile from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
 import HelpSupport from './pages/HelpSupport.jsx';
-
-// Import OtherUserProfile
 import OtherUserProfile from './pages/OtherUserProfile.jsx';
 
+import { AuthProvider } from './contexts/AuthProvider.jsx';
+import { UserProfileProvider } from './contexts/UserProfileContext.jsx';
+
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [profile, setProfile] = useState(() => {
-    const stored = localStorage.getItem('profile');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || null);
-
-  useEffect(() => {
-    setToken(localStorage.getItem('token'));
-  }, [token]);
-
   return (
-    <Router>
-      <div>
-        <Header token={token} setToken={setToken} profile={profile} avatar={avatar} />
+    <AuthProvider>
+      <UserProfileProvider>
+        <Router>
+          <div>
+            <Header />
 
-        <main>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<FeedPage />} />
-            <Route path="/feeds" element={<FeedPage />} />
-            <Route path="/login" element={<LoginRegister setToken={setToken} profile={profile} setProfile={setProfile} setAvatar={setAvatar} />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/help" element={<HelpSupport />} />
+            <main>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<FeedPage />} />
+                <Route path="/feeds" element={<FeedPage />} />
+                <Route path="/login" element={<LoginRegister />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/help" element={<HelpSupport />} />
 
-            {/* Other User Profile Route */}
-            <Route path="/user/:public_id" element={<OtherUserProfileWrapper />} />
+                {/* Other User Profile Route */}
+                <Route path="/user/:username" element={<OtherUserProfileWrapper />} />
 
-            {/* Protected Routes (Private) */}
-            <Route path="/recipes" element={<PrivateRoute><NotFound /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile profile={profile} setProfile={setProfile} /></PrivateRoute>} />
-            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                {/* Protected Routes */}
+                <Route path="/recipes" element={<PrivateRoute><NotFound /></PrivateRoute>} />
+                <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
 
-            {/* Catch-all Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+                {/* Catch-all */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </UserProfileProvider>
+    </AuthProvider>
   );
 }
 

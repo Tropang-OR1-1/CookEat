@@ -1,20 +1,25 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
 import CreateRecipe from "./CreateRecipe.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
 import Notification from "./Notification.jsx";
+import { AuthContext } from "./../contexts/AuthProvider.jsx";
+import { UserProfileContext } from "./../contexts/UserProfileContext.jsx";
 import "./styles/header.css";
 
-function Header({ token, setToken, profile }) {
+function Header() {
+  const { token, setToken } = useContext(AuthContext);
+  const { profile, setProfile } = useContext(UserProfileContext);
+
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || 'default-avatar.jpg');
+  const [avatar, setAvatar] = useState("default-avatar.jpg");
 
   const addPostRef = useRef(null);
   const profileDropdownRef = useRef(null);
@@ -22,20 +27,10 @@ function Header({ token, setToken, profile }) {
   const location = useLocation();
 
   useEffect(() => {
-    if (profile && profile.avatar) {
+    if (profile?.avatar) {
       setAvatar(profile.avatar);
     }
   }, [profile]);
-
-  useEffect(() => {
-    const storedProfile = localStorage.getItem("profile");
-    if (storedProfile) {
-      const parsedProfile = JSON.parse(storedProfile);
-      if (parsedProfile.avatar) {
-        setAvatar(parsedProfile.avatar);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -63,23 +58,37 @@ function Header({ token, setToken, profile }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("profile");
-    setToken(null);
 
-    window.location.href = "/feeds"; // ✅ Full reload
+    setToken(null);
+    setProfile(null);
+    setAvatar("default-avatar.jpg");
+
+    navigate("/feeds");
   };
 
   useEffect(() => {
-    // Disable body scroll when dropdown or modal is open
-    if (isPostModalOpen || isRecipeModalOpen || isLoginModalOpen || isNotificationModalOpen || isProfileDropdownOpen) {
+    if (
+      isPostModalOpen ||
+      isRecipeModalOpen ||
+      isLoginModalOpen ||
+      isNotificationModalOpen ||
+      isProfileDropdownOpen
+    ) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = "auto"; // Re-enable scroll on cleanup
+      document.body.style.overflow = "auto";
     };
-  }, [isPostModalOpen, isRecipeModalOpen, isLoginModalOpen, isNotificationModalOpen, isProfileDropdownOpen]);
+  }, [
+    isPostModalOpen,
+    isRecipeModalOpen,
+    isLoginModalOpen,
+    isNotificationModalOpen,
+    isProfileDropdownOpen
+  ]);
 
   return (
     <header className="header-navbar header">
@@ -87,7 +96,7 @@ function Header({ token, setToken, profile }) {
         <Link to="/">
           <img
             src="./images/CookEat_Logo.png"
-            alt="Cook It Logo"
+            alt="CookEat Logo"
             className="header-logo"
           />
         </Link>
@@ -106,7 +115,7 @@ function Header({ token, setToken, profile }) {
           <div className="header-tooltip-wrapper">
             <Link
               to="/feeds"
-              className={`header-button ${location.pathname === "/" ? "active" : ""}`}
+              className={`header-button ${location.pathname === "/feeds" ? "active" : ""}`}
             >
               <i className="bx bx-news"></i>
               <span className="header-tooltip">Feeds</span>
@@ -128,20 +137,16 @@ function Header({ token, setToken, profile }) {
 
               {isAddPostOpen && (
                 <div className="header-add-post-menu">
-                  <button
-                    onClick={() => {
-                      setIsPostModalOpen(true);
-                      setIsAddPostOpen(false);
-                    }}
-                  >
+                  <button onClick={() => {
+                    setIsPostModalOpen(true);
+                    setIsAddPostOpen(false);
+                  }}>
                     Create Post
                   </button>
-                  <button
-                    onClick={() => {
-                      setIsRecipeModalOpen(true);
-                      setIsAddPostOpen(false);
-                    }}
-                  >
+                  <button onClick={() => {
+                    setIsRecipeModalOpen(true);
+                    setIsAddPostOpen(false);
+                  }}>
                     Create Recipe
                   </button>
                 </div>
@@ -160,28 +165,26 @@ function Header({ token, setToken, profile }) {
           </div>
 
           {!token && (
-            <div className="header-tooltip-wrapper">
-              <Link
-                to="/about"
-                className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
-              >
-                <i className="bx bxl-dev-to"></i>
-                <span className="header-tooltip">About Us</span>
-              </Link>
-            </div>
-          )}
-
-          {/* Show Help and Support only when not logged in */}
-          {!token && (
-            <div className="header-tooltip-wrapper">
-              <Link
-                to="/help"
-                className={`header-button ${location.pathname === "/help" ? "active" : ""}`}
-              >
-                <i className="bx bx-help-circle"></i>
-                <span className="header-tooltip">Help and Support</span>
-              </Link>
-            </div>
+            <>
+              <div className="header-tooltip-wrapper">
+                <Link
+                  to="/about"
+                  className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
+                >
+                  <i className="bx bxl-dev-to"></i>
+                  <span className="header-tooltip">About Us</span>
+                </Link>
+              </div>
+              <div className="header-tooltip-wrapper">
+                <Link
+                  to="/help"
+                  className={`header-button ${location.pathname === "/help" ? "active" : ""}`}
+                >
+                  <i className="bx bx-help-circle"></i>
+                  <span className="header-tooltip">Help and Support</span>
+                </Link>
+              </div>
+            </>
           )}
         </div>
 
@@ -202,15 +205,8 @@ function Header({ token, setToken, profile }) {
       <LoginRegister
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        setToken={(token) => {
-          setToken(token);
-          const stored = localStorage.getItem("profile");
-          if (stored) {
-            const profile = JSON.parse(stored);
-            setAvatar(profile.avatar);  // Set the avatar based on profile in localStorage
-          }
-        }}
-        setAvatar={setAvatar} // Ensure avatar is passed down
+        setToken={setToken}
+        setProfile={setProfile}
       />
 
       {token && (
@@ -237,7 +233,7 @@ function Header({ token, setToken, profile }) {
             />
             <div className={`header-dropdown-content ${isProfileDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
-              <Link to="/help">Help and Support</Link> {/* Moved Help to dropdown */}
+              <Link to="/help">Help and Support</Link>
               <Link to="/incentives">Incentives</Link>
               <Link to="/settings">Settings</Link>
               <Link to="/about">About Us</Link>

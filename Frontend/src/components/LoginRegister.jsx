@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUserProfileContext } from '../contexts/userProfileContext';
 import './styles/loginregister.css';
 
-function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
+function LoginRegister({ isOpen, onClose, setToken }) {
   const navigate = useNavigate();
+  const { refreshProfile } = useUserProfileContext();
 
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -20,23 +22,6 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
     setRegisterData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const fetchAndStoreProfile = async (token) => {
-    try {
-      const res = await axios.get('https://cookeat.cookeat.space/user/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      // Store profile and avatar in localStorage
-      localStorage.setItem('profile', JSON.stringify(res.data));
-      localStorage.setItem('avatar', res.data.avatarUrl); // Assuming avatarUrl is the field that contains the image URL
-
-      // Set profile and avatar in the parent state
-      if (setProfile) setProfile(res.data);
-      if (setAvatar) setAvatar(res.data.avatarUrl); // Update avatar state immediately
-    } catch (err) {
-      console.error("Failed to fetch profile:", err);
-    }
-  };
-
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -48,7 +33,10 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       const token = res.data.token;
       localStorage.setItem('token', token);
       setToken(token);
-      await fetchAndStoreProfile(token);
+
+      // Refresh profile globally via context
+      await refreshProfile(true);
+
       onClose();
       navigate('/profile');
     } catch (err) {
@@ -68,7 +56,10 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       const token = res.data.token;
       localStorage.setItem('token', token);
       setToken(token);
-      await fetchAndStoreProfile(token);
+
+      // Refresh profile globally via context
+      await refreshProfile(true);
+
       onClose();
       navigate('/profile');
     } catch (err) {
