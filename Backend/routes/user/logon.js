@@ -30,7 +30,7 @@ async function validatePassword(email, password, hashedPassword){
 
 async function checkCredentials(email, password){
     const query = `
-        SELECT user_profile.token_id, userdata.password_hashed
+        SELECT user_profile.token_id, userdata.password_hashed, user_profile.public_id
         FROM userdata
         JOIN user_profile ON user_profile.id = userdata.user_id
         WHERE userdata.email = $1 AND userdata.deleted_at IS NULL
@@ -38,11 +38,11 @@ async function checkCredentials(email, password){
     try {
         const result = await db.query(query, [email]);
         if (!result.rows.length) return {success: false, err: "User not found."}; // User not found or deleted
+        const { token_id, public_id, password_hashed } = result.rows[0];
 
-        const isMatch = await validatePassword(email, password, result.rows[0].password_hashed);
+        const isMatch = await validatePassword(email, password, password_hashed);
         if (!isMatch) return {success: false, err: "Password incorrect."}; // Passwords do not match
-
-        return {success: true, token_id: result.rows[0].token_id}; // Returns the id if credentials are valid        
+        return {success: true, token_id, public_id }; // Returns the id if credentials are valid        
         }
     catch (error) {
         console.error("Error executing query:", error.message);
@@ -69,11 +69,11 @@ router.post("/login", upload.none(), async (req, res) => {
     if (!uid.success) {
         return res.status(401).json({ error: "user might not exist or wrong password or got deleted." });
         } // Check if credentials are valid
-
-    const token = generateJWT(uid.token_id, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
+    const { token_id, public_id } = uid;
+    const token = generateJWT(token_id, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
     logger.info(`user: ${email} logged in.`); //logged login
 
-    return res.status(200).json({ message: "Login successful", token }); // Send the token back to the client
+    return res.status(200).json({ message: "Login successful", token, public_id }); // Send the token back to the client
     });
 
 router.post("/register", upload.none(), async (req, res) => {
@@ -114,7 +114,6 @@ router.post("/register", upload.none(), async (req, res) => {
     
     const hashedPassword = await hashPassword(email, password); // Hash the password
 
-    let profileId;
     try {
         const insertData = 'INSERT INTO "userdata" (password_hashed, email) VALUES ($1, $2) RETURNING user_id';
         const result1 = await db.query(insertData, [hashedPassword, email]);
@@ -122,22 +121,24 @@ router.post("/register", upload.none(), async (req, res) => {
         const userId = result1.rows[0].user_id;
         
         const picture = await copyDefaultPfpToProfileDir(); 
-        const insertProf = 'INSERT INTO "user_profile" (id, username, picture) VALUES ($1, $2, $3) RETURNING token_id';
+        const insertProf = 
+            `INSERT INTO "user_profile" (id, username, picture) VALUES ($1, $2, $3)
+             RETURNING token_id, public_id`;
         const result2 = await db.query(insertProf, [userId, username, picture]);
         
-        profileId = result2.rows[0].token_id;
+        //profileId = result2.rows[0].token_id;
+        ({ token_id: profileId, public_id } = result2.rows[0]);
 
+        
+        const token = generateJWT(profileId, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: profileId }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
+        logger.info(`user: ${email} registered.`); // Print the username to the console
+
+        return res.status(200).json({ message: "Registered successful", token, public_id }); // Send the token back to the client    
     } catch (error) {
         logger.error(`Error executing query: ${error.message}`, { stack: error.stack });
         return res.status(500).json({ error: "Database query failed" });  // Send response to client
         }
-    //console.log(profileId);
-
-    const token = generateJWT(profileId, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: profileId }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
-    logger.info(`user: ${email} registered.`); // Print the username to the console
-
-    return res.status(200).json({ message: "Registered successful", token }); // Send the token back to the client    
-    }); // make sure username and password are provided
+}); // make sure username and password are provided
     
 router.delete("/delete", verifyToken, upload.none(), async (req, res) => {
     const { password } = req.body ?? {};
