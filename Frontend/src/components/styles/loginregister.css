@@ -45,12 +45,9 @@ body {
     right: 50%;
 }
 
-.form-box.register {
-    visibility:  hidden;
-}
-
-.container.active .form-box.register {
-    visibility: visible;
+.form-box.register,
+.form-box.login {
+    transition: 0.6s ease-in-out;
 }
 
 form {
