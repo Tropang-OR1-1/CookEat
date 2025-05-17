@@ -5,7 +5,7 @@ const RecipeStateStore = create((set) => ({
   page: 1,
   hasMore: true,
   scrollY: 0,
-  setPosts: (posts) => set((state) => ({
+  setRecipes: (posts) => set((state) => ({
     posts: typeof posts === 'function' ? posts(state.posts) : posts,
   })),
   incrementPage: () => set((state) => ({ page: state.page + 1 })),

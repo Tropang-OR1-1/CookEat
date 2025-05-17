@@ -1,7 +1,7 @@
 import React from 'react';
-import './styles/feedpostskeleton.css';
+import './styles/postskeleton.css';
 
-const FeedPostSkeleton = () => {
+const PostSkeleton = () => {
   return (
     <div className="feed-post-skeleton">
       <div className="profile-section">
@@ -36,4 +36,4 @@ const FeedPostSkeleton = () => {
   );
 };
 
-export default FeedPostSkeleton;
+export default PostSkeleton;
