@@ -1,0 +1,122 @@
+.recipe-post {
+  width: 800px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 2.5px solid #FF8700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 0 auto 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.recipe-post > h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  color: #FF8700;
+}
+
+.recipe-post > p {
+  font-size: 1.1rem;
+  margin: 0;
+  color: #555;
+}
+
+.recipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #8a96a3;
+}
+
+.recipe-meta > span {
+  background-color: #fff7e6;
+  border-radius: 5px;
+  padding: 4px 8px;
+  border: 1.5px solid #FF8700;
+  font-weight: 600;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.author-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FF8700;
+}
+
+.author-username {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #FF8700;
+  text-decoration: none;
+}
+
+.author-username:hover {
+  text-decoration: underline;
+}
+
+.media-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.recipe-media {
+  max-width: 600px;
+  width: 100%;
+  border-radius: 10px;
+  outline: 2px solid #FF8700;
+  object-fit: cover;
+  aspect-ratio: 3 / 2;
+}
+
+.ingredients-section,
+.steps-section,
+.ratings-section {
+  background-color: #fff7e6;
+  border: 2px solid #FF8700;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.ingredients-section > h3,
+.steps-section > h3 {
+  margin-top: 0;
+  font-weight: 700;
+  color: #FF8700;
+}
+
+.ingredients-section ul,
+.steps-section ol {
+  margin: 0.5rem 0 0 1rem;
+  padding-left: 1rem;
+  color: #444;
+}
+
+.ingredients-section p,
+.steps-section p,
+.ratings-section p {
+  margin: 0.5rem 0 0 0;
+  font-style: italic;
+  color: #666;
+}
+
+.ratings-section p {
+  font-weight: 600;
+  color: #333;
+}

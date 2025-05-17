@@ -5,6 +5,7 @@ import LoginRegister from './components/LoginRegister.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import About from './pages/About.jsx';
 import FeedPage from './pages/FeedPage.jsx';
+import RecipePage from './pages/RecipePage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Profile from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
@@ -35,6 +36,7 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<FeedPage />} />
             <Route path="/feeds" element={<FeedPage />} />
+            <Route path="/recipes" element={<RecipePage />} />
             <Route path="/login" element={<LoginRegister setToken={setToken} profile={profile} setProfile={setProfile} setAvatar={setAvatar} />} />
             <Route path="/about" element={<About />} />
             <Route path="/help" element={<HelpSupport />} />

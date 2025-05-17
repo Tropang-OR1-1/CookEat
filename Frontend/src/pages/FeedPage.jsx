@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
-import FeedPostSkeleton from './../components/FeedPostSkeleton.jsx';
+import PostSkeleton from '../components/PostSkeleton.jsx';
 import FeedStateStore from '../utils/feedStateStore.js';
 import './styles/feedpage.css';
 
@@ -48,10 +48,6 @@ function FeedPage() {
       try {
         // Get the token from localStorage
         const token = localStorage.getItem('token');
-
-        if (!token) {
-          throw new Error('Please Login');
-        }
 
         // Add Authorization header with the token
         const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`, {
@@ -137,7 +133,7 @@ function FeedPage() {
             />
           );
         })}
-        {loading && [...Array(3)].map((_, i) => <FeedPostSkeleton key={`skeleton-${i}`} />)}
+        {loading && [...Array(3)].map((_, i) => <PostSkeleton key={`skeleton-${i}`} />)}
         {error && <p className="feed-status-message">Error: {error}</p>}
         {!hasMore && <p className="feed-status-message">No more posts to show.</p>}
       </div>
