@@ -83,7 +83,9 @@ function Header({ token, setToken, profile }) {
           type="text"
           placeholder="Search in CookEat"
           className="header-search-bar"
+          
         />
+        <span className="search-icon">🔍</span>
       </div>
 
       <nav className="header-nav-links">

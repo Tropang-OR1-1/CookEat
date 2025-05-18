@@ -54,7 +54,7 @@
 
 .form button[type="button"] {
   background-color: #ffffff;
-  border: solid 1px #ccc;
+  border: solid 1px #000000;
   padding: 8px;
   cursor: pointer;
 }
@@ -102,6 +102,7 @@ button:active {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 10px;
+  border: 1px solid #000000;
 }
 
 .add-ingredient-btn,
@@ -118,7 +119,7 @@ button:active {
 .add-ingredient-btn:hover,
 .add-step-btn:hover,
 .toggle-optional-btn:hover {
-  background-color: #e4e6eb;
+  background-color: #0048ff;
 }
 
 /* Optional Fields */
