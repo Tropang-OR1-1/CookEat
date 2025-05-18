@@ -81,14 +81,71 @@ button:active {
   border-color: #ccc;
 }
 
+.input-field {
+  color: gray; /* Sets the text color to gray */
+}
+
+.input-field::placeholder {
+  color: #aaa; /* Light gray placeholder */
+}
+
+.modal-title,
+.modal-description {
+  color: gray;
+}
+
+
+/* Ingredient & Step Lists */
+.ingredients-list,
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.add-ingredient-btn,
+.add-step-btn,
+.toggle-optional-btn {
+  background-color: #f0f2f5;
+  border: 1px solid #000000;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-ingredient-btn:hover,
+.add-step-btn:hover,
+.toggle-optional-btn:hover {
+  background-color: #e4e6eb;
+}
+
+/* Optional Fields */
+.optional-fields {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
 .publish-btn {
-  padding: 10px;
-  background-color: #4285f4;
+  padding: 12px;
+  background-color: #0008ff;
   color: white;
   border: none;
   cursor: pointer;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .publish-btn:hover {
-  background-color: #357ae8;
+  background-color: #e68900;
+  transform: scale(1.05);
+}
+
+.publish-btn:disabled {
+  background-color: #f1a500;
+  cursor: not-allowed;
 }

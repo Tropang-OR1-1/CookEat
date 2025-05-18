@@ -16,6 +16,8 @@ function CreateRecipe({ isOpen, onClose }) {
     difficulty: '',
     thumbnail: null,
     media: null
+
+    
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +34,18 @@ function CreateRecipe({ isOpen, onClose }) {
       ...prev,
       [name]: files?.[0] ?? value,
     }));
+  };
+
+  const handleFocus = (e) => {
+    if (e.target.value === e.target.defaultValue) {
+      e.target.value = '';
+    }
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value === '') {
+      e.target.value = e.target.defaultValue;
+    }
   };
 
   const handleArrayChange = (index, name, field, value) => {
@@ -211,11 +225,30 @@ function CreateRecipe({ isOpen, onClose }) {
         <button className="close-btn" onClick={onClose}>&times;</button>
         <h2>Create New Recipe</h2>
         <form onSubmit={handleSubmit} className="form">
-          <label>Title:</label>
-          <input type="text" name="title" value={formData.title} onChange={handleChange} maxLength="20" required />
+
+
+          <label htmlFor="title">Title:</label>
+          <input 
+            type="Title:"
+            name="Title:"
+            value={formData.content || "Let 'Em Cook"}
+            onChange= {handleChange}
+            onFocus= {handleFocus}
+            onBlur= {handleBlur}
+            required
+            className="input-field"
+          />
 
           <label>Description:</label>
-          <textarea name="description" value={formData.description} onChange={handleChange} required />
+          <textarea 
+            id="Description:"
+            name="Description:"
+            value={formData.content || "Got a dish idea brewing? Let's bring it to life!"}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            className="input-field"
+          />
 
           {formData.ingredients.map((item, i) => (
             <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '5px' }}>
