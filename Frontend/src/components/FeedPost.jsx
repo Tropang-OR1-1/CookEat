@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { formatDate } from '../utils/formatDate.js';
 import './styles/feedpost.css';
+import FeedPostDropdown from './subcomponents/FeedPostDropdown.jsx';
 
 const REACTIONS = {
   LIKE: 'UP',
@@ -13,104 +14,94 @@ const FeedPost = forwardRef(({
   public_id,
   title,
   content,
-  view_count, // maybe will not use
   created_at,
-  updated_at, // for auditing, maybe will not use
+  updated_at,
   media_filename,
   media_type,
-  reactions_count,
-  ref_public_id, // pub id if shared
-  author_public_id, // pub id used to view user profile
+  reactions_total,
+  user_reacted,
+  comment_count: initialCommentCount,
+  ref_public_id,
+  author_public_id,
   author_username,
   author_picture,
+  view_count,
+
 }, ref) => {
-  const [likes, setLikes] = useState(reactions_count); // Set initial likes to reactions_count
-  const [comments, setComments] = useState(0);
-  const [reaction, setReaction] = useState(null);
+  const [likes, setLikes] = useState(reactions_total || 0);
+  const [comments, setComments] = useState(initialCommentCount || 0);
+  const [reaction, setReaction] = useState(user_reacted ? 'like' : null);
+  const [isReacting, setIsReacting] = useState(false);
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
-  const [isReacting, setIsReacting] = useState(false); // Prevent spamming reactions
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // New state to manage dropdown visibility
-  const loggedInUsername = localStorage.getItem('username');
+  const isLoggedIn = !!localStorage.getItem('token');
+  const myPublicId = (localStorage.getItem('public_id') || '').trim();
+  const [views, setViews] = useState(view_count || 0);
+
+
+  const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
+  const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
+  const profileLink = (author_public_id === myPublicId) ? '/profile' : `/user/${author_public_id}`;
 
   useEffect(() => {
+  // Optionally simulate increasing view count
+  setViews((prev) => prev + 1);
+}, []);
 
-    const fetchCommentCount = async () => {
-      try {
-        const token = localStorage.getItem('token'); // Get token from localStorage
-        const response = await axios.get(`https://cookeat.cookeat.space/comments/${public_id}`, {
-          params: { post_id: public_id },
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.status === 200) {
-          setComments(response.data.comment_count); // Assuming response contains comment_count
-        }
-      } catch (error) {
-        console.error('Error fetching comment count:', error);
-      }
-    };
 
-    fetchCommentCount();
-  }, [public_id]);
+  useEffect(() => {
+  console.log(`FeedPost mounted: ${public_id}`);
+
+  // Optional: cleanup logic
+  return () => {
+    console.log(`FeedPost unmounted: ${public_id}`);
+  };
+}, [public_id]);
+
 
   const handleReaction = async () => {
-    if (!isLoggedIn) {
-      alert('Please log in to react to this post!');
-      return;
-    }
-
-    if (isReacting) return; // Prevent multiple reactions at once
-    setIsReacting(true); // Set the reaction to loading state
+    if (!isLoggedIn) return alert('Please log in to react to this post!');
+    if (isReacting) return;
 
     const token = localStorage.getItem('token');
-    const newReaction = reaction === REACTIONS.LIKE ? REACTIONS.UNLIKE : REACTIONS.LIKE;
+    const newReaction = reaction === 'like' ? REACTIONS.UNLIKE : REACTIONS.LIKE;
+    setIsReacting(true);
 
     try {
-      const response = await axios.post(
-        `https://cookeat.cookeat.space/react/post`,
-        [newReaction],
-        {
-          params: { post_id: public_id },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await axios.post(`https://cookeat.cookeat.space/react/post`, [newReaction], {
+        params: { post_id: public_id },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (response.status === 200) {
         if (newReaction === REACTIONS.LIKE) {
           setReaction('like');
-          setLikes((prevLikes) => prevLikes + 1);
+          setLikes((prev) => prev + 1);
         } else {
           setReaction(null);
-          setLikes((prevLikes) => Math.max(0, prevLikes - 1));
+          setLikes((prev) => Math.max(0, prev - 1));
         }
       }
-    } catch (error) {
-      console.error('Error reacting to the post:', error);
+    } catch (err) {
+      console.error('Reaction error:', err);
     } finally {
-      setIsReacting(false); // Reset the loading state after reaction
+      setIsReacting(false);
     }
   };
 
   const handleCommentClick = () => {
-    if (!isLoggedIn) {
-      alert('Please log in to comment on this post!');
-      return;
-    }
+    if (!isLoggedIn) return alert('Please log in to comment!');
     setCommentModalOpen(true);
   };
 
   const handleCommentSubmit = async () => {
-    if (!newComment.trim()) {
-      alert('Please enter a comment!');
-      return;
-    }
+    if (!newComment.trim()) return alert('Enter a comment!');
+    const token = localStorage.getItem('token');
 
     try {
-      const token = localStorage.getItem('token');
       const response = await axios.post('https://cookeat.cookeat.space/feed/comments', {
         post_id: public_id,
         comment: newComment,
@@ -119,64 +110,45 @@ const FeedPost = forwardRef(({
       });
 
       if (response.status === 200) {
-        setComments((prevComments) => prevComments + 1);
+        setComments((prev) => prev + 1);
         setNewComment('');
         setCommentModalOpen(false);
       }
-    } catch (error) {
-      console.error('Error submitting comment:', error);
+    } catch (err) {
+      console.error('Error commenting:', err);
     }
   };
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev); // Toggle the dropdown visibility
-  };
-
-  const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
-  const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
-
   return (
     <div className="feed-post" ref={ref}>
-      {/* Profile Section */}
-      <div className="profile-section">
-        <div className="profile-left">
-          <img src={profileImageUrl} alt="Profile" className="profile-img" />
-          <div className="profile-info">
-            <p className="author_username">{author_username}</p>
-            <p className="time">{formatDate(created_at)}</p>
+      {/* Profile */}
+      <div className="feed-post__profile-section">
+        <Link to={profileLink} className="feed-post__profile-left">
+          <img src={profileImageUrl} alt="Profile" className="feed-post__profile-img" />
+          <div className="feed-post__profile-info">
+            <p className="feed-post__author-username">{author_username}</p>
+            <p className="feed-post__time">{formatDate(created_at)}</p>
           </div>
-        </div>
-
-        <div className="options">
-          <button className="dropdown-btn" onClick={toggleDropdown}>
-            ...
-          </button>
-          {isDropdownOpen && (
-            <div className="dropdown-content">
-              <Link to={`/edit/${public_id}`}>Edit</Link>
-              <Link to={`/delete/${public_id}`}>Delete</Link>
-              <Link to={`/report/${public_id}`}>Report</Link> {/* New option */}
-            </div>
-          )}
-        </div>
+        </Link>
+        <FeedPostDropdown postId={public_id} />
       </div>
 
       {/* Title */}
       {title && (
-        <div className="post-title">
+        <div className="feed-post__title">
           <h3>{title}</h3>
         </div>
       )}
 
-      {/* Caption / Content */}
+      {/* Content */}
       {content && (
-        <div className="post-caption">
-          <p className="caption">{content}</p>
+        <div className="feed-post__caption-wrapper">
+          <p className="feed-post__caption">{content}</p>
         </div>
       )}
 
       {/* Media */}
-      <div className="media-container">
+      <div className="feed-post__media-container">
         {media_type === 'image' && mediaUrl && <img src={mediaUrl} alt="Post Media" />}
         {media_type === 'video' && mediaUrl && (
           <video controls>
@@ -187,35 +159,33 @@ const FeedPost = forwardRef(({
       </div>
 
       {/* Engagement Section */}
-      <div className="engagement-buttons">
-        <div className="engagement-button-group">
-          <span className="count">{likes}</span>
-          <button
-            className={`like-btn ${reaction === 'like' ? 'reacted' : ''}`}
-            onClick={handleReaction}
-            disabled={!isLoggedIn || isReacting}
-          >
-            Like
-          </button>
-        </div>
+<div className="feed-post__engagement-section">
+  <div className="engagement-button-group">
+    <button
+      className={`engagement-btn like ${reaction === 'like' ? 'reacted' : ''}`}
+      onClick={handleReaction}
+      disabled={!isLoggedIn || isReacting}
+    >
+      👍 {likes}
+    </button>
+    <button
+      className="engagement-btn comment"
+      onClick={handleCommentClick}
+      disabled={!isLoggedIn}
+    >
+      💬 {comments}
+    </button>
+    <button className="engagement-btn share">
+      🔗 Share
+    </button>
+  </div>
 
-        <div className="engagement-button-group">
-          <span className="count">{comments}</span>
-          <button
-            className="comment-btn"
-            onClick={handleCommentClick}
-            disabled={!isLoggedIn}
-          >
-            Comment
-          </button>
-        </div>
+  {/* 👁️ View Count */}
+  <div className="engagement-metrics mt-1 text-sm text-gray-500">
+    👁️ {view_count} views
+  </div>
+</div>
 
-        <div className="engagement-separator"></div>
-
-        <div className="engagement-button-group">
-          <button className="share-btn">Share</button>
-        </div>
-      </div>
 
       {/* Comment Modal */}
       {commentModalOpen && (

@@ -45,7 +45,8 @@
 }
 
 /*================== Headings ==================*/
-h2 {
+.create-post-modal h2,
+.comment-modal h2 {
   margin: 0 0 20px 0;
   color: #ff8700;
 }
@@ -73,6 +74,7 @@ textarea {
   font-family: inherit;
   width: 100%;
   box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 textarea {
   min-height: 100px;
@@ -83,22 +85,29 @@ textarea {
 }
 
 /* Hover & Active states for inputs */
+.create-post-modal input,
+.comment-modal input,
+.create-post-modal textarea,
+.comment-modal textarea,
+.create-post-modal input[type="file"],
+.comment-modal input[type="file"] {
+  transition: all 0.2s ease;
+}
 .create-post-modal input:hover,
-.create-post-modal textarea:hover,
-.create-post-modal input[type="file"]:hover,
 .comment-modal input:hover,
+.create-post-modal textarea:hover,
 .comment-modal textarea:hover,
+.create-post-modal input[type="file"]:hover,
 .comment-modal input[type="file"]:hover {
   border-color: #000;
   box-shadow: inset 0 2px 4px rgba(147, 147, 147, 0.1);
   transform: translateY(2px);
-  transition: all 0.2s ease;
 }
 .create-post-modal input:active,
-.create-post-modal textarea:active,
-.create-post-modal input[type="file"]:active,
 .comment-modal input:active,
+.create-post-modal textarea:active,
 .comment-modal textarea:active,
+.create-post-modal input[type="file"]:active,
 .comment-modal input[type="file"]:active {
   border-color: #5a1bbd;
   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -123,10 +132,35 @@ textarea {
 .submit-btn:hover {
   background-color: #165eab;
 }
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+button:hover {
+  opacity: 0.8;
+}
+button:focus {
+  outline: 2px solid #1877f2;
+  outline-offset: 2px;
+}
+button.cancel {
+  background-color: #ccc;
+}
+button.submit {
+  background-color: #1877f2;
+  color: white;
+}
+button.submit:hover {
+  background-color: #165eab;
+}
 
 /*================== Feed Post Styles ==================*/
 .feed-post {
-  width: 800px;
+  width: 100%;
+  max-width: 800px;
   background-color: #fff;
   border-radius: 8px;
   border: 2px solid #ff8700;
@@ -276,28 +310,6 @@ textarea {
   display: flex;
   justify-content: space-between;
 }
-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-button:hover {
-  opacity: 0.8;
-}
-button:focus {
-  outline: none;
-}
-button.cancel {
-  background-color: #ccc;
-}
-button.submit {
-  background-color: #1877f2;
-  color: white;
-}
-button.submit:hover {
-  background-color: #165eab;
-}
 
 /*================== Dropdown ==================*/
 .options {
@@ -402,5 +414,19 @@ button.submit:hover {
   }
   100% {
     transform: scale(1.2);
+  }
+}
+
+/*================== Responsive Enhancements ==================*/
+@media (max-width: 500px) {
+  .modal-content,
+  .comment-modal .modal-content {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .engagement-button-group button {
+    max-width: 100%;
+    font-size: 0.8rem;
   }
 }
