@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
 import { formatDate } from '../utils/formatDate.js';
 import './styles/feedpost.css';
-import FeedPostDropdown from './subcomponents/FeedPostDropdown.jsx';
-import EngagementControls from './subcomponents/EngagementControls.jsx';
+import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx';
+import EngagementControls from './FeedPost/EngagementControls.jsx';
 import { Link } from 'react-router-dom';
 
 const FeedPost = forwardRef(({
@@ -45,7 +45,22 @@ const FeedPost = forwardRef(({
         </Link>
 
         {/* Dropdown Component */}
-        <FeedPostDropdown postId={public_id} />
+        <FeedPostDropdown
+          public_id={public_id}
+          title={title}
+          content={content}
+          created_at={created_at}
+          updated_at={updated_at}
+          view_count={view_count}
+          media_filename={media_filename}
+          media_type={media_type}
+          reactions_total={reactions_total}
+          user_reacted={user_reacted}
+          comment_count={comment_count}
+          ref_public_id={ref_public_id}
+          author_public_id={author_public_id}
+          author_username={author_username}
+          author_picture={author_picture} />
       </div>
 
       {/* Title */}
