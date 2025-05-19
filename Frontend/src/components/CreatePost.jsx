@@ -1,14 +1,29 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './styles/createpost.css';
 
 function CreatePost({ isOpen, onClose }) {
+  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
+  const [username, setUsername] = useState('');
   const [formData, setFormData] = useState({
     postTitle: '',
     content: '',
     media: null
   });
+
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("profile");
+    if (storedProfile) {
+      const parsed = JSON.parse(storedProfile);
+      if (parsed.avatar) {
+        setAvatar(parsed.avatar);
+      }
+      if (parsed.username) {
+        setUsername(parsed.username);
+      }
+    }
+  }, []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
@@ -67,8 +82,8 @@ function CreatePost({ isOpen, onClose }) {
       return;
     }
 
-    if (formData.media.size > 5 * 1024 * 1024) {
-      alert("Media file too large. Max size is 5MB.");
+    if (formData.media.size > 50 * 1024 * 1024) {
+      alert("Media file too large. Max size is 50MB.");
       return;
     }
 
@@ -129,8 +144,8 @@ function CreatePost({ isOpen, onClose }) {
         <h2>Create New Post</h2>
         <form onSubmit={handleSubmit} className="form">
           <div className="user-info">
-            <img src="user-icon.jpg" alt="User Icon" className="user-icon" />
-            <span className="user-name">User Name</span>
+            <img src={avatar} alt="User Icon" className="user-icon" />
+            <span className="user-name">{username}</span>
           </div>
           <label htmlFor="postTitle">Post Title:</label>
           <input

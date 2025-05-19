@@ -1,10 +1,11 @@
 import { jwtDecode } from 'jwt-decode';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import FeedPost from './../components/FeedPost.jsx';
+import MyFeedPage from './../pages/MyFeedPage.jsx';
 import './styles/profile.css';
 
 function Profile({ profile, setProfile }) {
+  // ... your existing state declarations
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,6 +14,9 @@ function Profile({ profile, setProfile }) {
   const [newUsername, setNewUsername] = useState('');
   const [newAvatar, setNewAvatar] = useState(null);
   const [newBio, setNewBio] = useState('');
+
+  // 👇 Added activeTab state at the top inside the component (as requested)
+  const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -49,7 +53,7 @@ function Profile({ profile, setProfile }) {
 
         setProfile(fetchedProfile);
         localStorage.setItem('profile', JSON.stringify(fetchedProfile));
-        setPosts([]); // You can replace with actual post fetching
+        localStorage.setItem('public_id', response.data.Profile.public_id);
         setLoading(false);
       } catch (err) {
         console.warn('Could not fetch profile from backend, trying token instead.');
@@ -58,6 +62,7 @@ function Profile({ profile, setProfile }) {
           try {
             const decoded = jwtDecode(token);
             username = decoded.username || username;
+            localStorage.setItem('public_id', decoded.public_id);
           } catch (decodeErr) {
             console.warn('Token decode failed:', decodeErr);
           }
@@ -74,13 +79,40 @@ function Profile({ profile, setProfile }) {
 
         setProfile(fallbackProfile);
         localStorage.setItem('profile', JSON.stringify(fallbackProfile));
-        setPosts([]);
         setLoading(false);
       }
     };
 
     fetchProfile();
   }, [profile, setProfile]);
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await axios.get('https://cookeat.cookeat.space/query/feed/posts', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const allPosts = response.data.posts;
+        const myPublicId = localStorage.getItem('public_id');
+        const userPosts = allPosts.filter(post => post.author?.public_id === myPublicId);
+
+        setPosts(userPosts);
+      } catch (err) {
+        console.error('Failed to fetch user posts:', err);
+        setError('Failed to fetch user posts');
+      }
+    };
+
+    if (profile) {
+      fetchUserPosts();
+    }
+  }, [profile]);
 
   const handleSaveProfile = async () => {
     const token = localStorage.getItem('token');
@@ -89,7 +121,6 @@ function Profile({ profile, setProfile }) {
     const formData = new FormData();
     formData.append('username', newUsername);
     formData.append('biography', newBio);
-
     if (newAvatar) {
       formData.append('profile', newAvatar);
     }
@@ -137,9 +168,12 @@ function Profile({ profile, setProfile }) {
   if (loading || !profile) return <div>Loading...</div>;
 
   return (
-    <div className="profile-page-container">
+    <div className={`profile-page-container with-cover`}>
+      <div className="profile-cover-photo"/>
+
       <main className="profile-content">
-        <header className="profile-header">
+        <div class="profile-body">
+          <header className="profile-header with-cover">
           <div className="profile-image">
             <img
               src={newAvatar ? URL.createObjectURL(newAvatar) : profile.avatar}
@@ -180,7 +214,8 @@ function Profile({ profile, setProfile }) {
               <span><strong>{profile.followingCount}</strong> Following</span>
             </div>
 
-            <button
+            <button 
+              className='edit-profile-btn'
               onClick={() => {
                 if (isEditing) {
                   handleSaveProfile();
@@ -196,32 +231,44 @@ function Profile({ profile, setProfile }) {
           </div>
         </header>
 
+        {/* 👇 Updated profile-tabs nav with active class handling */}
         <nav className="profile-tabs">
-          <button>Posts</button>
-          <button>Saved</button>
-          <button>Followers</button>
+          <button
+            className={activeTab === 'posts' ? 'active' : ''}
+            onClick={() => setActiveTab('posts')}
+          >
+            Posts
+          </button>
+          <button
+            className={activeTab === 'saved' ? 'active' : ''}
+            onClick={() => setActiveTab('saved')}
+          >
+            Saved
+          </button>
+          <button
+            className={activeTab === 'followers' ? 'active' : ''}
+            onClick={() => setActiveTab('followers')}
+          >
+            Followers
+          </button>
         </nav>
 
-        <div className="posts-grid">
-          {posts.length === 0 ? (
-            <p>No posts available.</p>
-          ) : (
-            posts.map(post => (
-              <FeedPost
-                key={post.id}
-                profileImage={profile.avatar || 'placeholder-avatar.png'}
-                username={profile.username}
-                time={post.time}
-                caption={post.caption}
-                mediaType={post.mediaType}
-                mediaSrc={post.mediaSrc}
-                ingredients={post.ingredients || []}
-                instructions={post.instructions || []}
-                likes={post.likes}
-                comments={post.comments}
-              />
-            ))
+        {/* 👇 Tab content container */}
+        <div className="tab-content-container">
+          {activeTab === 'posts' && <MyFeedPage />}
+
+          {activeTab === 'saved' && (
+            <div className="saved-content">
+              <p>Saved posts will appear here.</p>
+            </div>
           )}
+
+          {activeTab === 'followers' && (
+            <div className="followers-content">
+              <p>Followers list will appear here.</p>
+            </div>
+          )}
+        </div>
         </div>
       </main>
     </div>

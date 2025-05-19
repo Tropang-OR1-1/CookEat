@@ -14,7 +14,7 @@ function Header({ token, setToken, profile }) {
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
+  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || 'default-avatar.jpg');
 
   const addPostRef = useRef(null);
   const profileDropdownRef = useRef(null);
@@ -30,9 +30,9 @@ function Header({ token, setToken, profile }) {
   useEffect(() => {
     const storedProfile = localStorage.getItem("profile");
     if (storedProfile) {
-      const parsed = JSON.parse(storedProfile);
-      if (parsed.avatar) {
-        setAvatar(parsed.avatar);
+      const parsedProfile = JSON.parse(storedProfile);
+      if (parsedProfile.avatar) {
+        setAvatar(parsedProfile.avatar);
       }
     }
   }, []);
@@ -62,9 +62,24 @@ function Header({ token, setToken, profile }) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("profile");
     setToken(null);
-    navigate("/login");
+
+    window.location.href = "/feeds"; // ✅ Full reload
   };
+
+  useEffect(() => {
+    // Disable body scroll when dropdown or modal is open
+    if (isPostModalOpen || isRecipeModalOpen || isLoginModalOpen || isNotificationModalOpen || isProfileDropdownOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto"; // Re-enable scroll on cleanup
+    };
+  }, [isPostModalOpen, isRecipeModalOpen, isLoginModalOpen, isNotificationModalOpen, isProfileDropdownOpen]);
 
   return (
     <header className="header-navbar header">
@@ -83,9 +98,7 @@ function Header({ token, setToken, profile }) {
           type="text"
           placeholder="Search in CookEat"
           className="header-search-bar"
-          
         />
-        <span className="search-icon">🔍</span>
       </div>
 
       <nav className="header-nav-links">
@@ -157,6 +170,19 @@ function Header({ token, setToken, profile }) {
               </Link>
             </div>
           )}
+
+          {/* Show Help and Support only when not logged in */}
+          {!token && (
+            <div className="header-tooltip-wrapper">
+              <Link
+                to="/help"
+                className={`header-button ${location.pathname === "/help" ? "active" : ""}`}
+              >
+                <i className="bx bx-help-circle"></i>
+                <span className="header-tooltip">Help and Support</span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {!token && (
@@ -176,7 +202,15 @@ function Header({ token, setToken, profile }) {
       <LoginRegister
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        setToken={setToken}
+        setToken={(token) => {
+          setToken(token);
+          const stored = localStorage.getItem("profile");
+          if (stored) {
+            const profile = JSON.parse(stored);
+            setAvatar(profile.avatar);  // Set the avatar based on profile in localStorage
+          }
+        }}
+        setAvatar={setAvatar} // Ensure avatar is passed down
       />
 
       {token && (
@@ -203,7 +237,7 @@ function Header({ token, setToken, profile }) {
             />
             <div className={`header-dropdown-content ${isProfileDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
-              <Link to="/help">Help and Support</Link>
+              <Link to="/help">Help and Support</Link> {/* Moved Help to dropdown */}
               <Link to="/incentives">Incentives</Link>
               <Link to="/settings">Settings</Link>
               <Link to="/about">About Us</Link>

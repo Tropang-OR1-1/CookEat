@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/loginregister.css';
 
-function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
+function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
   const navigate = useNavigate();
 
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
+
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
 
@@ -26,7 +28,9 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
         headers: { Authorization: `Bearer ${token}` }
       });
       localStorage.setItem('profile', JSON.stringify(res.data));
-      setProfile(res.data);
+      localStorage.setItem('avatar', res.data.avatarUrl);
+      if (setProfile) setProfile(res.data);
+      if (setAvatar) setAvatar(res.data.avatarUrl);
     } catch (err) {
       console.error("Failed to fetch profile:", err);
     }
@@ -45,7 +49,7 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
-      navigate('/feeds');
+      navigate('/profile');
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
@@ -65,10 +69,20 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
-      navigate('/feeds');
+      navigate('/profile');
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
+  };
+
+  const handleSwitchToRegister = () => {
+    setIsRegisterMode(true);
+    setTimeout(() => setShowRegisterForm(true), 600);
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsRegisterMode(false);
+    setTimeout(() => setShowRegisterForm(false), 600);
   };
 
   if (!isOpen) return null;
@@ -76,8 +90,8 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
   return (
     <div className={`modal ${isOpen ? 'show' : ''}`} onClick={(e) => e.target.classList.contains('modal') && onClose()}>
       <div className={`container ${isRegisterMode ? 'active' : ''}`}>
-        <div className={`form-box ${isRegisterMode ? 'register' : 'login'}`}>
-          {isRegisterMode ? (
+        <div className={`form-box ${showRegisterForm ? 'register' : 'login'}`}>
+          {showRegisterForm ? (
             <form onSubmit={handleRegisterSubmit}>
               <h1>Registration</h1>
               <div className="input-box">
@@ -161,12 +175,12 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile }) {
           <div className="toggle-panel toggle-left">
             <h1>Welcome to Cook Eat</h1>
             <p>Don't have an account?</p>
-            <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
+            <button className="btn" onClick={handleSwitchToRegister}>Register</button>
           </div>
           <div className="toggle-panel toggle-right">
             <h1>Welcome to Cook Eat!</h1>
             <p>Already have an account?</p>
-            <button className="btn" onClick={() => setIsRegisterMode(false)}>Login</button>
+            <button className="btn" onClick={handleSwitchToLogin}>Login</button>
           </div>
         </div>
       </div>

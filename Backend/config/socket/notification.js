@@ -71,15 +71,19 @@ const sendNotificationToUsers = async (userIds, notifType, data, client) => {
         const notifQuery = `
             INSERT INTO user_notification (notif_type, data, timestamp)
             VALUES ($1, $2, NOW())
+            ON CONFLICT (notif_type, data) 
+            DO UPDATE SET timestamp = NOW()
             RETURNING id, notif_type, timestamp, data;
-        `;
+            `;
         const notifRes = await client.query(notifQuery, [notifType, JSON.stringify(data)]);
         const notif = notifRes.rows[0];
 
         const statusQuery = `
             INSERT INTO user_notification_status (notif_id, user_id, is_read)
-            VALUES ($1, unnest($2::int[]), false);
-        `;
+            SELECT $1, unnest($2::int[]), false
+            ON CONFLICT (notif_id, user_id) DO NOTHING;
+            `;
+
         
         await client.query(statusQuery, [notif.id, userIds]);
 

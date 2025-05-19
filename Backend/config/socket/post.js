@@ -1,6 +1,8 @@
 const db = require('../db');
+const { isValidUUID } = require('../defines');
 
 const postViewCache = {};
+
 const socketCurrentPost = {};
 const activeTimers = {};
 const typingState = {};
@@ -11,9 +13,15 @@ const VIEW_TIMEOUT = 5000;
 const VIEW_EXPIRY_MS = 15000;
 const viewIncrements = {};
 
-module.exports = (io, socket) => {
+const postHandler = (io, socket) => {
     socket.on('viewPost', (postId) => {
+        if (!isValidUUID(postId)){ 
+            socket.emit('client_error', { message: 'postID Invalid format. must be in UUIDs' });
+            return;
+            }
+
         const previousPostId = socketCurrentPost[socket.id];
+        if (previousPostId === postId) return; // same post watching
 
         if (previousPostId && previousPostId !== postId) {
             if (typingState[previousPostId]) {
@@ -67,43 +75,94 @@ module.exports = (io, socket) => {
     });
 
     socket.on('stopViewingPost', () => {
-        const viewedPost = socketCurrentPost[socket.id];
-        if (viewedPost && postViewCache[viewedPost]) {
-            postViewCache[viewedPost] = postViewCache[viewedPost].filter(view => view.socketId !== socket.id);
-            socket.leave(`post_${viewedPost}`);
-            io.to(`post_${viewedPost}`).emit('postViewCountUpdate', {
-                postId: viewedPost,
-                count: postViewCache[viewedPost].length,
-            });
-        }
-        socketCurrentPost[socket.id] = null;
+        stopViewingPost(io, socket);
     });
 
     socket.on('typingComment', ({ commentID, toggle }) => {
-        const postId = socketCurrentPost[socket.id];
-        if (!postId) return;
-
-        if (!typingState[postId]) typingState[postId] = {};
-
-        const prevCommentID = Object.keys(typingState[postId]).find((id) => id !== commentID && typingState[postId][id]);
-        if (prevCommentID) {
-            typingState[postId][prevCommentID] = false;
-            socket.to(`post_${postId}`).emit('stopTypingComment', { postID: postId, commentID: prevCommentID });
-        }
-
-        if (toggle !== typingState[postId][commentID]) {
-            typingState[postId][commentID] = toggle;
-            const event = toggle ? 'typingComment' : 'stopTypingComment';
-            socket.to(`post_${postId}`).emit(event, { postID: postId, commentID });
-        }
+        handleTypingComment(socket, commentID, toggle, socketCurrentPost, typingState);
     });
+
+    
+    };
+
+
+// stopTypingComment.js
+
+// stopTypingComment.js
+
+const stopViewingPost = (io, socket) => {
+    const viewedPost = socketCurrentPost[socket.id];
+    if (viewedPost && postViewCache[viewedPost]) {
+        // Remove the socket from the post view cache
+        postViewCache[viewedPost] = postViewCache[viewedPost].filter(view => view.socketId !== socket.id);
+        socket.leave(`post_${viewedPost}`);
+        
+        // Emit the updated post view count
+        io.to(`post_${viewedPost}`).emit('postViewCountUpdate', {
+            postId: viewedPost,
+            count: postViewCache[viewedPost].length,
+        });
+    }
+    socketCurrentPost[socket.id] = null;
+    };
+
+const stopTypingComment = (socket, socketCurrentPost, typingState) => {
+    // Get current post ID from socket
+    const postId = socketCurrentPost[socket.id];
+    if (!postId) return;
+
+    // Initialize typing state if not existing
+    if (!typingState[postId]) typingState[postId] = {};
+
+    // Find previous typing comment ID
+    const prevCommentID = Object.keys(typingState[postId]).find((id) => typingState[postId][id]);
+    if (prevCommentID) {
+        typingState[postId][prevCommentID] = false;
+        socket.to(`post_${postId}`).emit('stopTypingComment', { postID: postId, commentID: prevCommentID });
+    }
+};
+
+const handleTypingComment = (socket, commentID, toggle, socketCurrentPost, typingState) => {
+    // Validate commentID
+    if (!isValidUUID(commentID) && commentID !== 'root') {
+        socket.emit('client_error', { message: 'commentID Invalid format. must be in UUIDs' });
+        return;
+    }
+
+    // Get current post ID from socket
+    const postId = socketCurrentPost[socket.id];
+    if (!postId) return;
+
+    // Initialize typing state if not existing
+    if (!typingState[postId]) typingState[postId] = {};
+
+    // Handle switching between comments/posts
+    const prevCommentID = Object.keys(typingState[postId]).find((id) => id !== commentID && typingState[postId][id]);
+    if (prevCommentID) {
+        stopTypingComment(socket, socketCurrentPost, typingState);
+    }
+
+    // Update typing state and emit event
+    if (toggle !== typingState[postId][commentID]) {
+        typingState[postId][commentID] = toggle;
+        const event = toggle ? 'typingComment' : 'stopTypingComment';
+        socket.to(`post_${postId}`).emit(event, { postID: postId, commentID });
+    }
+};
+
+const handleTypingDisconnect = (socket) => {
+    const postId = socketCurrentPost[socket.id];
+    if (postId) {
+        stopTypingComment(socket, socketCurrentPost, typingState);
+    }
+    console.log('A client disconnected');
 };
 
 function updateDatabaseAtInterval() {
     const query = `
         UPDATE posts
         SET view_count = view_count + $2
-        WHERE id = $1
+        WHERE public_id = $1
     `;
 
     Object.keys(viewIncrements).forEach(postId => {
@@ -124,3 +183,5 @@ function updateDatabaseAtInterval() {
 }
 
 setInterval(updateDatabaseAtInterval, UPDATE_INTERVAL);
+
+module.exports = { stopViewingPost, postHandler, handleTypingDisconnect };

@@ -1,24 +1,17 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
-import PostSkeleton from '../components/PostSkeleton.jsx';
-import FeedStateStore from '../utils/feedStateStore.js';
+import FeedPostSkeleton from './../components/PostSkeleton.jsx';
 import './styles/feedpage.css';
 
-function FeedPage() {
-  const {
-    posts,
-    page,
-    hasMore,
-    setPosts,
-    incrementPage,
-    setHasMore,
-    scrollY,
-    setScrollY,
-  } = FeedStateStore();
+function MyFeedPage() {
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [scrollY, setScrollY] = useState(0);
 
   const observer = useRef();
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
 
   const lastPostRef = useCallback(
     (node) => {
@@ -28,7 +21,7 @@ function FeedPage() {
       observer.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
-            incrementPage();
+            setPage((prevPage) => prevPage + 1);
           }
         },
         { threshold: 0.5 }
@@ -36,74 +29,62 @@ function FeedPage() {
 
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore, incrementPage]
+    [loading, hasMore]
   );
 
-  // Fetch posts data
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchUserPosts = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Get the token from localStorage
         const token = localStorage.getItem('token');
+        const myPublicId = localStorage.getItem('public_id');
 
-        // Add Authorization header with the token
+        if (!token || !myPublicId) {
+          throw new Error('Missing authentication or user info.');
+        }
+
         const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`, {
-          method: 'GET', // assuming it's a GET request
+          method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json', // Optional if needed
+            'Content-Type': 'application/json',
           },
         });
 
         if (!response.ok) throw new Error('Failed to fetch posts');
-
         const data = await response.json();
 
-        if (data && Array.isArray(data.posts)) {
-          setPosts(prevPosts => [...prevPosts, ...data.posts]);
-          if (data.posts.length < 10) setHasMore(false);
-        } else {
-          setHasMore(false);
-          setError('Invalid data format or no posts');
-        }
+        const userPosts = data.posts.filter(post => post.author?.public_id === myPublicId);
+        setPosts(prev => [...prev, ...userPosts]);
+
+        if (userPosts.length < 10) setHasMore(false);
       } catch (err) {
+        console.error(err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchUserPosts();
   }, [page]);
-  
-  // Restore scroll position on mount and save it on unmount
+
   useEffect(() => {
-    const restoreScrollPosition = () => {
-      if (scrollY !== undefined) {
-        window.scrollTo(0, scrollY);
-      }
-    };
-
-    // Delay scroll restoration to ensure page is loaded
-    const timeout = setTimeout(restoreScrollPosition, 100); // Delay by 100ms
-
+    const restoreScroll = () => window.scrollTo(0, scrollY);
+    const timeout = setTimeout(restoreScroll, 100);
     return () => {
       clearTimeout(timeout);
       setScrollY(window.scrollY);
     };
-  }, [scrollY, setScrollY]);
+  }, [scrollY]);
 
-  // Track scroll position during page scroll
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [setScrollY]);
+  }, []);
 
   return (
     <div className="feed-page-container">
@@ -128,17 +109,22 @@ function FeedPage() {
               author_public_id={post.author.public_id}
               author_username={post.author.username}
               author_picture={post.author.picture}
-
               ref={isLast ? lastPostRef : null}
             />
           );
         })}
-        {loading && [...Array(3)].map((_, i) => <PostSkeleton key={`skeleton-${i}`} />)}
+
+        {loading && [...Array(3)].map((_, i) => <FeedPostSkeleton key={`skeleton-${i}`} />)}
         {error && <p className="feed-status-message">Error: {error}</p>}
-        {!hasMore && <p className="feed-status-message">No more posts to show.</p>}
+        {!hasMore && posts.length > 0 && (
+          <p className="feed-status-message">No more posts to show.</p>
+        )}
+        {!loading && posts.length === 0 && (
+          <p className="feed-status-message">You have no posts yet.</p>
+        )}
       </div>
     </div>
   );
 }
 
-export default FeedPage;
+export default MyFeedPage;

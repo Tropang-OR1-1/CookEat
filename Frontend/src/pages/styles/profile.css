@@ -1,58 +1,110 @@
-/* Profile page container */
-.profile-page-container {
-  width: 100%;
-  padding: 60px;
-  background-color: #fff8f0;
-  border-radius: 30px;
+/* For profile with cover photo, add extra top padding */
+.profile-page-container.with-cover {
+  padding-top: 310px; /* Increased from 240px based on new cover height */
 }
 
-/* Main Content */
+.profile-body {
+  margin-top: -70px;
+}
+
+/* === Cover Photo === */
+.profile-cover-photo {
+  background-image: url('https://media.cnn.com/api/v1/images/stellar/prod/gettyimages-1273516682.jpg?c=original');
+  width: 100%;
+  height: 370px; /* Increased from 250px to 320px */
+  background-position: center;
+  background-size: cover;
+  border-radius: 30px 30px 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.1);
+  z-index: 1;
+}
+
+/* === Main Content === */
 .profile-content {
   max-width: 2000px;
   margin: 0 auto;
-  padding: 60px; 
+  padding: 20px; 
   background-color: #ffffff;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2; /* above cover photo */
 }
 
-/* Profile Header */
+/* === Profile Header === */
 .profile-header {
   display: flex;
   align-items: center;
-  margin-bottom: 50px; 
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 2;
 }
 
+/* For profile with cover photo, pull header up to overlap cover */
+.profile-header.with-cover {
+  margin-top: 0; 
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.profile-header.with-cover .profile-image {
+  position: relative;
+  top: -10px; /* Controls how much it overlaps upward */
+  left: 0;
+  transform: translateY(0); /* Reset translate, since we're using top now */
+  z-index: 5; /* High enough to float above cover + content */
+  border: 5px solid #FFA500;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+/* === Profile Image === */
 .profile-image {
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 40px; /* Increased space between the image and text */
-  border: 4px solid #FFA500; /* Orange border */
+  margin-right: 40px;
+  margin-top: -10px;
+  border: 4px solid #FFA500;
+  background: white;
+  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+  position: absolute;
 }
 
+/* === Avatar image inside profile image */
 .profile-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* === Profile Info === */
 .profile-info {
-  flex: 1;
+  margin-left: 20px; /* Width of profile-image (200px) + margin */
+  margin-top: 50px;
 }
 
+/* Username */
 .username {
   font-size: 40px;
   font-weight: bold;
-  margin-bottom: 20px; 
-  color: #FF7043; /* Deep orange */
+  margin-bottom: 20px;
+  color: #FF7043;
 }
 
+/* Push username down a bit for own profile with cover */
+.own-profile .username {
+  margin-top: 60px;
+}
+
+/* Stats */
 .stats {
-  margin-bottom: 20px;
   margin-top: 20px;
-  font-size: 22px; 
+  margin-bottom: 20px;
+  font-size: 22px;
   color: #333;
 }
 
@@ -60,39 +112,39 @@
   margin-right: 100px;
 }
 
-/* Bio Text */
+/* Bio */
 .bio p {
-  margin: 16px 0; 
+  margin: 16px 0;
   color: #666;
   font-size: 18px;
-  font-style: italic; 
-  line-height: 1.8; 
+  font-style: italic;
+  line-height: 1.8;
 }
 
-/* Tabs */
+/* === Tabs === */
 .profile-tabs {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 50px; /* Increased margin for more space */
+  margin-bottom: 50px;
 }
 
 .profile-tabs button {
   flex: 1;
-  padding: 18px; /* Increased padding for more clickable space */
-  font-size: 20px; /* Larger text for better readability */
-  background-color: #fff3e0; /* Light orange */
+  padding: 18px;
+  font-size: 20px;
+  background-color: #fff3e0;
   border: 2px solid #FFA500;
   color: #FF7043;
   cursor: pointer;
-  border-radius: 10px;
-  margin: 0 15px; /* Increased spacing between tabs */
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for background color and transform */
+  border-radius: 40px;
+  margin: 0 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .profile-tabs button:hover {
   background-color: #FFA500;
   color: white;
-  transform: scale(1.05); /* Slightly scale up the button for a smooth hover effect */
+  transform: scale(1.05);
 }
 
 .profile-tabs button.active {
@@ -101,16 +153,16 @@
   font-weight: bold;
 }
 
-/* Posts Grid */
+/* === Posts Grid === */
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 40px; /* Increased gap between grid items */
+  gap: 40px;
 }
 
 .grid-item {
   width: 100%;
-  height: 380px; /* Increased height of grid items */
+  height: 380px;
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -123,19 +175,19 @@
   border-radius: 12px;
 }
 
-/* Edit Profile Button */
+/* === Edit Profile Button === */
 .edit-profile-btn {
-  background-color: #FFA500; /* Same yellow as the tabs */
+  background-color: #FFA500;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 14px 30px; /* Increased padding for a larger button */
-  font-size: 18px; /* Larger font size for the button */
+  border-radius: 40px;
+  padding: 14px 30px;
+  font-size: 18px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .edit-profile-btn:hover {
-  background-color: #FF7043; /* Change to the deep orange color */
-  transform: scale(1.05); /* Slightly scale up the button for a smooth hover effect */
+  background-color: #FF7043;
+  transform: scale(1.05);
 }
