@@ -24,13 +24,19 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
 
   const fetchAndStoreProfile = async (token) => {
     try {
-      const res = await axios.get('https://cookeat.cookeat.space/user/profile', {
+      const res = await axios.get('https://cookeat.cookeat.space/user/profile/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      localStorage.setItem('profile', JSON.stringify(res.data));
-      localStorage.setItem('avatar', res.data.avatarUrl);
-      if (setProfile) setProfile(res.data);
-      if (setAvatar) setAvatar(res.data.avatarUrl);
+
+      const profile = res.data.Profile;
+
+      localStorage.setItem('profile', JSON.stringify(profile));
+
+      localStorage.setItem('avatar', profile.picture || '');
+
+      if (setProfile) setProfile(profile);
+      if (setAvatar) setAvatar(profile.picture || '');
+
     } catch (err) {
       console.error("Failed to fetch profile:", err);
     }
@@ -44,12 +50,16 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       formData.append('password', loginData.password);
 
       const res = await axios.post('https://cookeat.cookeat.space/user/login', formData);
-      const token = res.data.token;
+      const { token, public_id } = res.data;
+
       localStorage.setItem('token', token);
+      localStorage.setItem('public_id', public_id);
+
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
       navigate('/profile');
+      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
@@ -64,12 +74,16 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       formData.append('password', registerData.password);
 
       const res = await axios.post('https://cookeat.cookeat.space/user/register', formData);
-      const token = res.data.token;
+      const { token, public_id } = res.data;
+
       localStorage.setItem('token', token);
+      localStorage.setItem('public_id', public_id);
+
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
       navigate('/profile');
+      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
