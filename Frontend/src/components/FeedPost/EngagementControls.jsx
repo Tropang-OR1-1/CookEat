@@ -88,7 +88,7 @@ const EngagementControls = ({
     <div className="engagement-controls-container">
       {/* Engagement controls grid */}
       <div className="engagement-controls-grid">
-        <div className="grid-item top">
+        <button className="like-btn">
           <span className="count-label">
             {reactionCount === 0
               ? 'No likes yet'
@@ -96,8 +96,8 @@ const EngagementControls = ({
               ? '1 like'
               : `${reactionCount} likes`}
           </span>
-        </div>
-        <div className="grid-item top">
+        </button>
+        <button className="comment-btn">
           <span
             className="count-label clickable"
             onClick={handleCommentCountClick} // Make the comment count clickable
@@ -108,7 +108,7 @@ const EngagementControls = ({
               ? '1 comment'
               : `${commentCount} comments`}
           </span>
-        </div>
+        </button>
         <div className="grid-item top">
           {media_type === 'video/mp4' && (
             <span className="count-label">
