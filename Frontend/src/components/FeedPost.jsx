@@ -35,12 +35,12 @@ const FeedPost = forwardRef(({
   return (
     <div className="feed-post" ref={ref}>
       {/* Profile Section */}
-      <div className="profile-section">
-        <Link to={profileLink} className="profile-left">
-          <img src={profileImageUrl} alt="Profile" className="profile-img" />
-          <div className="profile-info">
-            <p className="author_username">{author_username}</p>
-            <p className="time">{formatDate(created_at)}</p>
+      <div className="feed-post__profile-section">
+        <Link to={profileLink} className="feed-post__profile-left">
+          <img src={profileImageUrl} alt="Profile" className="feed-post__profile-img" />
+          <div className="feed-post__profile-info">
+            <p className="feed-post__author-username">{author_username}</p>
+            <p className="feed-post__time">{formatDate(created_at)}</p>
           </div>
         </Link>
 
@@ -50,20 +50,20 @@ const FeedPost = forwardRef(({
 
       {/* Title */}
       {title && (
-        <div className="post-title">
+        <div className="feed-post__title">
           <h3>{title}</h3>
         </div>
       )}
 
       {/* Caption / Content */}
       {content && (
-        <div className="post-caption">
-          <p className="caption">{content}</p>
+        <div className="feed-post__caption-wrapper">
+          <p className="feed-post__caption">{content}</p>
         </div>
       )}
 
       {/* Media */}
-      <div className="media-container">
+      <div className="feed-post__media-container">
         {media_type === 'image' && mediaUrl && <img src={mediaUrl} alt="Post Media" />}
         {media_type === 'video' && mediaUrl && (
           <video controls>
