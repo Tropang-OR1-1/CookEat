@@ -1,0 +1,177 @@
+/* EditPost.css */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 2.5px solid #FF8700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 1000px;       /* wider */
+  max-width: 95vw;     /* responsive */
+  max-height: 70vh;    /* limit height more */
+  overflow-y: auto;    /* scroll if content too tall */
+  padding: 20px 30px;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.modal-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-box__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #FF8700;
+  margin-bottom: 20px;
+  user-select: none;
+  text-align: center;
+}
+
+.error-msg {
+  background-color: #ffe6e6;
+  color: #d32f2f;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  user-select: none;
+  border: 1.5px solid #d32f2f;
+  text-align: center;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+  color: #333;
+  user-select: none;
+  margin-top: 12px;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1.05rem;
+  border: 2px solid #FF8700;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #cc6a00;
+  box-shadow: 0 0 5px #ffb347;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  max-height: 250px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.btn {
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 1rem;
+  border: none;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  user-select: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+}
+
+.btn.save {
+  background-color: #FF8700;
+  color: white;
+}
+
+.btn.save:hover:not(:disabled) {
+  background-color: #cc6a00;
+  box-shadow: 0 4px 8px rgba(204, 106, 0, 0.7);
+}
+
+.btn.cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn.cancel:hover:not(:disabled) {
+  background-color: #c7c7c7;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.big-checkbox {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Align label nicely */
+.form-checkbox label {
+  font-size: 16px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.media-upload-label {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #FF8700;
+  color: white;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  user-select: none;
+}
+
+#media-upload {
+  display: none;
+}

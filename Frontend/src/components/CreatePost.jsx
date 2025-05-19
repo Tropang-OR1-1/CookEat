@@ -12,18 +12,17 @@ function CreatePost({ isOpen, onClose }) {
     media: null
   });
 
+  // ✅ Load profile data every time modal is opened
   useEffect(() => {
-    const storedProfile = localStorage.getItem("profile");
-    if (storedProfile) {
-      const parsed = JSON.parse(storedProfile);
-      if (parsed.avatar) {
-        setAvatar(parsed.avatar);
-      }
-      if (parsed.username) {
-        setUsername(parsed.username);
+    if (isOpen) {
+      const storedProfile = localStorage.getItem("profile");
+      if (storedProfile) {
+        const parsed = JSON.parse(storedProfile);
+        if (parsed.avatar) setAvatar(parsed.avatar);
+        if (parsed.username) setUsername(parsed.username);
       }
     }
-  }, []);
+  }, [isOpen]); // 👈 this is the important part
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
@@ -107,7 +106,6 @@ function CreatePost({ isOpen, onClose }) {
       );
 
       console.log("Post created successfully, response:", response);
-
       alert("Post created successfully!");
 
       // Reset form and close modal
@@ -147,6 +145,7 @@ function CreatePost({ isOpen, onClose }) {
             <img src={avatar} alt="User Icon" className="user-icon" />
             <span className="user-name">{username}</span>
           </div>
+
           <label htmlFor="postTitle">Post Title:</label>
           <input
             type="text"

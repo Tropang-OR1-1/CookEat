@@ -63,6 +63,7 @@ function Header({ token, setToken, profile }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("profile");
+    localStorage.removeItem("public_id");
     setToken(null);
 
     window.location.href = "/feeds"; // ✅ Full reload
