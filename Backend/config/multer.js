@@ -24,6 +24,7 @@ const Profile = multer({
     fileFilter: fileFilterImage,
     limits: { fileSize: process.env.PROFILE_MAX_SIZE }  // Dynamic file size limit from .env
 });
+
 */
 
 // File filter to only allow specific file types
@@ -170,4 +171,4 @@ const combinedRecipeUpload = multer({
 
 
 
-module.exports = {userMedia, Profile, Media, combinedRecipeUpload, none};
+module.exports = {userMedia, Media, combinedRecipeUpload, none};
