@@ -7,6 +7,8 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
   const navigate = useNavigate();
 
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
+
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
 
@@ -22,16 +24,19 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
 
   const fetchAndStoreProfile = async (token) => {
     try {
-      const res = await axios.get('https://cookeat.cookeat.space/user/profile', {
+      const res = await axios.get('https://cookeat.cookeat.space/user/profile/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // Store profile and avatar in localStorage
-      localStorage.setItem('profile', JSON.stringify(res.data));
-      localStorage.setItem('avatar', res.data.avatarUrl); // Assuming avatarUrl is the field that contains the image URL
 
-      // Set profile and avatar in the parent state
-      if (setProfile) setProfile(res.data);
-      if (setAvatar) setAvatar(res.data.avatarUrl); // Update avatar state immediately
+      const profile = res.data.Profile;
+
+      localStorage.setItem('profile', JSON.stringify(profile));
+
+      localStorage.setItem('avatar', profile.picture || '');
+
+      if (setProfile) setProfile(profile);
+      if (setAvatar) setAvatar(profile.picture || '');
+
     } catch (err) {
       console.error("Failed to fetch profile:", err);
     }
@@ -45,12 +50,16 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       formData.append('password', loginData.password);
 
       const res = await axios.post('https://cookeat.cookeat.space/user/login', formData);
-      const token = res.data.token;
+      const { token, public_id } = res.data;
+
       localStorage.setItem('token', token);
+      localStorage.setItem('public_id', public_id);
+
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
       navigate('/profile');
+      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
@@ -65,15 +74,29 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       formData.append('password', registerData.password);
 
       const res = await axios.post('https://cookeat.cookeat.space/user/register', formData);
-      const token = res.data.token;
+      const { token, public_id } = res.data;
+
       localStorage.setItem('token', token);
+      localStorage.setItem('public_id', public_id);
+
       setToken(token);
       await fetchAndStoreProfile(token);
       onClose();
       navigate('/profile');
+      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
+  };
+
+  const handleSwitchToRegister = () => {
+    setIsRegisterMode(true);
+    setTimeout(() => setShowRegisterForm(true), 600);
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsRegisterMode(false);
+    setTimeout(() => setShowRegisterForm(false), 600);
   };
 
   if (!isOpen) return null;
@@ -81,8 +104,8 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
   return (
     <div className={`modal ${isOpen ? 'show' : ''}`} onClick={(e) => e.target.classList.contains('modal') && onClose()}>
       <div className={`container ${isRegisterMode ? 'active' : ''}`}>
-        <div className={`form-box ${isRegisterMode ? 'register' : 'login'}`}>
-          {isRegisterMode ? (
+        <div className={`form-box ${showRegisterForm ? 'register' : 'login'}`}>
+          {showRegisterForm ? (
             <form onSubmit={handleRegisterSubmit}>
               <h1>Registration</h1>
               <div className="input-box">
@@ -166,12 +189,12 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
           <div className="toggle-panel toggle-left">
             <h1>Welcome to Cook Eat</h1>
             <p>Don't have an account?</p>
-            <button className="btn" onClick={() => setIsRegisterMode(true)}>Register</button>
+            <button className="btn" onClick={handleSwitchToRegister}>Register</button>
           </div>
           <div className="toggle-panel toggle-right">
             <h1>Welcome to Cook Eat!</h1>
             <p>Already have an account?</p>
-            <button className="btn" onClick={() => setIsRegisterMode(false)}>Login</button>
+            <button className="btn" onClick={handleSwitchToLogin}>Login</button>
           </div>
         </div>
       </div>

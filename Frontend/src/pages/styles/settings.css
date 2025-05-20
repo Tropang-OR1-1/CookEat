@@ -1,0 +1,175 @@
+:root {
+    --navbar-color: #FFA500;
+    --background-color: #faf6f3;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #FFA500;
+    --shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #fff2e6;
+    padding-top: 60px;
+}
+
+.settings-container {
+    background-color: var(--card-background);
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px;
+    position: relative;
+    border-radius: 40px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+}
+
+.setting-feed {
+    background: white;
+    max-width: 1000px;
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    margin: 40px auto;
+    position: relative;
+    border-radius: 40px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+}
+
+.search-box {
+    background: var(--background-color);
+    padding: 12px;
+    border-radius: 30px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.search-box input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    outline: none;
+}
+
+.setting-feed h3 {
+    font-size: 18px;          
+    font-weight: bold;    
+    margin-bottom: 9px; 
+    color: #FFA500;      
+    padding-left: 0px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    color: #FFA500;
+    padding-left: 12px; 
+}
+
+.most-visited {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.setting-card {
+    background: var(--background-color);
+    padding: 20px;
+    border-radius: 30px;
+    text-align: center;
+    width: 32%;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+
+.setting-card:hover {
+    background: #ffe0b3;
+    transform: translateY(-2px);
+}
+
+.setting-card .setting-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    color: #db8a18;
+}
+
+.setting-card h4 {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.setting-card p {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.extra-setting {
+    display: flex;
+    align-items: center;
+    background: var(--background-color);
+    padding: 30px;
+    border-radius: 30px;
+    margin-top: 20px;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+
+.extra-setting:hover {
+    background: #ffe0b3;
+    transform: translateY(-2px);
+}
+
+.extra-setting .extra-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    color: #db8a18;
+}
+
+.extra-content {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.extra-content h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.extra-content p {
+    font-size: 14px;
+    color: gray;
+}
+
+.arrow {
+    font-size: 20px;
+    color: gray;
+}
+
+.settings-container {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.settings-container.show {
+    opacity: 1;
+    transform: translateY(0);
+}

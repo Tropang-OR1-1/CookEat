@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import FeedPost from './../components/FeedPost.jsx';
 import { useParams } from 'react-router-dom';
-import './styles/OtherUserProfile.css';
+import OtherUserFeedPage from './OtherUserFeedPage.jsx';
+import './styles/profile.css';
 
 function OtherUserProfile() {
   const { public_id } = useParams();
   const [profile, setProfile] = useState(null);
-  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('posts');
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
 
@@ -24,7 +24,7 @@ function OtherUserProfile() {
       return;
     }
 
-    const fetchProfileAndPosts = async () => {
+    const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
 
@@ -49,26 +49,10 @@ function OtherUserProfile() {
           followersCount: data.followersCount || 0,
           followingCount: data.followingCount || 0,
           bio: data.biography || 'This user has no biography.',
+          coverPhoto: data.coverPhoto
+            ? `https://cookeat.cookeat.space/media/profile/${data.coverPhoto}`
+            : 'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80',
         });
-
-        // Fetch posts
-        const postsRes = await axios.get(`https://cookeat.cookeat.space/user/${public_id}/posts`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const rawPosts = postsRes.data.posts || [];
-
-        const formattedPosts = rawPosts.map(post => ({
-          ...post,
-          mediaItems: (post.media || []).map(m => ({
-            type: m.type,
-            src: `https://cookeat.cookeat.space/media/recipe/${m.filename}`,
-          })),
-          ingredients: post.ingredients || [],
-          instructions: post.instructions || [],
-        }));
-
-        setPosts(formattedPosts);
 
         // Fetch follow status
         if (isLoggedIn && !isOwnProfile) {
@@ -88,7 +72,7 @@ function OtherUserProfile() {
       }
     };
 
-    fetchProfileAndPosts();
+    fetchProfile();
   }, [public_id, isLoggedIn, isOwnProfile]);
 
   const handleFollow = async () => {
@@ -137,75 +121,92 @@ function OtherUserProfile() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="profile-page-container">
+    <div className={`profile-page-container with-cover`}>
+      <div className="profile-cover-photo"/>
+
       <main className="profile-content">
-        <header className="profile-header">
-          <div className="profile-image">
-            <img
-              src={profile.avatar}
-              alt={`${profile.username}'s avatar`}
-              className="profile-avatar"
-            />
-          </div>
-          <div className="profile-info">
-            <h1 className="username">{profile.username}</h1>
-            <p>{profile.bio}</p>
-
-            <div className="stats">
-              <span><strong>{profile.postsCount}</strong> Posts</span>
-              <span><strong>{profile.followersCount}</strong> Followers</span>
-              <span><strong>{profile.followingCount}</strong> Following</span>
+        <div className='profile-body'>
+          <header className="profile-header with-cover">
+            <div className="profile-image">
+              <img
+                src={profile.avatar}
+                alt={`${profile.username}'s avatar`}
+                className="profile-avatar"
+              />
             </div>
+            <div className="profile-info">
+              <h1 className="username">{profile.username}</h1>
+              <p>{profile.bio}</p>
 
-            {!isOwnProfile && isLoggedIn && (
-              isFollowing ? (
-                <button
-                  className="edit-profile-btn"
-                  onClick={handleUnfollow}
-                  disabled={followLoading}
-                  style={{ backgroundColor: '#FF7043' }}
-                >
-                  {followLoading ? 'Unfollowing...' : 'Unfollow'}
-                </button>
-              ) : (
-                <button
-                  className="edit-profile-btn"
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                >
-                  {followLoading ? 'Following...' : 'Follow'}
-                </button>
-              )
+              <div className="stats">
+                <span><strong>{profile.postsCount}</strong> Posts</span>
+                <span><strong>{profile.followersCount}</strong> Followers</span>
+                <span><strong>{profile.followingCount}</strong> Following</span>
+              </div>
+
+              {!isOwnProfile && isLoggedIn && (
+                isFollowing ? (
+                  <button
+                    className="edit-profile-btn"
+                    onClick={handleUnfollow}
+                    disabled={followLoading}
+                    style={{ backgroundColor: '#FF7043' }}
+                  >
+                    {followLoading ? 'Unfollowing...' : 'Unfollow'}
+                  </button>
+                ) : (
+                  <button
+                    className="edit-profile-btn"
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                  >
+                    {followLoading ? 'Following...' : 'Follow'}
+                  </button>
+                )
+              )}
+            </div>
+          </header>
+
+          {/* 👇 Tab navigation */}
+          <nav className="profile-tabs">
+            <button
+              className={activeTab === 'posts' ? 'active' : ''}
+              onClick={() => setActiveTab('posts')}
+            >
+              Posts
+            </button>
+            <button
+              className={activeTab === 'saved' ? 'active' : ''}
+              onClick={() => setActiveTab('saved')}
+            >
+              Saved
+            </button>
+            <button
+              className={activeTab === 'followers' ? 'active' : ''}
+              onClick={() => setActiveTab('followers')}
+            >
+              Followers
+            </button>
+          </nav>
+
+          {/* 👇 Tab content container */}
+          <div className="tab-content-container">
+            {activeTab === 'posts' && (
+              <OtherUserFeedPage key="posts" public_id={public_id} />
+            )}
+
+            {activeTab === 'saved' && (
+              <div className="saved-content">
+                <p>This user's saved posts will appear here.</p>
+              </div>
+            )}
+
+            {activeTab === 'followers' && (
+              <div className="followers-content">
+                <p>This user's followers list will appear here.</p>
+              </div>
             )}
           </div>
-        </header>
-
-        <nav className="profile-tabs">
-          <button disabled>Posts</button>
-          <button disabled>Saved</button>
-          <button disabled>Followers</button>
-        </nav>
-
-        <div className="posts-grid">
-          {posts.length === 0 ? (
-            <p>No posts available.</p>
-          ) : (
-            posts.map(post => (
-              <FeedPost
-                key={post.id}
-                profileImage={profile.avatar}
-                username={profile.username}
-                time={post.created_at}
-                caption={post.caption}
-                media={post.mediaItems}
-                ingredients={post.ingredients}
-                instructions={post.instructions}
-                likes={post.likes}
-                comments={post.comments || []}
-                author_public_id={post.author_public_id}
-              />
-            ))
-          )}
         </div>
       </main>
     </div>

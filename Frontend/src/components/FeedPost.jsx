@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
 import { formatDate } from '../utils/formatDate.js';
 import './styles/feedpost.css';
-import FeedPostDropdown from './subcomponents/FeedPostDropdown.jsx';
-import EngagementControls from './subcomponents/EngagementControls.jsx';
+import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx';
+import EngagementControls from './FeedPost/EngagementControls.jsx';
 import { Link } from 'react-router-dom';
 
 const FeedPost = forwardRef(({
@@ -35,35 +35,50 @@ const FeedPost = forwardRef(({
   return (
     <div className="feed-post" ref={ref}>
       {/* Profile Section */}
-      <div className="profile-section">
-        <Link to={profileLink} className="profile-left">
-          <img src={profileImageUrl} alt="Profile" className="profile-img" />
-          <div className="profile-info">
-            <p className="author_username">{author_username}</p>
-            <p className="time">{formatDate(created_at)}</p>
+      <div className="feed-post__profile-section">
+        <Link to={profileLink} className="feed-post__profile-left">
+          <img src={profileImageUrl} alt="Profile" className="feed-post__profile-img" />
+          <div className="feed-post__profile-info">
+            <p className="feed-post__author-username">{author_username}</p>
+            <p className="feed-post__time">{formatDate(created_at)}</p>
           </div>
         </Link>
 
         {/* Dropdown Component */}
-        <FeedPostDropdown postId={public_id} />
+        <FeedPostDropdown
+          public_id={public_id}
+          title={title}
+          content={content}
+          created_at={created_at}
+          updated_at={updated_at}
+          view_count={view_count}
+          media_filename={media_filename}
+          media_type={media_type}
+          reactions_total={reactions_total}
+          user_reacted={user_reacted}
+          comment_count={comment_count}
+          ref_public_id={ref_public_id}
+          author_public_id={author_public_id}
+          author_username={author_username}
+          author_picture={author_picture} />
       </div>
 
       {/* Title */}
       {title && (
-        <div className="post-title">
+        <div className="feed-post__title">
           <h3>{title}</h3>
         </div>
       )}
 
       {/* Caption / Content */}
       {content && (
-        <div className="post-caption">
-          <p className="caption">{content}</p>
+        <div className="feed-post__caption-wrapper">
+          <p className="feed-post__caption">{content}</p>
         </div>
       )}
 
       {/* Media */}
-      <div className="media-container">
+      <div className="feed-post__media-container">
         {media_type === 'image' && mediaUrl && <img src={mediaUrl} alt="Post Media" />}
         {media_type === 'video' && mediaUrl && (
           <video controls>
