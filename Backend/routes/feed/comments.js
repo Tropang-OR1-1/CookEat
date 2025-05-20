@@ -263,32 +263,46 @@ router.get('/:post_id', verifyToken, async (req, res) => {
         ) AS votes_per_comment
         GROUP BY comment_id`;
 
-        const query1 = `SELECT 
+        const query1 = `
+        SELECT 
             comments.public_id AS comment_id,
             ref_comments.public_id AS replied_id,
             comments.comments AS comment_text,
             comments.created_at AS comment_created_at,
             user_profile.username AS user_name,
-            user_profile.picture AS user_picture,
+            um.fname AS user_picture,
             user_profile.public_id AS user_public_id,
             (SELECT COUNT(*) FROM comments AS c2 WHERE c2.ref_id = comments.id AND c2.deleted_at IS NULL) AS reply_count,
             COALESCE(rs.reactions::jsonb, jsonb_build_object('total', 0)) AS reactions,
             (
-                SELECT ur.vote FROM comment_reaction AS ur
-                WHERE ur.comment_id = comments.id AND ur.user_id = $${i++}
-                LIMIT 1
+            SELECT ur.vote FROM comment_reaction AS ur
+            WHERE ur.comment_id = comments.id AND ur.user_id = $${i++}
+            LIMIT 1
             ) AS user_reacted
         FROM comments
         JOIN user_profile ON comments.user_id = user_profile.id
+        LEFT JOIN usermedia um ON um.user_id = user_profile.id AND um.type = 'profile'
         LEFT JOIN comments AS ref_comments ON comments.ref_id = ref_comments.id
-        LEFT JOIN (${reactionSubquery}) AS rs ON rs.comment_id = comments.id `;
+        LEFT JOIN (${reactionSubquery}) AS rs ON rs.comment_id = comments.id
+        `;
+
 
         let query2 = `WHERE comments.post_id = $${i++} AND comments.deleted_at IS NULL `;
         if (reply_id) {
             query2 += `AND comments.ref_id = $${i++} `;
         }
-        const query3 = `GROUP BY comments.id, ref_comments.public_id, user_profile.username, user_profile.picture, user_profile.public_id, rs.reactions
-                       ORDER BY comments.created_at DESC LIMIT $${i++} OFFSET $${i++}`;
+        const query3 = `
+        GROUP BY 
+            comments.id, 
+            ref_comments.public_id, 
+            user_profile.username, 
+            um.fname, 
+            user_profile.public_id, 
+            rs.reactions
+        ORDER BY comments.created_at DESC 
+        LIMIT $${i++} OFFSET $${i++}
+        `;
+
         const values = reply_id ? [user_id, pid, reply_id, limit, offset] : [user_id, pid, limit, offset];
 
         const result = await client.query(query1 + query2 + query3, values);

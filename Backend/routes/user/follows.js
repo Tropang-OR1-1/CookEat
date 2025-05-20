@@ -127,12 +127,17 @@ router.get('/followers/:user_id', verifyToken, async (req, res) => {
 
     try {
         const selectQuery = `
-            SELECT u.public_id, u.username, u.picture
-            FROM followers f
-            INNER JOIN user_profile u ON u.id = f.follower_user_id
-            WHERE f.following_user_id = $1
-            LIMIT $2 OFFSET $3
+        SELECT 
+            u.public_id, 
+            u.username, 
+            um.fname AS picture
+        FROM followers f
+        INNER JOIN user_profile u ON u.id = f.follower_user_id
+        LEFT JOIN usermedia um ON um.user_id = u.id AND um.type = 'profile'
+        WHERE f.following_user_id = $1
+        LIMIT $2 OFFSET $3
         `;
+
         const { rows } = await db.query(selectQuery, [userId, limit, offset]);
 
         logger.info(`Successfully fetched ${rows.length} followers for user ${userId}`);
@@ -182,13 +187,23 @@ router.get('/followings/:user_id', verifyToken, async (req, res) => {
     const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
 
     try {
-        const selectQuery = `
+        const selectQuery = 
+        SELECT 
+            u.username, 
+            u.public_id, 
+            um.fname AS picture
+        FROM followers f
+        INNER JOIN user_profile u ON u.id = f.follower_user_id
+        LEFT JOIN usermedia um ON um.user_id = u.id AND um.type = 'profile'
+        WHERE f.following_user_id = $1
+        LIMIT $2 OFFSET 
             SELECT u.username, u.public_id, u.picture
             FROM followers f
-            INNER JOIN user_profile u ON u.id = f.follower_user_id
-            WHERE f.following_user_id = $1
+            INNER JOIN user_profile u ON u.id = f.following_user_id
+            WHERE f.follower_user_id = $1
             LIMIT $2 OFFSET $3
         `;
+
         const { rows } = await db.query(selectQuery, [userId, limit, offset]);
 
         logger.info(`Successfully fetched ${rows.length} followings for user ${userId}`);

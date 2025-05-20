@@ -24,22 +24,23 @@ router.get('/search', async (req, res) => {
         let queryParts = [];
 
         if (!narrow || narrow === 'profiles') {
-            queryParts.push(`
-                SELECT 
-                    'user_profile' AS source,
-                    user_profile.public_id,
-                    user_profile.username AS name,
-                    'user_profile' AS type,
-                    json_build_object(
-                        'username', user_profile.username,
-                        'picture', user_profile.picture
-                    ) AS owner,
-                    GREATEST(
-                        similarity(user_profile.username, $1),
-                        similarity(user_profile.biography, $1)
-                    ) AS rank
-                FROM user_profile
-                WHERE user_profile.username ILIKE '%' || $1 || '%' OR user_profile.biography ILIKE '%' || $1 || '%'
+            queryParts.push(`SELECT 
+                'user_profile' AS source,
+                user_profile.public_id,
+                user_profile.username AS name,
+                'user_profile' AS type,
+                json_build_object(
+                    'username', user_profile.username,
+                    'picture', um.fname
+                ) AS owner,
+                GREATEST(
+                    similarity(user_profile.username, $1),
+                    similarity(user_profile.biography, $1)
+                ) AS rank
+            FROM user_profile
+            LEFT JOIN usermedia um ON um.user_id = user_profile.id AND um.type = 'profile'
+            WHERE user_profile.username ILIKE '%' || $1 || '%' 
+            OR user_profile.biography ILIKE '%' || $1 || '%'
             `);
         }
 

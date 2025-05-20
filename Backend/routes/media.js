@@ -35,7 +35,7 @@ router.get('/:type/:fname', async (req, res) => {
             ? (type === "posts" ? process.env.POST_IMAGE_DIR : process.env.RECIPE_IMAGE_DIR)
             : (type === "posts" ? process.env.POST_VIDEO_DIR : process.env.RECIPE_VIDEO_DIR);
     } else if (type === "profile") {
-        FileDir = process.env.PROFILE_DIR;
+        FileDir = process.env.USER_PROFILE_DIR;
     } else if (type === "rating") {
         FileDir = process.env.RECIPE_RATING_MEDIA_DIR;
     } else if (type === "thumbnail") {
@@ -50,7 +50,7 @@ router.get('/:type/:fname', async (req, res) => {
         await fs.access(filePath); // Check if file exists
 
         res.sendFile(filePath);
-        logger.info(`File transmitted: ${filePath}`);  // Log successful file access
+        //logger.info(`File transmitted: ${filePath}`);  // Log successful file access
 
     } catch (err) {
         logger.error(`File not found: ${filePath}. Error: ${err.message}`, { stack: err.stack }); // Log error details
