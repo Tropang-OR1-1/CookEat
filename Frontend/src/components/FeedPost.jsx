@@ -1,8 +1,9 @@
-import React, { forwardRef } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { formatDate } from '../utils/formatDate.js';
 import './styles/feedpost.css';
 import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx';
 import EngagementControls from './FeedPost/EngagementControls.jsx';
+import CommentSection from './FeedPost/CommentSection.jsx';
 import { Link } from 'react-router-dom';
 
 const FeedPost = forwardRef(({
@@ -25,13 +26,19 @@ const FeedPost = forwardRef(({
   const isLoggedIn = !!localStorage.getItem('token');
   const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
   const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
-
-  // Get logged-in user's public_id from localStorage (or wherever you store it)
   const myPublicId = (localStorage.getItem('public_id') || '').trim();
-
-  // Determine link target
   const profileLink = (author_public_id === myPublicId) ? '/profile' : `/user/${author_public_id}`;
   
+  const [showComments, setShowComments] = useState(false);
+
+  const handleCommentCountClick = () => {
+    setShowComments(prev => !prev);  // toggle open/close
+  };
+
+  const handleCommentButtonClick = () => {
+    if (!showComments) setShowComments(true);  // only open, never close
+  };
+
   return (
     <div className="feed-post" ref={ref}>
       {/* Profile Section */}
@@ -60,7 +67,8 @@ const FeedPost = forwardRef(({
           ref_public_id={ref_public_id}
           author_public_id={author_public_id}
           author_username={author_username}
-          author_picture={author_picture} />
+          author_picture={author_picture}
+        />
       </div>
 
       {/* Title */}
@@ -88,25 +96,44 @@ const FeedPost = forwardRef(({
         )}
       </div>
 
-      {/* Engagement Section */}
-      <EngagementControls
-        public_id={public_id}
-        title={title}
-        content={content}
-        created_at={created_at}
-        updated_at={updated_at}
-        view_count={view_count}
-        media_filename={media_filename}
-        media_type={media_type}
-        reactions_total={reactions_total}
-        user_reacted={user_reacted}
-        comment_count={comment_count}
-        ref_public_id={ref_public_id}
-        author_public_id={author_public_id}
-        author_username={author_username}
-        author_picture={author_picture}
-        isLoggedIn={isLoggedIn}
-      />
+      {/* Engagement + Comments */}
+      <div className="feed-post__footer">
+        <div className="feed-post__engagement-wrapper">
+          <EngagementControls
+            public_id={public_id}
+            title={title}
+            content={content}
+            created_at={created_at}
+            updated_at={updated_at}
+            view_count={view_count}
+            media_filename={media_filename}
+            media_type={media_type}
+            reactions_total={reactions_total}
+            user_reacted={user_reacted}
+            comment_count={comment_count}
+            ref_public_id={ref_public_id}
+            author_public_id={author_public_id}
+            author_username={author_username}
+            author_picture={author_picture}
+            isLoggedIn={isLoggedIn}
+            showComments={showComments}
+            setShowComments={setShowComments}
+            onCommentCountClick={handleCommentCountClick}
+            onCommentButtonClick={handleCommentButtonClick}
+          />
+        </div>
+
+        {showComments && (
+          <div className="feed-post__comments-wrapper">
+            <CommentSection
+              public_id={public_id}
+              author_picture={author_picture}
+              isVisible={showComments}
+              onCancel={() => setShowComments(false)}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 });

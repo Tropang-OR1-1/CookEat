@@ -1,34 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import CommentModal from './CommentModal';
-import PostComment from './PostComment';  // Import PostComment component
 import './styles/engagementcontrols.css';
 
 const EngagementControls = ({
   public_id,
-  title,
-  content,
-  created_at,
-  updated_at,
-  view_count,
-  media_filename,
-  media_type,
+  isLoggedIn,
+  setShowComments,
+  showComments,
+  comment_count,
   reactions_total,
   user_reacted,
-  comment_count,
-  ref_public_id,
-  author_public_id,
-  author_username,
-  author_picture,
-  isLoggedIn,
+  media_type,
+  view_count,
 }) => {
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
   const [reactionCount, setReactionCount] = useState(reactions_total);
   const [isReacting, setIsReacting] = useState(false);
-  const [isCommenting, setIsCommenting] = useState(false);
-  const [isCommentSectionVisible, setIsCommentSectionVisible] = useState(false);
 
-  const commentCount = Number(comment_count ?? 0);
+  const totalComments = Number(comment_count ?? 0);
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
@@ -76,19 +65,17 @@ const EngagementControls = ({
       alert('Please log in to comment on this post!');
       return;
     }
-    setIsCommenting(true);
+    setShowComments(true);
   };
 
-  // Handle clicking on the comment count
   const handleCommentCountClick = () => {
-    setIsCommentSectionVisible(!isCommentSectionVisible); // Toggle the visibility of the comments section
+    setShowComments(prev => !prev);
   };
 
   return (
     <div className="engagement-controls-container">
-      {/* Engagement controls grid */}
       <div className="engagement-controls-grid">
-        <button className="like-btn">
+        <div className="grid-item top">
           <span className="count-label">
             {reactionCount === 0
               ? 'No likes yet'
@@ -96,19 +83,21 @@ const EngagementControls = ({
               ? '1 like'
               : `${reactionCount} likes`}
           </span>
-        </button>
-        <button className="comment-btn">
+        </div>
+
+        <div className="grid-item top">
           <span
             className="count-label clickable"
-            onClick={handleCommentCountClick} // Make the comment count clickable
+            onClick={handleCommentCountClick}
           >
-            {commentCount === 0
+            {totalComments === 0
               ? ''
-              : commentCount === 1
+              : totalComments === 1
               ? '1 comment'
-              : `${commentCount} comments`}
+              : `${totalComments} comments`}
           </span>
-        </button>
+        </div>
+
         <div className="grid-item top">
           {media_type === 'video/mp4' && (
             <span className="count-label">
@@ -126,6 +115,7 @@ const EngagementControls = ({
             👍 Like
           </button>
         </div>
+
         <div className="grid-item bottom">
           <button
             className="comment-btn"
@@ -135,27 +125,13 @@ const EngagementControls = ({
             💬 Comment
           </button>
         </div>
+
         <div className="grid-item bottom">
           <button className="share-btn" disabled>
             🔗 Share
           </button>
         </div>
       </div>
-
-      {/* Modal for commenting */}
-      <CommentModal
-        isVisible={isCommenting}
-        public_id={public_id}
-        isLoggedIn={isLoggedIn}
-        onCancel={() => setIsCommenting(false)}
-      />
-
-      {/* Conditionally render the comments section outside the grid */}
-      {isCommentSectionVisible && (
-        <div className="comments-section-wrapper">
-          <PostComment public_id={public_id} />
-        </div>
-      )}
     </div>
   );
 };

@@ -29,8 +29,8 @@
 }
 
 .feed-post__profile-img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -93,4 +93,21 @@
   object-fit: cover;
   border-radius: 10px;
   aspect-ratio: 3 / 2;
+}
+
+.feed-post__footer {
+  margin-top: 1rem;
+}
+
+.feed-post__engagement-wrapper {
+  padding: 0.5rem 0;
+  border-top: 1px solid #eee;
+}
+
+.feed-post__comments-wrapper {
+  margin-top: 0.5rem;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid #ddd;
 }
