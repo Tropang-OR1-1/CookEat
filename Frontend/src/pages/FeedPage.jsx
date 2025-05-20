@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import FeedPost from './../components/FeedPost.jsx';
 import PostSkeleton from '../components/PostSkeleton.jsx';
 import FeedStateStore from '../utils/feedStateStore.js';
+import LoginRegister from '../components/LoginRegister.jsx';
 import './styles/feedpage.css';
 
 function FeedPage() {
@@ -16,9 +17,14 @@ function FeedPage() {
     setScrollY,
   } = FeedStateStore();
 
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
+
   const observer = useRef();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const openLoginModal = () => setLoginModalOpen(true);
+  const closeLoginModal = () => setLoginModalOpen(false);
 
   const lastPostRef = useCallback(
     (node) => {
@@ -113,6 +119,10 @@ function FeedPage() {
           return (
             <FeedPost
               key={post.public_id}
+              // pass down openLoginModal
+              openLoginModal={openLoginModal}
+              isLoggedIn={!!token}
+              // ...existing props
               public_id={post.public_id}
               title={post.title}
               content={post.content}
@@ -128,7 +138,6 @@ function FeedPage() {
               author_public_id={post.author.public_id}
               author_username={post.author.username}
               author_picture={post.author.picture}
-
               ref={isLast ? lastPostRef : null}
             />
           );
@@ -137,6 +146,13 @@ function FeedPage() {
         {error && <p className="feed-status-message">Error: {error}</p>}
         {!hasMore && <p className="feed-status-message">No more posts to show.</p>}
       </div>
+
+      <LoginRegister
+        isOpen={loginModalOpen}
+        onClose={closeLoginModal}
+        setToken={setToken}
+        // optionally pass setProfile/setAvatar if you have them here
+      />
     </div>
   );
 }

@@ -13,8 +13,13 @@ const EngagementControls = ({
   comment_count,
   reactions_total,
   user_reacted,
+  ref_public_id,
+  author_public_id,
+  author_username,
+  author_picture,
   media_type,
   view_count,
+  openLoginModal
 }) => {
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
   const [reactionCount, setReactionCount] = useState(reactions_total);
@@ -24,7 +29,7 @@ const EngagementControls = ({
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
-      alert('Please log in to react to this post!');
+      openLoginModal();
       return;
     }
 
@@ -43,7 +48,7 @@ const EngagementControls = ({
           },
         });
         setReaction(null);
-        setReactionCount((prev) => prev - 1);
+        setReactionCount(prev => prev - 1);
       } else {
         const formData = new FormData();
         formData.append('react', 'UP');
@@ -54,7 +59,7 @@ const EngagementControls = ({
           },
         });
         setReaction('like');
-        setReactionCount((prev) => prev + 1);
+        setReactionCount(prev => prev + 1);
       }
     } catch (error) {
       console.error('Error reacting to the post:', error);
@@ -65,24 +70,25 @@ const EngagementControls = ({
 
   const handleCommentClick = () => {
     if (!isLoggedIn) {
-      alert('Please log in to comment on this post!');
+      openLoginModal();
       return;
     }
     setShowComments(true);
   };
 
   const handleCommentCountClick = () => {
-    setShowComments((prev) => !prev);
+    setShowComments(prev => !prev);
   };
 
   return (
     <div className="engagement-controls-container">
       <div className="engagement-flex-wrapper">
 
+        {/* Top Row: counts */}
         <div className="top-row">
           <div className="count-column">
             <span>
-              {reactionCount === 0 ? ' ' : `${reactionCount} like${reactionCount > 1 ? 's' : ''}`}
+              {reactionCount > 0 ? `${reactionCount} like${reactionCount > 1 ? 's' : ''}` : ' '}
             </span>
           </div>
 
@@ -93,17 +99,21 @@ const EngagementControls = ({
           </div>
 
           <div className="count-column">
-            {/* spacer for alignment */}
-            <span style={{ visibility: 'hidden' }}>spacer</span>
+            {media_type === 'video' && (
+              <span>
+                <VisibilityIcon fontSize="small" style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {view_count} {view_count === 1 ? 'View' : 'Views'}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Bottom row: action buttons */}
+        {/* Bottom Row: buttons */}
         <div className="bottom-row">
           <button
             className={`action-btn ${reaction === 'like' ? 'react' : ''}`}
             onClick={handleReaction}
-            disabled={!isLoggedIn || isReacting}
+            disabled={isReacting}
           >
             <ThumbUpIcon fontSize="medium" />
             <span>Like</span>
@@ -112,7 +122,6 @@ const EngagementControls = ({
           <button
             className="action-btn"
             onClick={handleCommentClick}
-            disabled={!isLoggedIn}
           >
             <ChatBubbleOutlineIcon fontSize="medium" />
             <span>Comment</span>

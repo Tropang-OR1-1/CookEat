@@ -21,29 +21,40 @@ const FeedPost = forwardRef(({
   ref_public_id,
   author_public_id,
   author_username,
-  author_picture
+  author_picture,
+  isLoggedIn,
+  openLoginModal
 }, ref) => {
-  const isLoggedIn = !!localStorage.getItem('token');
+  const [showComments, setShowComments] = useState(false);
+
   const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
   const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
   const myPublicId = (localStorage.getItem('public_id') || '').trim();
   const profileLink = (author_public_id === myPublicId) ? '/profile' : `/user/${author_public_id}`;
-  
-  const [showComments, setShowComments] = useState(false);
+
+  const handleProfileClick = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      openLoginModal();
+    }
+  };
 
   const handleCommentCountClick = () => {
-    setShowComments(prev => !prev);  // toggle open/close
+    setShowComments(prev => !prev);
   };
 
   const handleCommentButtonClick = () => {
-    if (!showComments) setShowComments(true);  // only open, never close
+    if (!showComments) setShowComments(true);
   };
 
   return (
     <div className="feed-post" ref={ref}>
-      {/* Profile Section */}
       <div className="feed-post__profile-section">
-        <Link to={profileLink} className="feed-post__profile-left">
+        <Link
+          to={profileLink}
+          className="feed-post__profile-left"
+          onClick={handleProfileClick}
+        >
           <img src={profileImageUrl} alt="Profile" className="feed-post__profile-img" />
           <div className="feed-post__profile-info">
             <p className="feed-post__author-username">{author_username}</p>
@@ -51,7 +62,6 @@ const FeedPost = forwardRef(({
           </div>
         </Link>
 
-        {/* Dropdown Component */}
         <FeedPostDropdown
           public_id={public_id}
           title={title}
@@ -71,21 +81,18 @@ const FeedPost = forwardRef(({
         />
       </div>
 
-      {/* Title */}
       {title && (
         <div className="feed-post__title">
           <h3>{title}</h3>
         </div>
       )}
 
-      {/* Caption / Content */}
       {content && (
         <div className="feed-post__caption-wrapper">
           <p className="feed-post__caption">{content}</p>
         </div>
       )}
 
-      {/* Media */}
       <div className="feed-post__media-container">
         {media_type === 'image' && mediaUrl && <img src={mediaUrl} alt="Post Media" />}
         {media_type === 'video' && mediaUrl && (
@@ -96,30 +103,29 @@ const FeedPost = forwardRef(({
         )}
       </div>
 
-      {/* Engagement + Comments */}
       <div className="feed-post__footer">
-          <EngagementControls
-            public_id={public_id}
-            title={title}
-            content={content}
-            created_at={created_at}
-            updated_at={updated_at}
-            view_count={view_count}
-            media_filename={media_filename}
-            media_type={media_type}
-            reactions_total={reactions_total}
-            user_reacted={user_reacted}
-            comment_count={comment_count}
-            ref_public_id={ref_public_id}
-            author_public_id={author_public_id}
-            author_username={author_username}
-            author_picture={author_picture}
-            isLoggedIn={isLoggedIn}
-            showComments={showComments}
-            setShowComments={setShowComments}
-            onCommentCountClick={handleCommentCountClick}
-            onCommentButtonClick={handleCommentButtonClick}
-          />
+        <EngagementControls
+          public_id={public_id}
+          title={title}
+          content={content}
+          created_at={created_at}
+          updated_at={updated_at}
+          view_count={view_count}
+          media_filename={media_filename}
+          media_type={media_type}
+          reactions_total={reactions_total}
+          user_reacted={user_reacted}
+          comment_count={comment_count}
+          ref_public_id={ref_public_id}
+          author_public_id={author_public_id}
+          author_username={author_username}
+          author_picture={author_picture}
+          isLoggedIn={isLoggedIn}
+          showComments={showComments}
+          setShowComments={setShowComments}
+          onCommentCountClick={handleCommentCountClick}
+          onCommentButtonClick={handleCommentButtonClick}
+        />
 
         {showComments && (
           <div className="feed-post__comments-wrapper">
