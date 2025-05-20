@@ -14,6 +14,8 @@ function OtherUserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('posts');
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const myPublicIdRaw = localStorage.getItem('public_id') || '';
   const myPublicId = myPublicIdRaw.trim().toLowerCase();
@@ -76,8 +78,10 @@ function OtherUserProfile() {
             : 'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80',
         });
 
-        setLoading(false);
-
+        if (isLoggedIn && !isOwnProfile) {
+          const followingsRes = await axios.get(`https://cookeat.cookeat.space/user/followings/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
       } catch (err) {
         console.error('Error loading profile:', err);
@@ -87,20 +91,62 @@ function OtherUserProfile() {
     };
 
     fetchProfile();
-  }, [public_id]);
+      
+  }, [public_id, isLoggedIn, isOwnProfile]);
+
+  const handleFollow = async () => {
+    if (isOwnProfile) return;
+    setFollowLoading(true);
+
+    try {
+      await axios.post(
+        `https://cookeat.cookeat.space/user/follow/${public_id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+      );
+      setIsFollowing(true);
+      setProfile(prev => ({ ...prev, followersCount: prev.followersCount + 1 }));
+    } catch {
+      alert('Failed to follow user.');
+    }
+
+    setFollowLoading(false);
+  };
+
+  const handleUnfollow = async () => {
+    if (isOwnProfile) return;
+    setFollowLoading(true);
+
+    try {
+      await axios.post(
+        `https://cookeat.cookeat.space/user/unfollow/${public_id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+      );
+      setIsFollowing(false);
+      setProfile(prev => ({ ...prev, followersCount: prev.followersCount - 1 }));
+    } catch {
+      alert('Failed to unfollow user.');
+    }
+
+    setFollowLoading(false);
+  };
+
 
   if (loading) return <div>Loading profile...</div>;
   if (error) return <div>{error}</div>;
 
   return (
-    <div key={public_id} className={`profile-page-container with-cover`}>
-      <div
-        className="profile-cover-photo"
-        style={{ backgroundImage: `url(${profile.coverPhoto})` }}
-      />
+    <div className={`profile-page-container with-cover`}>
+      <div className="profile-cover-photo"/>
 
       <main className="profile-content">
-        <div className="profile-body">
+        <div className='profile-body'>
+
           <header className="profile-header with-cover">
             <div className="profile-image">
               <img
@@ -114,24 +160,31 @@ function OtherUserProfile() {
               <p>{profile.bio}</p>
 
               <div className="stats">
-                <span>
-                  <strong>{profile.postsCount}</strong> Posts
-                </span>
-                <span>
-                  <strong>{profile.followersCount}</strong> Followers
-                </span>
-                <span>
-                  <strong>{profile.followingCount}</strong> Following
-                </span>
+                <span><strong>{profile.postsCount}</strong> Posts</span>
+                <span><strong>{profile.followersCount}</strong> Followers</span>
+                <span><strong>{profile.followingCount}</strong> Following</span>
               </div>
 
-              <FollowButton
-                public_id={public_id}
-                isOwnProfile={isOwnProfile}
-                onFollowersCountChange={(count) =>
-                  setProfile((prev) => prev ? { ...prev, followersCount: count } : prev)
-                }
-              />
+              {!isOwnProfile && isLoggedIn && (
+                isFollowing ? (
+                  <button
+                    className="edit-profile-btn"
+                    onClick={handleUnfollow}
+                    disabled={followLoading}
+                    style={{ backgroundColor: '#FF7043' }}
+                  >
+                    {followLoading ? 'Unfollowing...' : 'Unfollow'}
+                  </button>
+                ) : (
+                  <button
+                    className="edit-profile-btn"
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                  >
+                    {followLoading ? 'Following...' : 'Follow'}
+                  </button>
+                )
+              )}
             </div>
           </header>
 
@@ -151,6 +204,7 @@ function OtherUserProfile() {
             </button>
             <button
               className={activeTab === 'followers' ? 'active' : ''}
+
               onClick={() => {
                 setActiveTab('followers');
                 refreshFollowersCount();
@@ -162,12 +216,21 @@ function OtherUserProfile() {
 
           {/* 👇 Tab content container */}
           <div className="tab-content-container">
-            {activeTab === 'posts' && <OtherUserFeedPage key="posts" public_id={public_id} />}
+            {activeTab === 'posts' && (
+              <OtherUserFeedPage key="posts" public_id={public_id} />
+            )}
 
             {activeTab === 'saved' && (
               <div className="saved-content">
                 <p>This user's saved posts will appear here.</p>
               </div>
+            )}
+
+            {activeTab === 'followers' && (
+              <div className="followers-content">
+                <p>This user's followers list will appear here.</p>
+              </div>
+
             )}
 
             {activeTab === 'followers' && <FollowersList public_id={public_id} />}

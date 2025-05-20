@@ -5,6 +5,7 @@ import MyFeedPage from './../pages/MyFeedPage.jsx';
 import './styles/profile.css';
 
 function Profile({ profile, setProfile }) {
+  // ... your existing state declarations
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +14,6 @@ function Profile({ profile, setProfile }) {
   const [newUsername, setNewUsername] = useState('');
   const [newAvatar, setNewAvatar] = useState(null);
   const [newBio, setNewBio] = useState('');
-
   const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
@@ -219,7 +219,6 @@ function Profile({ profile, setProfile }) {
                 <span><strong>{profile.followersCount}</strong> Followers</span>
                 <span><strong>{profile.followingCount}</strong> Following</span>
               </div>
-
               <button
                 className='edit-profile-btn'
                 onClick={() => {

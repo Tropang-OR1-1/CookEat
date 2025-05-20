@@ -120,11 +120,17 @@ router.get('/:type/:id', verifyToken, upload.none(), async (req, res) => {
   const pid = idCheck.id;
 
   let query = `
-      SELECT r.vote, u.public_id AS user_id, u.username, u.picture
-      FROM ${table} r
-      JOIN user_profile u ON u.id = r.user_id
-      WHERE r.${idField} = $1
+    SELECT 
+      r.vote, 
+      u.public_id AS user_id, 
+      u.username, 
+      um.fname AS user_picture
+    FROM ${table} r
+    JOIN user_profile u ON u.id = r.user_id
+    LEFT JOIN usermedia um ON um.user_id = u.id AND um.type = 'profile'
+    WHERE r.${idField} = $1
   `;
+
 
   const values = [pid];
   let paramIndex = 2;

@@ -214,7 +214,6 @@ const saveFile = async (directory, file) => {
 
     // Generate a unique filename for the file using UUID
     const filename = `${uuidv4()}${fileType}`; // Use uuidv4 to create a unique filename
-
     // Define the destination path for saving the file
     const destination = path.join(directory, filename);
 
@@ -231,7 +230,6 @@ const saveFile = async (directory, file) => {
     } catch {
         throw new Error('Failed to save file');
     }
-
     return filename; // Return the filename to be stored in the database
 };
 
@@ -244,7 +242,7 @@ const computeFileHash = (buffer) => {
 
 async function copyDefaultPfpToProfileDir() {
     const defaultPath = process.env.DEFAULT_PROFILE_PATH;
-    const destDir = process.env.PROFILE_DIR;
+    const destDir = process.env.USER_PROFILE_DIR;
 
     if (!defaultPath || !destDir) {
         throw new Error('DEFAULT_PFP_PATH or PROFILE_PIC_DIR is not set in .env');
@@ -271,4 +269,4 @@ async function copyDefaultPfpToProfileDir() {
 }
 
 module.exports = {  insertMedia, cleanupMedia, updateMedia, deleteMedia,
-                    deleteFile, saveFile, copyDefaultPfpToProfileDir };
+                    deleteFile, saveFile, copyDefaultPfpToProfileDir, computeFileHash };

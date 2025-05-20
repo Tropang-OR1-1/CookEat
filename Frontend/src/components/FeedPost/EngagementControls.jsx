@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/EngagementControls.css';
+import './styles/engagementcontrols.css';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -24,12 +24,12 @@ const EngagementControls = ({
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
   const [reactionCount, setReactionCount] = useState(reactions_total);
   const [isReacting, setIsReacting] = useState(false);
-
+  
   const totalComments = Number(comment_count ?? 0);
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
-      openLoginModal();
+      alert('Please log in to react to this post!');
       return;
     }
 
@@ -48,7 +48,8 @@ const EngagementControls = ({
           },
         });
         setReaction(null);
-        setReactionCount(prev => prev - 1);
+        setReactionCount((prev) => prev - 1);
+        
       } else {
         const formData = new FormData();
         formData.append('react', 'UP');
@@ -59,7 +60,7 @@ const EngagementControls = ({
           },
         });
         setReaction('like');
-        setReactionCount(prev => prev + 1);
+        setReactionCount((prev) => prev + 1);
       }
     } catch (error) {
       console.error('Error reacting to the post:', error);
@@ -70,14 +71,14 @@ const EngagementControls = ({
 
   const handleCommentClick = () => {
     if (!isLoggedIn) {
-      openLoginModal();
+      alert('Please log in to comment on this post!');
       return;
     }
     setShowComments(true);
   };
 
   const handleCommentCountClick = () => {
-    setShowComments(prev => !prev);
+    setShowComments((prev) => !prev);
   };
 
   return (
