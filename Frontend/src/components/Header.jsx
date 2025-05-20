@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
 import CreateRecipe from "./CreateRecipe.jsx";
@@ -14,12 +15,36 @@ function Header({ token, setToken, profile }) {
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || 'default-avatar.jpg');
+  const [avatar, setAvatar] = useState(localStorage.getItem("avatar") || "default-avatar.jpg");
 
   const addPostRef = useRef(null);
   const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get("https://cookeat.cookeat.space/user/profile/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (response.data?.Profile?.picture) {
+          const pictureUrl = `https://cookeat.cookeat.space/media/profile/${response.data.Profile.picture}`;
+          setAvatar(pictureUrl);
+          localStorage.setItem("avatar", pictureUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    if (token) {
+      fetchProfile();
+    }
+  }, [token]);
 
   useEffect(() => {
     if (profile && profile.avatar) {
@@ -39,17 +64,10 @@ function Header({ token, setToken, profile }) {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        addPostRef.current &&
-        !addPostRef.current.contains(event.target)
-      ) {
+      if (addPostRef.current && !addPostRef.current.contains(event.target)) {
         setIsAddPostOpen(false);
       }
-
-      if (
-        profileDropdownRef.current &&
-        !profileDropdownRef.current.contains(event.target)
-      ) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
         setIsProfileDropdownOpen(false);
       }
     };
@@ -64,42 +82,45 @@ function Header({ token, setToken, profile }) {
     localStorage.removeItem("token");
     localStorage.removeItem("profile");
     localStorage.removeItem("public_id");
+    localStorage.removeItem("avatar");
     setToken(null);
-
-    window.location.href = "/feeds"; // ✅ Full reload
+    window.location.href = "/feeds";
   };
 
   useEffect(() => {
-    // Disable body scroll when dropdown or modal is open
-    if (isPostModalOpen || isRecipeModalOpen || isLoginModalOpen || isNotificationModalOpen || isProfileDropdownOpen) {
+    if (
+      isPostModalOpen ||
+      isRecipeModalOpen ||
+      isLoginModalOpen ||
+      isNotificationModalOpen ||
+      isProfileDropdownOpen
+    ) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = "auto"; // Re-enable scroll on cleanup
+      document.body.style.overflow = "auto";
     };
-  }, [isPostModalOpen, isRecipeModalOpen, isLoginModalOpen, isNotificationModalOpen, isProfileDropdownOpen]);
+  }, [
+    isPostModalOpen,
+    isRecipeModalOpen,
+    isLoginModalOpen,
+    isNotificationModalOpen,
+    isProfileDropdownOpen,
+  ]);
 
   return (
     <header className="header-navbar header">
       <div className="header-logo-container">
         <Link to="/">
-          <img
-            src="./images/CookEat_Logo.png"
-            alt="Cook It Logo"
-            className="header-logo"
-          />
+          <img src="./images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
         </Link>
       </div>
 
       <div className="header-search-container">
-        <input
-          type="text"
-          placeholder="Search in CookEat"
-          className="header-search-bar"
-        />
+        <input type="text" placeholder="Search in CookEat" className="header-search-bar" />
       </div>
 
       <nav className="header-nav-links">
@@ -161,28 +182,26 @@ function Header({ token, setToken, profile }) {
           </div>
 
           {!token && (
-            <div className="header-tooltip-wrapper">
-              <Link
-                to="/about"
-                className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
-              >
-                <i className="bx bxl-dev-to"></i>
-                <span className="header-tooltip">About Us</span>
-              </Link>
-            </div>
-          )}
-
-          {/* Show Help and Support only when not logged in */}
-          {!token && (
-            <div className="header-tooltip-wrapper">
-              <Link
-                to="/help"
-                className={`header-button ${location.pathname === "/help" ? "active" : ""}`}
-              >
-                <i className="bx bx-help-circle"></i>
-                <span className="header-tooltip">Help and Support</span>
-              </Link>
-            </div>
+            <>
+              <div className="header-tooltip-wrapper">
+                <Link
+                  to="/about"
+                  className={`header-button ${location.pathname === "/about" ? "active" : ""}`}
+                >
+                  <i className="bx bxl-dev-to"></i>
+                  <span className="header-tooltip">About Us</span>
+                </Link>
+              </div>
+              <div className="header-tooltip-wrapper">
+                <Link
+                  to="/help"
+                  className={`header-button ${location.pathname === "/help" ? "active" : ""}`}
+                >
+                  <i className="bx bx-help-circle"></i>
+                  <span className="header-tooltip">Help and Support</span>
+                </Link>
+              </div>
+            </>
           )}
         </div>
 
@@ -208,19 +227,16 @@ function Header({ token, setToken, profile }) {
           const stored = localStorage.getItem("profile");
           if (stored) {
             const profile = JSON.parse(stored);
-            setAvatar(profile.avatar);  // Set the avatar based on profile in localStorage
+            setAvatar(profile.avatar);
           }
         }}
-        setAvatar={setAvatar} // Ensure avatar is passed down
+        setAvatar={setAvatar}
       />
 
       {token && (
         <div className="header-user-actions">
           <div className="header-tooltip-wrapper">
-            <button
-              className="header-button"
-              onClick={() => setIsNotificationModalOpen(true)}
-            >
+            <button className="header-button" onClick={() => setIsNotificationModalOpen(true)}>
               <i className="bx bx-bell"></i>
               <span className="header-tooltip">Notifications</span>
             </button>
@@ -238,7 +254,7 @@ function Header({ token, setToken, profile }) {
             />
             <div className={`header-dropdown-content ${isProfileDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
-              <Link to="/help">Help and Support</Link> {/* Moved Help to dropdown */}
+              <Link to="/help">Help and Support</Link>
               <Link to="/incentives">Incentives</Link>
               <Link to="/settings">Settings</Link>
               <Link to="/about">About Us</Link>
