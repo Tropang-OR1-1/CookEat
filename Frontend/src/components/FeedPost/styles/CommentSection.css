@@ -1,0 +1,116 @@
+/* Reset overlay if used by CommentModal */
+.comment-section-overlay {
+  all: unset;
+}
+
+/* Main container */
+.comment-section {
+  background-color: #f8f8f8;
+  border-radius: 0.5rem;
+  /* Make sure it doesn't overlap other elements */
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.comment-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.5rem;
+}
+
+.comment-section__header h3 {
+  margin: 0;
+}
+
+/* Comment list */
+.comment-section__list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  overflow-y: auto; /* Scroll if too tall */
+}
+
+.comment-section__item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.comment-section__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  object-fit: cover;
+}
+
+.comment-section__body {
+  flex: 1;
+}
+
+.comment-section__header-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.comment-section__user {
+  font-weight: bold;
+  color: #222;
+}
+
+.comment-section__text {
+  margin: 0.25rem 0;
+  color: #333;
+}
+
+.comment-section__reactions {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Pagination controls */
+.comment-section__pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.comment-section__pagination button {
+  padding: 0.4rem 0.75rem;
+  background-color: #FF8700;
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.comment-section__pagination button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Write comment button */
+.comment-section__write-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #FF8700;
+  color: white;
+  border: none;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+}
+
+/* Error message */
+.comment-section__error {
+  color: #d9534f;
+  font-weight: 600;
+  margin: 1rem 0;
+}

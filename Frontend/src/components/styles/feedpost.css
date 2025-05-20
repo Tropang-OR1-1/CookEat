@@ -1,11 +1,12 @@
 .feed-post {
   flex: 0 0 auto;
-  width: 800px;
+  width: 700px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 2.5px solid #FF8700;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  padding: 15px;
+  padding-bottom: 10px;
   box-sizing: border-box;
   margin: 0 auto; 
 }
@@ -29,8 +30,8 @@
 }
 
 .feed-post__profile-img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -78,9 +79,13 @@
 .feed-post__media-container video {
   max-width: 100%;
   width: 100%;
+  max-height: 380px;
+  height: 100%;
   border-radius: 10px;
   outline: 2px solid #FF8700;
+  object-fit: cover;
 }
+
 
 .feed-post__media-container img {
   width: 100%;
@@ -93,4 +98,16 @@
   object-fit: cover;
   border-radius: 10px;
   aspect-ratio: 3 / 2;
+}
+
+.feed-post__footer {
+  margin-top: 1rem;
+}
+
+.feed-post__comments-wrapper {
+  margin-top: 0.5rem;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid #ddd;
 }
