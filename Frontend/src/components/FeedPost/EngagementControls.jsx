@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/engagementcontrols.css';
+import './styles/EngagementControls.css';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ShareIcon from '@mui/icons-material/Share';
 
 const EngagementControls = ({
   public_id,
   isLoggedIn,
   setShowComments,
-  showComments,
   comment_count,
   reactions_total,
   user_reacted,
@@ -69,66 +72,55 @@ const EngagementControls = ({
   };
 
   const handleCommentCountClick = () => {
-    setShowComments(prev => !prev);
+    setShowComments((prev) => !prev);
   };
 
   return (
     <div className="engagement-controls-container">
-      <div className="engagement-controls-grid">
-        <div className="grid-item top">
-          <span className="count-label">
-            {reactionCount === 0
-              ? 'No likes yet'
-              : reactionCount === 1
-              ? '1 like'
-              : `${reactionCount} likes`}
-          </span>
-        </div>
+      <div className="engagement-flex-wrapper">
 
-        <div className="grid-item top">
-          <span
-            className="count-label clickable"
-            onClick={handleCommentCountClick}
-          >
-            {totalComments === 0
-              ? ''
-              : totalComments === 1
-              ? '1 comment'
-              : `${totalComments} comments`}
-          </span>
-        </div>
-
-        <div className="grid-item top">
-          {media_type === 'video/mp4' && (
-            <span className="count-label">
-              {view_count} {view_count === 1 ? 'View' : 'Views'}
+        <div className="top-row">
+          <div className="count-column">
+            <span>
+              {reactionCount === 0 ? ' ' : `${reactionCount} like${reactionCount > 1 ? 's' : ''}`}
             </span>
-          )}
+          </div>
+
+          <div className="count-column" onClick={handleCommentCountClick}>
+            <span>
+              {totalComments > 0 ? `${totalComments} comment${totalComments > 1 ? 's' : ''}` : ' '}
+            </span>
+          </div>
+
+          <div className="count-column">
+            {/* spacer for alignment */}
+            <span style={{ visibility: 'hidden' }}>spacer</span>
+          </div>
         </div>
 
-        <div className="grid-item bottom">
+        {/* Bottom row: action buttons */}
+        <div className="bottom-row">
           <button
-            className={`like-btn ${reaction === 'like' ? 'react' : ''}`}
+            className={`action-btn ${reaction === 'like' ? 'react' : ''}`}
             onClick={handleReaction}
             disabled={!isLoggedIn || isReacting}
           >
-            👍 Like
+            <ThumbUpIcon fontSize="medium" />
+            <span>Like</span>
           </button>
-        </div>
 
-        <div className="grid-item bottom">
           <button
-            className="comment-btn"
+            className="action-btn"
             onClick={handleCommentClick}
             disabled={!isLoggedIn}
           >
-            💬 Comment
+            <ChatBubbleOutlineIcon fontSize="medium" />
+            <span>Comment</span>
           </button>
-        </div>
 
-        <div className="grid-item bottom">
-          <button className="share-btn" disabled>
-            🔗 Share
+          <button className="action-btn" disabled>
+            <ShareIcon fontSize="medium" />
+            <span>Share</span>
           </button>
         </div>
       </div>

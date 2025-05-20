@@ -2,17 +2,16 @@
   display: flex;
   align-items: flex-start;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #ddd;
 }
 
 .comment-avatar {
   width: 45px;
   height: 45px;
-  border-radius: 50%; /* Circular */
+  border-radius: 50%;
   margin-right: 0.75rem;
   object-fit: cover;
-  border: 2px solid #FF8700; /* Added orange border */
-  box-sizing: border-box; /* ensures border doesn't affect size */
+  border: 2px solid #FF8700;
+  box-sizing: border-box;
 }
 
 .comment-content {
@@ -28,9 +27,8 @@
   color: #222;
 }
 
-/* Rounded comment bubble background */
 .comment-text {
-  background-color: #e2e3e7; /* Facebook-like bubble */
+  background-color: #e2e3e7;
   padding: 8px 12px;
   border-radius: 18px;
   margin: 0 0 6px 0;
@@ -41,7 +39,6 @@
   white-space: pre-wrap; /* preserve line breaks */
 }
 
-/* Footer with time, Like, Reply */
 .comment-footer {
   display: flex;
   align-items: center;
@@ -50,12 +47,10 @@
   color: #65676b;
 }
 
-/* Time text style */
 .comment-time {
   user-select: none;
 }
 
-/* Like and Reply styled as buttons */
 .comment-action {
   background: none;
   border: none;

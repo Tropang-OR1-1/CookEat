@@ -98,7 +98,6 @@ const FeedPost = forwardRef(({
 
       {/* Engagement + Comments */}
       <div className="feed-post__footer">
-        <div className="feed-post__engagement-wrapper">
           <EngagementControls
             public_id={public_id}
             title={title}
@@ -121,7 +120,6 @@ const FeedPost = forwardRef(({
             onCommentCountClick={handleCommentCountClick}
             onCommentButtonClick={handleCommentButtonClick}
           />
-        </div>
 
         {showComments && (
           <div className="feed-post__comments-wrapper">
