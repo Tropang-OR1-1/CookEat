@@ -120,7 +120,7 @@
 }
 
 .btn.save:hover:not(:disabled) {
-  background-color: #cc6a00;
+  background-color: #FF8700;
   box-shadow: 0 4px 8px rgba(204, 106, 0, 0.7);
 }
 

@@ -1,34 +1,31 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import CommentModal from './CommentModal';
-import PostComment from './PostComment';  // Import PostComment component
 import './styles/engagementcontrols.css';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ShareIcon from '@mui/icons-material/Share';
 
 const EngagementControls = ({
   public_id,
-  title,
-  content,
-  created_at,
-  updated_at,
-  view_count,
-  media_filename,
-  media_type,
+  isLoggedIn,
+  setShowComments,
+  comment_count,
   reactions_total,
   user_reacted,
-  comment_count,
   ref_public_id,
   author_public_id,
   author_username,
   author_picture,
-  isLoggedIn,
+  media_type,
+  view_count,
+  openLoginModal
 }) => {
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
   const [reactionCount, setReactionCount] = useState(reactions_total);
   const [isReacting, setIsReacting] = useState(false);
-  const [isCommenting, setIsCommenting] = useState(false);
-  const [isCommentSectionVisible, setIsCommentSectionVisible] = useState(false);
-
-  const commentCount = Number(comment_count ?? 0);
+  
+  const totalComments = Number(comment_count ?? 0);
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
@@ -52,6 +49,7 @@ const EngagementControls = ({
         });
         setReaction(null);
         setReactionCount((prev) => prev - 1);
+        
       } else {
         const formData = new FormData();
         formData.append('react', 'UP');
@@ -76,86 +74,66 @@ const EngagementControls = ({
       alert('Please log in to comment on this post!');
       return;
     }
-    setIsCommenting(true);
+    setShowComments(true);
   };
 
-  // Handle clicking on the comment count
   const handleCommentCountClick = () => {
-    setIsCommentSectionVisible(!isCommentSectionVisible); // Toggle the visibility of the comments section
+    setShowComments((prev) => !prev);
   };
 
   return (
     <div className="engagement-controls-container">
-      {/* Engagement controls grid */}
-      <div className="engagement-controls-grid">
-        <button className="like-btn">
-          <span className="count-label">
-            {reactionCount === 0
-              ? 'No likes yet'
-              : reactionCount === 1
-              ? '1 like'
-              : `${reactionCount} likes`}
-          </span>
-        </button>
-        <button className="comment-btn">
-          <span
-            className="count-label clickable"
-            onClick={handleCommentCountClick} // Make the comment count clickable
-          >
-            {commentCount === 0
-              ? ''
-              : commentCount === 1
-              ? '1 comment'
-              : `${commentCount} comments`}
-          </span>
-        </button>
-        <div className="grid-item top">
-          {media_type === 'video/mp4' && (
-            <span className="count-label">
-              {view_count} {view_count === 1 ? 'View' : 'Views'}
+      <div className="engagement-flex-wrapper">
+
+        {/* Top Row: counts */}
+        <div className="top-row">
+          <div className="count-column">
+            <span>
+              {reactionCount > 0 ? `${reactionCount} like${reactionCount > 1 ? 's' : ''}` : ' '}
             </span>
-          )}
+          </div>
+
+          <div className="count-column" onClick={handleCommentCountClick}>
+            <span>
+              {totalComments > 0 ? `${totalComments} comment${totalComments > 1 ? 's' : ''}` : ' '}
+            </span>
+          </div>
+
+          <div className="count-column">
+            {media_type === 'video' && (
+              <span>
+                <VisibilityIcon fontSize="small" style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {view_count} {view_count === 1 ? 'View' : 'Views'}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="grid-item bottom">
+        {/* Bottom Row: buttons */}
+        <div className="bottom-row">
           <button
-            className={`like-btn ${reaction === 'like' ? 'react' : ''}`}
+            className={`action-btn ${reaction === 'like' ? 'react' : ''}`}
             onClick={handleReaction}
-            disabled={!isLoggedIn || isReacting}
+            disabled={isReacting}
           >
-            👍 Like
+            <ThumbUpIcon fontSize="medium" />
+            <span>Like</span>
           </button>
-        </div>
-        <div className="grid-item bottom">
+
           <button
-            className="comment-btn"
+            className="action-btn"
             onClick={handleCommentClick}
-            disabled={!isLoggedIn}
           >
-            💬 Comment
+            <ChatBubbleOutlineIcon fontSize="medium" />
+            <span>Comment</span>
           </button>
-        </div>
-        <div className="grid-item bottom">
-          <button className="share-btn" disabled>
-            🔗 Share
+
+          <button className="action-btn" disabled>
+            <ShareIcon fontSize="medium" />
+            <span>Share</span>
           </button>
         </div>
       </div>
-
-      {/* Modal for commenting */}
-      <CommentModal
-        isVisible={isCommenting}
-        public_id={public_id}
-        isLoggedIn={isLoggedIn}
-        onCancel={() => setIsCommenting(false)}
-      />
-
-      {/* Conditionally render the comments section outside the grid */}
-      {isCommentSectionVisible && (
-        <div className="comments-section-wrapper">
-          <PostComment public_id={public_id} />
-        </div>
-      )}
     </div>
   );
 };

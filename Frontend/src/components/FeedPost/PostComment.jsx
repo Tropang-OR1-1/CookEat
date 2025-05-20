@@ -1,91 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/postcomment.css';
+import './styles/PostComment.css';
 
-const PostComment = ({ public_id }) => {
-  const [comments, setComments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+const PostComment = ({ public_id, isVisible, isLoggedIn, onCancel, onPostSuccess }) => {
+  const [newComment, setNewComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch comments when the component is mounted or page changes
-  useEffect(() => {
-    const fetchComments = async () => {
-      setLoading(true);
-      setError(null);
+  if (!isVisible) return null;
 
-      try {
-        const token = localStorage.getItem('token'); // Get token if logged in
-        const url = `https://cookeat.cookeat.space/comments/${public_id}?page=${page}&limit=10`; // Pass page and limit in query
-        const response = await axios.get(url, {
+  const handleSubmit = async () => {
+    if (!isLoggedIn) {
+      alert('Please log in to comment on this post!');
+      return;
+    }
+
+    if (!newComment.trim()) {
+      alert('Please enter a comment!');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('content', newComment);
+
+      const response = await axios.post(
+        `https://cookeat.cookeat.space/comments/${public_id}`,
+        formData,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        }
+      );
 
-        const { data, totalPages } = response.data;
-        setComments(data); // Update comments state
-        setTotalPages(totalPages); // Set total pages for pagination
-      } catch (error) {
-        setError('Error fetching comments');
-        console.error(error);
-      } finally {
-        setLoading(false);
+      if (response.status === 200) {
+        setNewComment('');
+        if (onPostSuccess) onPostSuccess();
+        else onCancel();
       }
-    };
-
-    fetchComments();
-  }, [public_id, page]); // Re-run effect when `public_id` or `page` changes
-
-  // Handle pagination (next page)
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      setPage(page + 1);
-    }
-  };
-
-  // Handle pagination (previous page)
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      alert('Failed to submit comment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="comments-section">
-      <h3>Comments</h3>
-      {loading ? (
-        <p>Loading comments...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : comments.length > 0 ? (
-        <ul>
-          {comments.map((comment) => (
-            <li key={comment.comment_id} className="comment-item">
-              <p><strong>{comment.user_name}</strong></p>
-              <p>{comment.comment_text}</p>
-              <span>{new Date(comment.comment_created_at).toLocaleString()}</span>
-              <div className="reactions">
-                {/* Render reactions if needed */}
-                <span>{comment.reactions?.total} reactions</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No comments yet.</p>
-      )}
-
-      {/* Pagination controls */}
-      <div className="pagination-controls">
-        <button onClick={handlePrevPage} disabled={page === 1}>
-          Previous
-        </button>
-        <span>Page {page} of {totalPages}</span>
-        <button onClick={handleNextPage} disabled={page === totalPages}>
-          Next
-        </button>
+    <div className="comment-modal">
+      <div className="modal-content">
+        <h3>Post a Comment</h3>
+        <textarea
+          className="comment-textarea"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder="Write your comment..."
+        />
+        <div className="modal-actions">
+          <button
+            className="modal-button submit"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            Submit
+          </button>
+          <button className="modal-button cancel" onClick={onCancel} disabled={isSubmitting}>
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );

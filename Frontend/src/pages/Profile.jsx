@@ -14,8 +14,6 @@ function Profile({ profile, setProfile }) {
   const [newUsername, setNewUsername] = useState('');
   const [newAvatar, setNewAvatar] = useState(null);
   const [newBio, setNewBio] = useState('');
-
-  // 👇 Added activeTab state at the top inside the component (as requested)
   const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
@@ -41,9 +39,10 @@ function Profile({ profile, setProfile }) {
         }
 
         const fetchedProfile = {
-          avatar: response.data.Profile.picture
-            ? `https://cookeat.cookeat.space/media/profile/${response.data.Profile.picture}`
-            : 'https://www.w3schools.com/howto/img_avatar.png',
+          avatar: response.data.Profile.profile?.startsWith('http')
+          ? response.data.Profile.profile
+          : `https://cookeat.cookeat.space/media/profile/${response.data.Profile.profile}`,
+
           username: response.data.Profile.username,
           postsCount: response.data.Profile.postsCount || 0,
           followersCount: response.data.Profile.followersCount || 0,
@@ -120,7 +119,7 @@ function Profile({ profile, setProfile }) {
     formData.append('username', newUsername);
     formData.append('biography', newBio);
     if (newAvatar) {
-      formData.append('profile', newAvatar);
+      formData.append('profile', newAvatar); // backend expects key 'profile'
     }
 
     try {
@@ -142,8 +141,8 @@ function Profile({ profile, setProfile }) {
 
         const updated = updatedProfileRes.data.Profile;
         const updatedProfile = {
-          avatar: updated.picture
-            ? `https://cookeat.cookeat.space/media/profile/${updated.picture}`
+          avatar: updated.profile
+            ? `https://cookeat.cookeat.space/media/profile/${updated.profile}`
             : 'https://www.w3schools.com/howto/img_avatar.png',
           username: updated.username,
           postsCount: updated.postsCount || 0,
@@ -164,109 +163,115 @@ function Profile({ profile, setProfile }) {
   };
 
   if (loading || !profile) return <div>Loading...</div>;
-
+  console.log("Rendering profile image:", profile.avatar);
   return (
     <div className={`profile-page-container with-cover`}>
-      <div className="profile-cover-photo"/>
+      <div className="profile-cover-photo" />
 
       <main className="profile-content">
-        <div class="profile-body">
+        <div className="profile-body">
           <header className="profile-header with-cover">
-          <div className="profile-image">
-            <img
-              src={newAvatar ? URL.createObjectURL(newAvatar) : profile.avatar}
-              alt="Profile"
-              className="profile-avatar"
-            />
-          </div>
-          <div className="profile-info">
-            {isEditing ? (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setNewAvatar(e.target.files[0])}
-                />
-                <input
-                  type="text"
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="Enter new username"
-                />
-                <textarea
-                  value={newBio}
-                  onChange={(e) => setNewBio(e.target.value)}
-                  placeholder="Enter new biography"
-                />
-              </>
-            ) : (
-              <>
-                <h1 className="username">{profile.username}</h1>
-                <p>{profile.bio}</p>
-              </>
+            <div className="profile-image">
+              <img
+                src={
+                  newAvatar
+                    ? URL.createObjectURL(newAvatar)
+                    : profile.avatar || 'https://www.w3schools.com/howto/img_avatar.png'
+                }
+                alt="Profile"
+                className="profile-avatar"
+                onError={(e) => {
+                  console.warn('Image load error, falling back.');
+                  e.target.src = 'https://www.w3schools.com/howto/img_avatar.png';
+                }}
+              />
+
+            </div>
+            <div className="profile-info">
+              {isEditing ? (
+                <>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setNewAvatar(e.target.files[0])}
+                  />
+                  <input
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    placeholder="Enter new username"
+                  />
+                  <textarea
+                    value={newBio}
+                    onChange={(e) => setNewBio(e.target.value)}
+                    placeholder="Enter new biography"
+                  />
+                </>
+              ) : (
+                <>
+                  <h1 className="username">{profile.username}</h1>
+                  <p>{profile.bio}</p>
+                </>
+              )}
+
+              <div className="stats">
+                <span><strong>{profile.postsCount}</strong> Posts</span>
+                <span><strong>{profile.followersCount}</strong> Followers</span>
+                <span><strong>{profile.followingCount}</strong> Following</span>
+              </div>
+              <button
+                className='edit-profile-btn'
+                onClick={() => {
+                  if (isEditing) {
+                    handleSaveProfile();
+                  } else {
+                    setNewUsername(profile.username);
+                    setNewBio(profile.bio);
+                  }
+                  setIsEditing(!isEditing);
+                }}
+              >
+                {isEditing ? 'Save' : 'Edit Profile'}
+              </button>
+            </div>
+          </header>
+
+          <nav className="profile-tabs">
+            <button
+              className={activeTab === 'posts' ? 'active' : ''}
+              onClick={() => setActiveTab('posts')}
+            >
+              Posts
+            </button>
+            <button
+              className={activeTab === 'saved' ? 'active' : ''}
+              onClick={() => setActiveTab('saved')}
+            >
+              Saved
+            </button>
+            <button
+              className={activeTab === 'followers' ? 'active' : ''}
+              onClick={() => setActiveTab('followers')}
+            >
+              Followers
+            </button>
+          </nav>
+
+          <div className="tab-content-container">
+            {activeTab === 'posts' && <MyFeedPage />}
+
+            {activeTab === 'saved' && (
+              <div className="saved-content">
+                <p>Saved posts will appear here.</p>
+              </div>
             )}
 
-            <div className="stats">
-              <span><strong>{profile.postsCount}</strong> Posts</span>
-              <span><strong>{profile.followersCount}</strong> Followers</span>
-              <span><strong>{profile.followingCount}</strong> Following</span>
-            </div>
-
-            <button 
-              className='edit-profile-btn'
-              onClick={() => {
-                if (isEditing) {
-                  handleSaveProfile();
-                } else {
-                  setNewUsername(profile.username);
-                  setNewBio(profile.bio);
-                }
-                setIsEditing(!isEditing);
-              }}
-            >
-              {isEditing ? 'Save' : 'Edit Profile'}
-            </button>
+            {activeTab === 'followers' && (
+              <div className="followers-content">
+                <p>Followers list will appear here.</p>
+              </div>
+            )}
           </div>
-        </header>
-
-        {/* 👇 Updated profile-tabs nav with active class handling */}
-        <nav className="profile-tabs">
-          <button
-            className={activeTab === 'posts' ? 'active' : ''}
-            onClick={() => setActiveTab('posts')}
-          >
-            Posts
-          </button>
-          <button
-            className={activeTab === 'saved' ? 'active' : ''}
-            onClick={() => setActiveTab('saved')}
-          >
-            Saved
-          </button>
-          <button
-            className={activeTab === 'followers' ? 'active' : ''}
-            onClick={() => setActiveTab('followers')}
-          >
-            Followers
-          </button>
-        </nav>
-
-        {/* 👇 Tab content container */}
-        <div className="tab-content-container">
-          {activeTab === 'posts' && <MyFeedPage />}
-
-          {activeTab === 'saved' && (
-            <div className="saved-content">
-              <p>Saved posts will appear here.</p>
-            </div>
-          )}
-
-          {activeTab === 'followers' && (
-            <div className="followers-content">
-              <p>Followers list will appear here.</p>
-            </div>
-          )}
-        </div>
         </div>
       </main>
     </div>
