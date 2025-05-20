@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './styles/PostComment.css';
 
-const PostComment = ({ public_id, isVisible, isLoggedIn, onCancel, onPostSuccess }) => {
+const PostComment = ({ public_id, isVisible, onCancel, onPostSuccess }) => {
+  const isLoggedIn = !!localStorage.getItem('token');
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
