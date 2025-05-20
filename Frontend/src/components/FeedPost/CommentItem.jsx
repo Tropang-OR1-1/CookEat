@@ -6,7 +6,7 @@ const CommentItem = ({ comment }) => {
   return (
     <li className="comment-item">
       <img
-        src={`https://cookeat.cookeat.space/media/profile/${comment.user_picture || 'default.png'}`}
+        src={`https://cookeat.cookeat.space/media/profile/${comment.user_picture || './../../../public/images/default_profile.png'}`}
         alt="User"
         className="comment-avatar"
       />

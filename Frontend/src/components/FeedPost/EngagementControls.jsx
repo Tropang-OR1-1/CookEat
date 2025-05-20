@@ -68,7 +68,7 @@ const EngagementControls = ({
       alert('Please log in to comment on this post!');
       return;
     }
-    setShowComments(true);
+    setShowComments((prev) => !prev);
   };
 
   const handleCommentCountClick = () => {
