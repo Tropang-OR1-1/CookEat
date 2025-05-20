@@ -6,7 +6,7 @@ const path = require('path');
 
 const { v4: uuidv4 } = require('uuid');
 
-
+/*
 const storageProfile = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, process.env.PROFILE_DIR);  // Folder to save the uploaded files
@@ -18,6 +18,13 @@ const storageProfile = multer.diskStorage({
     }
 });
 
+// Multer setup for Profile upload
+const Profile = multer({
+    storage: storageProfile,
+    fileFilter: fileFilterImage,
+    limits: { fileSize: process.env.PROFILE_MAX_SIZE }  // Dynamic file size limit from .env
+});
+*/
 
 // File filter to only allow specific file types
 const fileFilterImage = (req, file, cb) => {
@@ -29,13 +36,21 @@ const fileFilterImage = (req, file, cb) => {
 };
 
 
-// Multer setup for Profile upload
-const Profile = multer({
-    storage: storageProfile,
+
+
+
+
+
+//
+const storageUserMedia = multer.memoryStorage();
+
+const userMedia = multer({
+    storage: storageUserMedia,
     fileFilter: fileFilterImage,
-    limits: { fileSize: process.env.PROFILE_MAX_SIZE }  // Dynamic file size limit from .env
+    limits: { fileSize: process.env.USERMEDIA_MAX_SIZE }  // Dynamic file size limit from .env
 });
 
+//
 
 
 const storageMedia = multer.memoryStorage();  // Store files in memory
@@ -155,4 +170,4 @@ const combinedRecipeUpload = multer({
 
 
 
-module.exports = {Profile, Media, combinedRecipeUpload, none};
+module.exports = {userMedia, Profile, Media, combinedRecipeUpload, none};

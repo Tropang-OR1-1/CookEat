@@ -214,7 +214,7 @@ const saveFile = async (directory, file) => {
 
     // Generate a unique filename for the file using UUID
     const filename = `${uuidv4()}${fileType}`; // Use uuidv4 to create a unique filename
-
+    console.log(typeof filename);
     // Define the destination path for saving the file
     const destination = path.join(directory, filename);
 
@@ -231,7 +231,6 @@ const saveFile = async (directory, file) => {
     } catch {
         throw new Error('Failed to save file');
     }
-
     return filename; // Return the filename to be stored in the database
 };
 
@@ -271,4 +270,4 @@ async function copyDefaultPfpToProfileDir() {
 }
 
 module.exports = {  insertMedia, cleanupMedia, updateMedia, deleteMedia,
-                    deleteFile, saveFile, copyDefaultPfpToProfileDir };
+                    deleteFile, saveFile, copyDefaultPfpToProfileDir, computeFileHash };
