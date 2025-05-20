@@ -64,3 +64,5 @@ node_modules/Frontend/dist/index.html
 
 #Frontend\package-lock.json
 #Frontend/package-lock.json
+.env
+.env
