@@ -76,7 +76,8 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
             LEFT JOIN user_profile u ON p.user_id = u.id
             ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $3 AND ut.tags_id = t.id` : ''}
             LEFT JOIN posts r ON r.id = p.ref_id
-            WHERE (p.visibility = 'public'
+            WHERE p.deleted_at IS NULL
+              AND (p.visibility = 'public'
                 ${userId ? `OR (p.visibility = 'private' AND p.user_id = $3)
                          OR (p.visibility = 'restricted' AND EXISTS 
                              (SELECT 1 FROM followers f 
@@ -94,7 +95,8 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
             LEFT JOIN post_tags pt ON pt.post_id = p.id
             LEFT JOIN tags t ON t.id = pt.tags_id
             ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $1 AND ut.tags_id = t.id` : ''}
-            WHERE (p.visibility = 'public'
+            WHERE p.deleted_at IS NULL
+              AND (p.visibility = 'public'
                 ${userId ? `OR (p.visibility = 'private' AND p.user_id = $1)
                          OR (p.visibility = 'restricted' AND EXISTS 
                              (SELECT 1 FROM followers f 
@@ -106,7 +108,7 @@ router.get('/feed/posts', justifyToken, upload.none(), async (req, res) => {
         const posts = await db.query(query, queryParams);
         const countResult = await db.query(countQuery, countParams);
         const totalPosts = parseInt(countResult.rows[0]?.total || '0');
-        
+
         const formattedPosts = posts.rows.map(post => {
             const reactionCounts = post.reactions || {};
             const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + parseInt(b || 0), 0);
@@ -161,6 +163,9 @@ router.get('/user/posts/:public_id', justifyToken, upload.none(), async (req, re
     const sort = req.query.sort || 'created_at';
     const authorPublicId = req.params.public_id;
     const userId = req.user?.id;
+    
+    if (!isValidUUID(authorPublicId))
+      return res.status(404).json({message: "post UUID must be provided", PID: authorPublicId});
 
     let orderClause = `p.created_at DESC`;
     if (sort === 'views') {
@@ -215,6 +220,7 @@ router.get('/user/posts/:public_id', justifyToken, upload.none(), async (req, re
             LEFT JOIN comments cm ON cm.post_id = p.id
             LEFT JOIN posts r ON r.id = p.ref_id
             WHERE u.public_id = $3
+              AND p.deleted_at IS NULL
             GROUP BY p.id, r.public_id, u.public_id, u.username, u.picture
             ORDER BY ${orderClause}
             LIMIT $1 OFFSET $2
@@ -225,6 +231,7 @@ router.get('/user/posts/:public_id', justifyToken, upload.none(), async (req, re
             FROM posts p
             LEFT JOIN user_profile u ON p.user_id = u.id
             WHERE u.public_id = $1
+              AND p.deleted_at IS NULL
         `;
 
         const postsResult = await db.query(query, queryParams);
@@ -299,6 +306,9 @@ router.get('/feed/post/:public_id', justifyToken, upload.none(), async (req, res
     const { public_id } = req.params;
     const userId = req.user?.id;
 
+    if (!isValidUUID(public_id))
+      return res.status(404).json({message: "post UUID must be provided", PID: public_id});
+    
     try {
         let queryParams = [public_id];
         if (userId) queryParams.push(userId);
@@ -349,6 +359,7 @@ router.get('/feed/post/:public_id', justifyToken, upload.none(), async (req, res
             ${userId ? `LEFT JOIN user_tags ut ON ut.user_id = $2 AND ut.tags_id = t.id` : ''}
             LEFT JOIN posts r ON r.id = p.ref_id
             WHERE p.public_id = $1
+              AND p.deleted_at IS NULL
               AND (p.visibility = 'public'
                    ${userId ? `OR (p.visibility = 'private' AND p.user_id = $2)
                               OR (p.visibility = 'restricted' AND EXISTS 
@@ -493,6 +504,7 @@ router.get('/feed/recipes', justifyToken, async (req, res) => {
       LEFT JOIN media_grouped mg ON mg.recipe_id = r.id
       LEFT JOIN ingredients_grouped ig ON ig.recipe_id = r.id
       LEFT JOIN followers f ON f.following_user_id = r.author_id AND f.follower_user_id = $1
+        WHERE r.deleted_at IS NULL
       ORDER BY ${orderClause}
       LIMIT $2 OFFSET $3
     `;
@@ -501,6 +513,8 @@ router.get('/feed/recipes', justifyToken, async (req, res) => {
       SELECT COUNT(*) AS total
       FROM recipe r
       LEFT JOIN followers f ON f.following_user_id = r.author_id AND f.follower_user_id = $1
+        WHERE r.deleted_at IS NULL
+
     `;
 
     const [{ rows: recipes }, { rows }] = await Promise.all([
@@ -537,7 +551,10 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
       const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
       const { public_id } = req.params;
       const sort = req.query.sort || 'created_at';
-  
+      
+    if (!isValidUUID(public_id))
+      return res.status(404).json({message: "post UUID must be provided", PID: public_id});
+    
       const userResult = await db.query(
         `SELECT id, username, picture FROM user_profile WHERE public_id = $1`,
         [public_id]
@@ -637,6 +654,7 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
         LEFT JOIN media_grouped mg ON mg.recipe_id = r.id
         LEFT JOIN ingredients_grouped ig ON ig.recipe_id = r.id
         WHERE r.author_id = $2
+          AND r.deleted_at IS NULL
         ORDER BY ${orderClause}
         LIMIT $3 OFFSET $4
       `;
@@ -645,6 +663,7 @@ router.get('/user/recipes/:public_id', justifyToken, upload.none(), async (req, 
         SELECT COUNT(*) AS total
         FROM recipe
         WHERE author_id = $1
+          AND deleted_at IS NULL
       `;
   
       const [{ rows: recipes }, { rows }] = await Promise.all([
