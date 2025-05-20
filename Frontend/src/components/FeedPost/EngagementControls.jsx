@@ -21,6 +21,7 @@ const EngagementControls = ({
   author_username,
   author_picture,
   isLoggedIn,
+  openLoginModal
 }) => {
   const [reaction, setReaction] = useState(user_reacted === 'UP' ? 'like' : null);
   const [reactionCount, setReactionCount] = useState(reactions_total);
@@ -32,7 +33,7 @@ const EngagementControls = ({
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
-      alert('Please log in to react to this post!');
+      openLoginModal();
       return;
     }
 
@@ -73,7 +74,7 @@ const EngagementControls = ({
 
   const handleCommentClick = () => {
     if (!isLoggedIn) {
-      alert('Please log in to comment on this post!');
+      openLoginModal();
       return;
     }
     setIsCommenting(true);
@@ -88,7 +89,7 @@ const EngagementControls = ({
     <div className="engagement-controls-container">
       {/* Engagement controls grid */}
       <div className="engagement-controls-grid">
-        <button className="like-btn">
+        <button className="like-btn" onClick={handleReaction}>
           <span className="count-label">
             {reactionCount === 0
               ? 'No likes yet'
@@ -97,7 +98,7 @@ const EngagementControls = ({
               : `${reactionCount} likes`}
           </span>
         </button>
-        <button className="comment-btn">
+        <button className="comment-btn" onClick={handleCommentClick}>
           <span
             className="count-label clickable"
             onClick={handleCommentCountClick} // Make the comment count clickable
@@ -121,7 +122,7 @@ const EngagementControls = ({
           <button
             className={`like-btn ${reaction === 'like' ? 'react' : ''}`}
             onClick={handleReaction}
-            disabled={!isLoggedIn || isReacting}
+            disabled={isReacting} // only disable during reaction animation
           >
             👍 Like
           </button>
@@ -130,7 +131,6 @@ const EngagementControls = ({
           <button
             className="comment-btn"
             onClick={handleCommentClick}
-            disabled={!isLoggedIn}
           >
             💬 Comment
           </button>

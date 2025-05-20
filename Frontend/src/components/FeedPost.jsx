@@ -20,9 +20,10 @@ const FeedPost = forwardRef(({
   ref_public_id,
   author_public_id,
   author_username,
-  author_picture
+  author_picture,
+  isLoggedIn,
+  openLoginModal
 }, ref) => {
-  const isLoggedIn = !!localStorage.getItem('token');
   const profileImageUrl = `https://cookeat.cookeat.space/media/profile/${author_picture}`;
   const mediaUrl = media_filename ? `https://cookeat.cookeat.space/media/posts/${media_filename}` : null;
 
@@ -32,11 +33,21 @@ const FeedPost = forwardRef(({
   // Determine link target
   const profileLink = (author_public_id === myPublicId) ? '/profile' : `/user/${author_public_id}`;
   
+  const handleProfileClick = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault(); // prevent navigation
+      openLoginModal();
+    }
+  };
+
   return (
     <div className="feed-post" ref={ref}>
-      {/* Profile Section */}
       <div className="feed-post__profile-section">
-        <Link to={profileLink} className="feed-post__profile-left">
+        <Link
+          to={profileLink}
+          className="feed-post__profile-left"
+          onClick={handleProfileClick}
+        >
           <img src={profileImageUrl} alt="Profile" className="feed-post__profile-img" />
           <div className="feed-post__profile-info">
             <p className="feed-post__author-username">{author_username}</p>
@@ -106,6 +117,7 @@ const FeedPost = forwardRef(({
         author_username={author_username}
         author_picture={author_picture}
         isLoggedIn={isLoggedIn}
+        openLoginModal={openLoginModal}
       />
     </div>
   );

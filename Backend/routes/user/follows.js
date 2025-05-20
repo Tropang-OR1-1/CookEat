@@ -185,8 +185,8 @@ router.get('/followings/:user_id', verifyToken, async (req, res) => {
         const selectQuery = `
             SELECT u.username, u.public_id, u.picture
             FROM followers f
-            INNER JOIN user_profile u ON u.id = f.follower_user_id
-            WHERE f.following_user_id = $1
+            INNER JOIN user_profile u ON u.id = f.following_user_id
+            WHERE f.follower_user_id = $1
             LIMIT $2 OFFSET $3
         `;
         const { rows } = await db.query(selectQuery, [userId, limit, offset]);
