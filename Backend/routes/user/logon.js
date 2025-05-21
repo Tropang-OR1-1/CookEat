@@ -11,10 +11,11 @@ const db = require("../../config/db");
 const logger = require('../../config/logger'); // Import the logger
 const upload = require("multer")();
 const { usernameRegex, emailValidator, sanitizeInput } = require('../../config/defines');
-const { copyDefaultPfpToProfileDir } = require('../../config/uploads'); // Import the function to copy default profile picture
+const { copyDefaultMediaDir } = require('../../config/uploads'); // Import the function to copy default profile picture
 
 
 const { generateJWT, verifyToken } = require('../../config/jwt'); // Import the module
+const { cli } = require("winston/lib/winston/config");
 
 router.use(cors()); // Enable CORS for all routes
 
@@ -30,7 +31,7 @@ async function validatePassword(email, password, hashedPassword){
 
 async function checkCredentials(email, password){
     const query = `
-        SELECT user_profile.token_id, userdata.password_hashed, user_profile.public_id
+        SELECT user_profile.token_id, userdata.password_hashed
         FROM userdata
         JOIN user_profile ON user_profile.id = userdata.user_id
         WHERE userdata.email = $1 AND userdata.deleted_at IS NULL
@@ -69,11 +70,22 @@ router.post("/login", upload.none(), async (req, res) => {
     if (!uid.success) {
         return res.status(401).json({ error: "user might not exist or wrong password or got deleted." });
         } // Check if credentials are valid
-    const { token_id, public_id } = uid;
+    const { token_id } = uid;
     const token = generateJWT(token_id, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: uid }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
     logger.info(`user: ${email} logged in.`); //logged login
 
-    return res.status(200).json({ message: "Login successful", token, public_id }); // Send the token back to the client
+    const fetchBasicData = `
+        SELECT up.public_id, up.username, um.fname AS profile
+        FROM user_profile up
+        LEFT JOIN usermedia um ON up.id = um.user_id
+        WHERE token_id = $1
+        `;
+    try { 
+        const result = await db.query(fetchBasicData, [token_id]);
+        return res.status(200).json({ message: "Login successful", token, user: result.rows[0] }); // Send the token back to the client
+        }
+    catch (error) { logger.error(`Error executing query: ${error.message}`, { stack: error.stack }); }
+
     });
 
 router.post("/register", upload.none(), async (req, res) => {
@@ -114,30 +126,49 @@ router.post("/register", upload.none(), async (req, res) => {
     
     const hashedPassword = await hashPassword(email, password); // Hash the password
 
+    const client = await db.connect();
     try {
+        client.query('BEGIN'); // Start a transaction
         const insertData = 'INSERT INTO "userdata" (password_hashed, email) VALUES ($1, $2) RETURNING user_id';
-        const result1 = await db.query(insertData, [hashedPassword, email]);
-        
+        const result1 = await client.query(insertData, [hashedPassword, email]);
         const userId = result1.rows[0].user_id;
         
-        const picture = await copyDefaultPfpToProfileDir(); 
+        const ProfilePath = process.env.DEFAULT_PROFILE_PATH;
+        const ProfileDir = process.env.USER_PROFILE_DIR;
+        const profile = await copyDefaultMediaDir(ProfilePath, ProfileDir); 
+
+        const backgroundPath = process.env.DEFAULT_BACKGROUND_PATH;
+        const backgroundDir = process.env.USER_BACKGROUND_DIR;
+        const background = await copyDefaultMediaDir(backgroundPath, backgroundDir);
+
         const insertProf = 
-            `INSERT INTO "user_profile" (id, username, picture) VALUES ($1, $2, $3)
+            `INSERT INTO "user_profile" (id, username) VALUES ($1, $2)
              RETURNING token_id, public_id`;
-        const result2 = await db.query(insertProf, [userId, username, picture]);
+
+        const result2 = await client.query(insertProf, [userId, username]);
         
-        //profileId = result2.rows[0].token_id;
+        const insertMedia = `
+            INSERT INTO "usermedia" (user_id, type, fname)
+            VALUES ($1, $2, $3), ($1, $4, $5)
+            `;
+        await client.query(insertMedia, [userId, 'profile', profile, 'background', background]);
         ({ token_id: profileId, public_id } = result2.rows[0]);
 
         
         const token = generateJWT(profileId, process.env.USERS_SESSION_EXP);//jwt.sign({ userId: profileId }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a JWT token
         logger.info(`user: ${email} registered.`); // Print the username to the console
 
-        return res.status(200).json({ message: "Registered successful", token, public_id }); // Send the token back to the client    
+        const user = {public_id, username, profile};
+        client.query('COMMIT'); // Commit the transaction
+        return res.status(200).json({ message: "Registered successful", token, user }); // Send the token back to the client    
     } catch (error) {
+        client.query('ROLLBACK'); // Rollback the transaction in case of error
         logger.error(`Error executing query: ${error.message}`, { stack: error.stack });
         return res.status(500).json({ error: "Database query failed" });  // Send response to client
+    } finally {
+        client.release(); // Release the client back to the pool
         }
+
 }); // make sure username and password are provided
     
 router.delete("/delete", verifyToken, upload.none(), async (req, res) => {

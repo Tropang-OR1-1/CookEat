@@ -101,7 +101,7 @@ const sendNotificationToUsers = async (userIds, notifType, data, client) => {
             emitNotification(IO, userId, 'notification', message);
             });
 
-        logger.info(`Notification sent to users: ${userIds.join(', ')}`);
+        //logger.info(`Notification sent to users: ${userIds.join(', ')}`);
     } catch (err) {
         logger.error(`Error inserting notification: ${err}`);
     }
