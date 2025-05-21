@@ -151,7 +151,6 @@ function FeedPage() {
         isOpen={loginModalOpen}
         onClose={closeLoginModal}
         setToken={setToken}
-        // optionally pass setProfile/setAvatar if you have them here
       />
     </div>
   );

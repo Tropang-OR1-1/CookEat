@@ -29,7 +29,7 @@ const EngagementControls = ({
 
   const handleReaction = async () => {
     if (!isLoggedIn) {
-      alert('Please log in to react to this post!');
+      openLoginModal();
       return;
     }
 
@@ -71,7 +71,7 @@ const EngagementControls = ({
 
   const handleCommentClick = () => {
     if (!isLoggedIn) {
-      alert('Please log in to comment on this post!');
+      openLoginModal();
       return;
     }
     setShowComments((prev) => !prev);
@@ -87,7 +87,7 @@ const EngagementControls = ({
 
         {/* Top Row: counts */}
         <div className="top-row">
-          <div className="count-column">
+          <div className="count-column" onClick={handleReaction}>
             <span>
               {reactionCount > 0 ? `${reactionCount} like${reactionCount > 1 ? 's' : ''}` : ' '}
             </span>
