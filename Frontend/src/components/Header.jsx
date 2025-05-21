@@ -15,13 +15,15 @@ function Header({ token, setToken, profile }) {
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [avatar, setAvatar] = useState(localStorage.getItem("avatar") || "default-avatar.jpg");
+  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || 'default-avatar.jpg');
+  const [isSearchIconVisible, setIsSearchIconVisible] = useState(false);
 
   const addPostRef = useRef(null);
   const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
+  // useEffect from Version 1 for fetching profile via axios
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -46,12 +48,14 @@ function Header({ token, setToken, profile }) {
     }
   }, [token]);
 
+  // useEffect from Version 1/2 for profile prop (if a parent component provides it)
   useEffect(() => {
     if (profile && profile.avatar) {
       setAvatar(profile.avatar);
     }
   }, [profile]);
 
+  // useEffect from Version 1/2 for stored profile in localStorage
   useEffect(() => {
     const storedProfile = localStorage.getItem("profile");
     if (storedProfile) {
@@ -62,12 +66,20 @@ function Header({ token, setToken, profile }) {
     }
   }, []);
 
+  // useEffect from Version 1/2 for click outside handling
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (addPostRef.current && !addPostRef.current.contains(event.target)) {
+      if (
+        addPostRef.current &&
+        !addPostRef.current.contains(event.target)
+      ) {
         setIsAddPostOpen(false);
       }
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
         setIsProfileDropdownOpen(false);
       }
     };
@@ -87,12 +99,13 @@ function Header({ token, setToken, profile }) {
     window.location.href = "/feeds";
   };
 
+
   useEffect(() => {
     if (
       isPostModalOpen ||
-      isRecipeModalOpen ||
-      isLoginModalOpen ||
-      isNotificationModalOpen ||
+      isRecipeModalOpen || 
+      isLoginModalOpen || 
+      isNotificationModalOpen || 
       isProfileDropdownOpen
     ) {
       document.body.style.overflow = "hidden";
@@ -101,26 +114,59 @@ function Header({ token, setToken, profile }) {
     }
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "auto"; 
     };
   }, [
-    isPostModalOpen,
-    isRecipeModalOpen,
-    isLoginModalOpen,
-    isNotificationModalOpen,
+    isPostModalOpen, 
+    isRecipeModalOpen, 
+    isLoginModalOpen, 
+    isNotificationModalOpen, 
     isProfileDropdownOpen,
   ]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 1200) {
+        setIsSearchIconVisible(true);
+      } else {
+        setIsSearchIconVisible(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); 
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
 
   return (
     <header className="header-navbar header">
       <div className="header-logo-container">
         <Link to="/">
-          <img src="./images/CookEat_Logo.png" alt="Cook It Logo" className="header-logo" />
+          <img
+            src="./images/CookEat_Logo.png"
+            alt="Cook It Logo"
+            className="header-logo"
+          />
         </Link>
       </div>
 
       <div className="header-search-container">
-        <input type="text" placeholder="Search in CookEat" className="header-search-bar" />
+        {/* Search bar visible on larger screens */}
+        {!isSearchIconVisible && (
+          <input
+            type="text"
+            placeholder="Search in CookEat"
+            className="header-search-bar"
+          />
+        )}
+        {/* Search icon visible on smaller screens */}
+        {isSearchIconVisible && (
+          <button className="header-button header-search-icon">
+             <i className="bx bx-search"></i> {/* Using a Boxicon search icon */}
+          </button>
+        )}
       </div>
 
       <nav className="header-nav-links">
@@ -128,7 +174,7 @@ function Header({ token, setToken, profile }) {
           <div className="header-tooltip-wrapper">
             <Link
               to="/feeds"
-              className={`header-button ${location.pathname === "/" ? "active" : ""}`}
+              className={`header-button ${location.pathname === "/" || location.pathname === "/feeds" ? "active" : ""}`}
             >
               <i className="bx bx-news"></i>
               <span className="header-tooltip">Feeds</span>
@@ -236,7 +282,10 @@ function Header({ token, setToken, profile }) {
       {token && (
         <div className="header-user-actions">
           <div className="header-tooltip-wrapper">
-            <button className="header-button" onClick={() => setIsNotificationModalOpen(true)}>
+            <button
+              className="header-button"
+              onClick={() => setIsNotificationModalOpen(true)}
+            >
               <i className="bx bx-bell"></i>
               <span className="header-tooltip">Notifications</span>
             </button>
