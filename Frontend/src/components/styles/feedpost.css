@@ -110,3 +110,117 @@
   padding: 1rem;
   border: 1px solid #ddd;
 }
+
+@media (min-width: 481px) and (max-width: 800px) {
+  .feed-post {
+    width: 90%;               /* smaller than desktop but not full width */
+    padding: 14px 12px;       /* medium padding */
+    margin: 0 auto 14px auto; /* center with some margin below */
+    border-width: 2.2px;      /* slightly thinner border */
+    box-shadow: 0 1.5px 3.5px rgba(0, 0, 0, 0.09); /* medium shadow */
+  }
+
+  .feed-post__profile-img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .feed-post__author-username {
+    font-size: 1.35rem;
+  }
+
+  .feed-post__time {
+    font-size: 0.75rem !important;
+  }
+
+  .feed-post__title {
+    font-size: 1.4rem;
+  }
+
+  .feed-post__caption {
+    font-size: 1.05rem;
+  }
+
+  .feed-post__media-container {
+    margin: 0.9rem 0;
+  }
+
+  .feed-post__media-container img,
+  .feed-post__media-container video {
+    max-width: 100%;
+    max-height: 380px;
+    height: auto;
+    border-radius: 9px;
+    outline-width: 2.3px;
+  }
+
+  .feed-post__media-container video {
+    aspect-ratio: 3 / 2;
+  }
+
+  .feed-post__footer {
+    margin-top: 0.9rem;
+  }
+
+  .feed-post__comments-wrapper {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .feed-post {
+    width: 100%;         /* full width on mobile */
+    padding: 12px 10px;  /* slightly smaller padding */
+    border-width: 2px;   /* thinner border */
+    margin: 0 0 12px 0;  /* spacing below each post */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* lighter shadow */
+  }
+
+  .feed-post__profile-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feed-post__author-username {
+    font-size: 1.2rem;
+  }
+
+  .feed-post__time {
+    font-size: 0.7rem !important;
+  }
+
+  .feed-post__title {
+    font-size: 1.3rem;
+  }
+
+  .feed-post__caption {
+    font-size: 1rem;
+  }
+
+  .feed-post__media-container {
+    margin: 0.8rem 0;
+  }
+
+  .feed-post__media-container img,
+  .feed-post__media-container video {
+    max-width: 100%;
+    max-height: 380px;
+    height: auto;
+    border-radius: 8px;
+    outline-width: 2px;
+  }
+
+  .feed-post__media-container video {
+    aspect-ratio: auto;
+  }
+
+  .feed-post__footer {
+    margin-top: 0.8rem;
+  }
+
+  .feed-post__comments-wrapper {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+}

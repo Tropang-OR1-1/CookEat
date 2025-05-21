@@ -2,32 +2,68 @@
     max-width: 1000px;
     margin: 0 auto;
     padding-top: 5px;
+}
+  
+.feed-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+  
+.feed-status-message {
+  text-align: center;
+  font-size: 18px;
+  color: #333;
+  margin-top: 10px;
+}  
+  
+@media (max-width: 768px) {
+  .feed-page-container {
+    padding: 10px;
   }
   
   .feed-posts {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-  }
-  
-  .feed-status-message {
-    text-align: center;
-    font-size: 18px;
-    color: #333;
-    margin-top: 10px;
+    align-items: center;
+    gap: 1 0px;
   }  
-  
-  @media (max-width: 768px) {
-    .feed-page-container {
-      padding: 10px;
-    }
-  
-    .feed-posts {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1 0px;
-    }
-    
+}
+
+@media (min-width: 481px) and (max-width: 800px) {
+  .feed-page-container {
+    max-width: 95%;
+    padding: 12px 15px;
+    margin: 0 auto;
   }
-  
+
+  .feed-posts {
+    gap: 10px;
+    align-items: center; /* keeps posts centered but not stretched */
+  }
+
+  .feed-status-message {
+    font-size: 17px;
+    margin-top: 11px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feed-page-container {
+    max-width: 100%;
+    padding: 10px 8px;
+    margin: 0 5px;
+  }
+
+  .feed-posts {
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .feed-status-message {
+    font-size: 16px;
+    margin-top: 12px;
+    padding: 0 5px;
+  }
+}

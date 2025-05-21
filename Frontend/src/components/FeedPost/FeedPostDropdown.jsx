@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditPost from './EditPost';
 import DeletePost from './DeletePost';
+
+import IconButton from '@mui/material/IconButton';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 import './styles/feedpostdropdown.css';
 
@@ -29,11 +30,16 @@ const FeedPostDropdown = ({
   const dropdownRef = useRef(null);
   const toggleButtonRef = useRef(null);
   const loggedInPublicId = localStorage.getItem('public_id');
+
   const isAuthor = loggedInPublicId === author_public_id;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !toggleButtonRef.current.contains(event.target)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -79,13 +85,13 @@ const FeedPostDropdown = ({
         <IconButton
           ref={toggleButtonRef}
           onClick={toggleDropdown}
-          aria-label="Post options"
           aria-haspopup="true"
           aria-expanded={isDropdownOpen}
           aria-controls={`post-options-menu-${public_id}`}
+          aria-label="Post options"
           size="small"
         >
-          <MoreVertIcon />
+          <MoreHorizIcon className="more-icon" />
         </IconButton>
 
         {isDropdownOpen && (
@@ -94,16 +100,28 @@ const FeedPostDropdown = ({
             className="dropdown-content show"
             role="menu"
           >
-            <button className="dropdown-item" role="menuitem" onClick={handleSavePost}>
+            <button
+              className="dropdown-item"
+              role="menuitem"
+              onClick={handleSavePost}
+            >
               Save
             </button>
 
             {isAuthor ? (
               <>
-                <button className="dropdown-item" role="menuitem" onClick={openEditModal}>
+                <button
+                  className="dropdown-item"
+                  role="menuitem"
+                  onClick={openEditModal}
+                >
                   Edit
                 </button>
-                <button className="dropdown-item" role="menuitem" onClick={openDeleteModal}>
+                <button
+                  className="dropdown-item"
+                  role="menuitem"
+                  onClick={openDeleteModal}
+                >
                   Delete
                 </button>
               </>
