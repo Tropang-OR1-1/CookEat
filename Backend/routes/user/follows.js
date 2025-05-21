@@ -187,7 +187,7 @@ router.get('/followings/:user_id', verifyToken, async (req, res) => {
     const { page, limit, offset } = getPaginationParams(req.query, defaultLimit);
 
     try {
-        const selectQuery = 
+        const selectQuery = `
         SELECT 
             u.username, 
             u.public_id, 

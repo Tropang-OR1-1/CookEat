@@ -13,7 +13,7 @@ const { isValidUUID, allowedMediaTypes, allowedImageTypes } = require('../config
 // Middleware for token verification and image serving
 router.get('/:type/:fname', async (req, res) => {
     const { type, fname } = req.params;
-    const AllowedType = ["profile", "posts", "recipe", "rating", "thumbnail"];
+    const AllowedType = ["profile", "posts", "recipe", "rating", "thumbnail", "background"];
 
     const [uuid, extension] = fname.split(/\.(?=[^.]+$)/); // split on last dot only
     const ext = `.${extension}`;
@@ -36,6 +36,8 @@ router.get('/:type/:fname', async (req, res) => {
             : (type === "posts" ? process.env.POST_VIDEO_DIR : process.env.RECIPE_VIDEO_DIR);
     } else if (type === "profile") {
         FileDir = process.env.USER_PROFILE_DIR;
+    } else if (type === "background"){
+        FileDir = process.env.USER_BACKGROUND_DIR;
     } else if (type === "rating") {
         FileDir = process.env.RECIPE_RATING_MEDIA_DIR;
     } else if (type === "thumbnail") {
