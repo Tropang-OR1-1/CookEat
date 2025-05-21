@@ -139,7 +139,6 @@ function Header({ token, setToken, profile }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
   return (
     <header className="header-navbar header">
       <div className="header-logo-container">

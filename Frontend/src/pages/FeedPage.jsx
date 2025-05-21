@@ -20,6 +20,9 @@ function FeedPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
 
+  const [session_username, setSessionUsername] = useState(null);
+  const [session_user_picture, setSessionUserPicture] = useState(null);
+
   const observer = useRef();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -45,6 +48,32 @@ function FeedPage() {
     [loading, hasMore, incrementPage]
   );
 
+  // Fetch session user data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch('https://cookeat.cookeat.space/user/profile/me', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch user profile');
+
+        const data = await response.json();
+        setSessionUsername(data.Profile.username);
+        setSessionUserPicture(data.Profile.picture);
+      } catch (err) {
+        console.error('User profile fetch error:', err);
+      }
+    };
+
+    fetchUserProfile();
+  }, [token]);
+
   // Fetch posts data
   useEffect(() => {
     const fetchPosts = async () => {
@@ -52,24 +81,25 @@ function FeedPage() {
       setError(null);
 
       try {
-        // Get the token from localStorage
         const token = localStorage.getItem('token');
 
-        // Add Authorization header with the token
-        const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`, {
-          method: 'GET', // assuming it's a GET request
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json', // Optional if needed
-          },
-        });
+        const response = await fetch(
+          `https://cookeat.cookeat.space/query/feed/posts?page=${page}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
         if (!response.ok) throw new Error('Failed to fetch posts');
 
         const data = await response.json();
 
         if (data && Array.isArray(data.posts)) {
-          setPosts(prevPosts => [...prevPosts, ...data.posts]);
+          setPosts((prevPosts) => [...prevPosts, ...data.posts]);
           if (data.posts.length < 10) setHasMore(false);
         } else {
           setHasMore(false);
@@ -85,8 +115,8 @@ function FeedPage() {
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-  
-  // Restore scroll position on mount and save it on unmount
+
+  // Restore scroll position
   useEffect(() => {
     const restoreScrollPosition = () => {
       if (scrollY !== undefined) {
@@ -94,8 +124,7 @@ function FeedPage() {
       }
     };
 
-    // Delay scroll restoration to ensure page is loaded
-    const timeout = setTimeout(restoreScrollPosition, 100); // Delay by 100ms
+    const timeout = setTimeout(restoreScrollPosition, 100);
 
     return () => {
       clearTimeout(timeout);
@@ -103,10 +132,9 @@ function FeedPage() {
     };
   }, [scrollY, setScrollY]);
 
-  // Track scroll position during page scroll
+  // Track scroll position
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [setScrollY]);
@@ -119,10 +147,11 @@ function FeedPage() {
           return (
             <FeedPost
               key={post.public_id}
-              // pass down openLoginModal
+              ref={isLast ? lastPostRef : null}
               openLoginModal={openLoginModal}
               isLoggedIn={!!token}
-              // ...existing props
+              session_username={session_username}
+              session_user_picture={session_user_picture}
               public_id={post.public_id}
               title={post.title}
               content={post.content}
@@ -138,7 +167,6 @@ function FeedPage() {
               author_public_id={post.author.public_id}
               author_username={post.author.username}
               author_picture={post.author.picture}
-              ref={isLast ? lastPostRef : null}
             />
           );
         })}

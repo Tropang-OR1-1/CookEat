@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './styles/PostComment.css';
+import LoginRegister from './../LoginRegister';
 
-const PostComment = ({ public_id, isVisible, onCancel, onPostSuccess }) => {
-  const isLoggedIn = !!localStorage.getItem('token');
+const PostComment = ({
+  public_id,
+  onPostSuccess,
+  session_username,
+  session_user_picture,
+}) => {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
-  if (!isVisible) return null;
+  const isLoggedIn = !!localStorage.getItem('token');
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!isLoggedIn) {
-      alert('Please log in to comment on this post!');
+      setShowLogin(true);
       return;
     }
 
@@ -39,7 +47,6 @@ const PostComment = ({ public_id, isVisible, onCancel, onPostSuccess }) => {
       if (response.status === 200) {
         setNewComment('');
         if (onPostSuccess) onPostSuccess();
-        else onCancel();
       }
     } catch (error) {
       console.error('Error submitting comment:', error);
@@ -50,28 +57,21 @@ const PostComment = ({ public_id, isVisible, onCancel, onPostSuccess }) => {
   };
 
   return (
-    <div className="comment-modal">
-      <div className="modal-content">
-        <h3>Post a Comment</h3>
-        <textarea
-          className="comment-textarea"
+    <div className="post-comment-container">
+      {!isLoggedIn && showLogin && <LoginRegister onClose={() => setShowLogin(false)} />}
+      <form className="post-comment-form" onSubmit={handleSubmit}>
+        <img src={localStorage.getItem("avatar")} alt="User" className="comment-avatar" />
+        <input
+          type="text"
+          className="comment-input"
+          placeholder={`Comment as ${session_username}`}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Write your comment..."
         />
-        <div className="modal-actions">
-          <button
-            className="modal-button submit"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            Submit
-          </button>
-          <button className="modal-button cancel" onClick={onCancel} disabled={isSubmitting}>
-            Cancel
-          </button>
-        </div>
-      </div>
+        <button type="submit" disabled={isSubmitting} className="comment-submit-button">
+          Post
+        </button>
+      </form>
     </div>
   );
 };
