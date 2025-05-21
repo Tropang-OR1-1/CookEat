@@ -11,7 +11,9 @@
 .top-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 6px 12px;
+  padding-top: 0px;
+  height: 28px;
   color: #65676b;
   border-top: none;
 
@@ -51,9 +53,9 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 700;
-  padding: 10px 0;
+  padding: 8px 0;
   transition: background-color 0.2s;
-  border-radius: 0;
+  border-radius: 4px;
 }
 
 .action-btn:hover {

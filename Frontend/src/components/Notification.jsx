@@ -49,7 +49,6 @@ function Notification({ isOpen, onClose }) {
                             Unread
                         </button>
                     </span>
-                    <span className="close-btn" onClick={onClose}>✖</span>
                 </div>
 
                 <div className="notification-section">
