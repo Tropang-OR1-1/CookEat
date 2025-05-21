@@ -6,7 +6,7 @@
   border: 2.5px solid #FF8700;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
   box-sizing: border-box;
   margin: 0 auto; 
 }
@@ -104,7 +104,7 @@
 }
 
 .feed-post__comments-wrapper {
-  margin-top: 0.5rem;
+  margin: 5px 0;
   background-color: #f9f9f9;
   border-radius: 6px;
   padding: 1rem;
