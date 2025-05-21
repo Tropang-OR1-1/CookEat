@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from 'react';
 import { formatDate } from '../utils/formatDate.js';
-import './styles/feedpost.css';
-import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx';
+import './styles/feedpost.css'; // goods rin to
+import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx'; // oks naman ah
 import EngagementControls from './FeedPost/EngagementControls.jsx';
 import CommentSection from './FeedPost/CommentSection.jsx';
 import { Link } from 'react-router-dom';
