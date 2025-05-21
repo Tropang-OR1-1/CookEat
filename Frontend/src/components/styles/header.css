@@ -13,16 +13,16 @@ body {
 
 /* Header Styles */
 .header-navbar {
-  position: fixed;      
+  position: fixed;
   width: 100%;
-  height: 58px !important;
+  height: 58px;
   z-index: 1000;
   top: 0;
   left: 0;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  background-color: #FFA500; 
+  background-color: #FFA500;
   padding: 15px 20px;
   color: rgb(255, 255, 255);
 }
@@ -43,8 +43,15 @@ body {
   padding: 5px 10px;
   font-size: 16px;
   border: none;
-  border-radius: 25px;
+  border-radius: 50px;
   text-align: center;
+}
+
+.header-search-icon {
+  /* REMOVED 'display: none;' here. The JSX conditional rendering handles its visibility. */
+  font-size: 24px;
+  color: #543b0d;
+  cursor: pointer;
 }
 
 .header-nav-links {
@@ -72,7 +79,6 @@ body {
   margin-left: auto;
   outline: none;
   border: none;
-
 }
 
 .header-nav-links a {
@@ -83,8 +89,8 @@ body {
 
 /* Profile Dropdown */
 .header-profile-pic {
-  width: 45px !important; 
-  height: 45px !important;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   cursor: pointer;
 }
@@ -102,39 +108,35 @@ body {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 15px;
   z-index: 10;
-
-  /* Animation styles */
   max-height: 0;
   opacity: 0;
   overflow: hidden;
   transition: max-height 0.7s ease, opacity 0.3s ease;
 }
 
-/* Active state to trigger animation */
 .header-dropdown-content.open {
-  max-height: 500px; /* max enough to fit all items */
+  max-height: 500px;
   opacity: 1;
 }
 
-/* Dropdown links with hover animation */
 .header-dropdown-content a {
   display: block;
   padding: 10px;
   background-color: #FFB22C;
   text-decoration: none;
   color: black;
-  transition: transform 0.3s ease, background-color 0.3s ease, padding-left 0.3s ease; /* Smooth transition */
+  transition: transform 0.3s ease, background-color 0.3s ease, padding-left 0.3s ease;
 }
 
 .header-dropdown-content a:hover {
   background-color: #ffffff;
   color: #FFB22C;
-  transform: translateX(10px); /* Smooth horizontal movement */
-  padding-left: 15px; /* Add padding for a slide effect */
+  transform: translateX(10px);
+  padding-left: 15px;
 }
 
 .header-profile-dropdown .header-dropdown-content {
-  display: block; /* Only show if dropdown is open */
+  display: block;
 }
 
 .header-user-actions {
@@ -150,7 +152,7 @@ body {
 
 /* Button Styles */
 .header-button {
-  background-color: #FFA500;  
+  background-color: #FFA500;
   width: 55px;
   height: 55px;
   padding: 0;
@@ -166,15 +168,14 @@ body {
 .header-button i {
   font-size: 34px;
   outline: none;
-    
-  font-weight: 500;  
-  color: #543b0d;    
+  font-weight: 500;
+  color: #543b0d;
   transition: transform 0.2s ease, color 0.3s ease;
 }
 
 .header-button:hover i {
   transform: scale(1.20);
-  color: #ffffff;        
+  color: #ffffff;
 }
 
 .header-button:hover {
@@ -249,7 +250,7 @@ body {
 
 .header-add-post-menu {
   position: absolute;
-  top: 60px; /* Aligns below the header */
+  top: 60px;
   right: 0;
   background-color: #ffffff;
   border-radius: 12px;
@@ -316,8 +317,67 @@ body {
 
 /* Login Button Text Styles */
 .header-login-text {
-  font-size: 20px; /* Font size for readability */
-  font-weight: 700; /* Bold font weight for prominence */
-  color: #543b0d; 
-  transition: color 0.3s ease; /* Smooth color transition on hover */
+  font-size: 20px;
+  font-weight: 700;
+  color: #543b0d;
+  transition: color 0.3s ease;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1200px) { 
+  .header-search-bar {
+    display: none; 
+  }
+
+  .header-search-icon {
+    display: block; /* This will now correctly make it visible when the media query applies */
+    margin-left: 8px;
+    margin-top: 4px;
+    padding-bottom: 0;
+  }
+
+  .header-search-container {
+    margin-left: 0; 
+  }
+
+  .header-center {
+    gap: 20px; 
+  }
+}
+
+@media (max-width: 768px) {
+
+  .header-navbar {
+    padding: 10px 15px; 
+  }
+  .header-logo {
+    height: 55px; 
+  }
+
+  .header-center {
+      gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-logo {
+    height: 50px; 
+  }
+
+  .header-navbar {
+    padding: 10px;
+  }
+
+  .header-center {
+    gap: 10px; 
+  }
+
+  .header-button {
+    width: 45px;
+    height: 45px;
+  }
+
+  .header-button i {
+    font-size: 28px;
+  }
 }
