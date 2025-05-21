@@ -34,8 +34,8 @@ function App() {
         <main>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<FeedPage />} />
-            <Route path="/feeds" element={<FeedPage />} />
+            <Route path="/" element={<FeedPage key={window.location.pathname} profile={profile} avatar={avatar} />} />
+            <Route path="/feeds" element={<FeedPage key={window.location.pathname} profile={profile} avatar={avatar}/>} />
             <Route path="/recipes" element={<RecipePage />} />
             <Route path="/login" element={<LoginRegister setToken={setToken} profile={profile} setProfile={setProfile} setAvatar={setAvatar} />} />
             <Route path="/about" element={<About />} />
@@ -46,7 +46,7 @@ function App() {
 
             {/* Protected Routes (Private) */}
             <Route path="/recipes" element={<PrivateRoute><NotFound /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile profile={profile} setProfile={setProfile} /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><Profile key={window.location.pathname} profile={profile} setProfile={setProfile} /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
 
             {/* Catch-all Route */}

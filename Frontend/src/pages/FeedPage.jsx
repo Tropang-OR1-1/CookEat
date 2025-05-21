@@ -5,7 +5,7 @@ import FeedStateStore from '../utils/feedStateStore.js';
 import LoginRegister from '../components/LoginRegister.jsx';
 import './styles/feedpage.css';
 
-function FeedPage() {
+function FeedPage({ profile, avatar }) {
   const {
     posts,
     page,
@@ -44,6 +44,11 @@ function FeedPage() {
     },
     [loading, hasMore, incrementPage]
   );
+
+  useEffect(() => {
+    setPosts([]);
+    setHasMore(true);
+  }, [setPosts, setHasMore]);
 
   // Fetch posts data
   useEffect(() => {
@@ -119,14 +124,12 @@ function FeedPage() {
           return (
             <FeedPost
               key={post.public_id}
-              // pass down openLoginModal
               openLoginModal={openLoginModal}
               isLoggedIn={!!token}
-              // ...existing props
               public_id={post.public_id}
               title={post.title}
               content={post.content}
-              view_count={post.view_count}
+              view_count={post.view_count}  
               created_at={new Date(post.created_at).toLocaleString()}
               updated_at={new Date(post.updated_at).toLocaleString()}
               media_filename={post.media[0]?.media_filename}
@@ -137,7 +140,11 @@ function FeedPage() {
               ref_public_id={post.ref_public_id}
               author_public_id={post.author.public_id}
               author_username={post.author.username}
-              author_picture={post.author.picture}
+              author_picture={
+                              post.author.public_id === profile?.public_id
+                                  ? avatar
+                                  : post.author.picture
+                              }
               ref={isLast ? lastPostRef : null}
             />
           );
