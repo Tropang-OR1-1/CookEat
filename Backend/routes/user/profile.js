@@ -106,7 +106,10 @@ router.post('/profile', verifyToken,
         updates.push(`birthday = $${i++}`);
         values.push(birthdate);
       }
+    
+    updates.push(`updated_at = NOW()`); // Always update the timestamp
 
+    //updates.push(`updated_at = NOW()`); // Always update the timestamp
     const query = `UPDATE user_profile SET ${updates.join(', ')} WHERE id = $${i} RETURNING 
         biography, username, nationality, sex, status, birthday, public_id, created_at
         ;`;
@@ -115,11 +118,10 @@ router.post('/profile', verifyToken,
     const client = await db.connect();
     try {
         await client.query('BEGIN;');
-        if (values.length > 1){
-          result = await client.query(query, values);
-          if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'User not found.' });
-            }
+
+        result = await client.query(query, values);
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'User not found.' });
           }
 
         if (tags !== undefined){ // perform tags linking
