@@ -240,12 +240,12 @@ const computeFileHash = (buffer) => {
     return hash.digest('hex');  // Return the hash as a hexadecimal string
     };
 
-async function copyDefaultPfpToProfileDir() {
-    const defaultPath = process.env.DEFAULT_PROFILE_PATH;
-    const destDir = process.env.USER_PROFILE_DIR;
+async function copyDefaultMediaDir(defaultPath, destDir) {
+    //const defaultPath = process.env.DEFAULT_PROFILE_PATH;
+    //const destDir = process.env.USER_PROFILE_DIR;
 
     if (!defaultPath || !destDir) {
-        throw new Error('DEFAULT_PFP_PATH or PROFILE_PIC_DIR is not set in .env');
+        throw new Error('DEFAULT_MEDIA or USER_MEDIA_DIR is not set in .env');
     }
 
     // Ensure the directory exists
@@ -269,4 +269,4 @@ async function copyDefaultPfpToProfileDir() {
 }
 
 module.exports = {  insertMedia, cleanupMedia, updateMedia, deleteMedia,
-                    deleteFile, saveFile, copyDefaultPfpToProfileDir, computeFileHash };
+                    deleteFile, saveFile, copyDefaultMediaDir, computeFileHash };
