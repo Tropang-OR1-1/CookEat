@@ -1,0 +1,91 @@
+.reaction-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.reaction-content {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 2.5px solid #FF8700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px 15px;
+  width: 400px;
+  max-width: 90%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.reaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.reaction-header h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+}
+
+.close-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.mui-close-button {
+  color: #FF8700;
+  padding: 4px;
+  font-size: 2rem; /* makes the icon inside appear larger */
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: content-box;
+}
+
+.mui-close-button:hover {
+  color: #e07b00;
+}
+
+.reaction-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.reaction-content li {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.reaction-content li:last-child {
+  border-bottom: none;
+}
+
+.reaction-content img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.reaction-content span {
+  font-size: 1rem;
+  color: #333;
+}
