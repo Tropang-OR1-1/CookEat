@@ -4,7 +4,11 @@ import './styles/PostReaction.css';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-const PostReaction = ({ isOpen, onClose, public_id }) => {
+const PostReaction = ({
+  isOpen,
+  onClose,
+  reactions_total,
+  public_id }) => {
   const [reactedUsers, setReactedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,15 +40,11 @@ const PostReaction = ({ isOpen, onClose, public_id }) => {
 
   if (!isOpen) return null;
 
+  
+  const skeletonCount = reactions_total > 6 ? 6 : reactions_total;
+
   return (
-    <div
-      className="reaction-overlay"
-      onClick={(e) => {
-        if (e.target.classList.contains('reaction-overlay')) {
-          onClose();
-        }
-      }}
-    >
+    <div className="reaction-overlay">
       <div className="reaction-content">
         <div className="reaction-header">
           <h2>Users Who Liked</h2>
@@ -53,26 +53,38 @@ const PostReaction = ({ isOpen, onClose, public_id }) => {
               onClick={onClose}
               className="mui-close-button"
               aria-label="Close"
-              size="large"
             >
-              <CloseIcon fontSize="inherit" />
+              <CloseIcon fontSize="small" />
             </IconButton>
           </div>
         </div>
 
-        {loading && <p>Loading...</p>}
+        {loading && (
+          <ul className="skeleton-wrapper">
+            {[...Array(skeletonCount)].map((_, idx) => (
+              <li className="skeleton-item" key={idx}>
+                <div className="skeleton-avatar"></div>
+                <div className="skeleton-text"></div>
+              </li>
+            ))}
+          </ul>
+        )}
+
         {error && <p>{error}</p>}
-        <ul>
-          {reactedUsers.map((user) => (
-            <li key={user.user_id}>
-              <img
-                src={`https://cookeat.cookeat.space/media/profile/${user.user_picture}`}
-                alt={user.username}
-              />
-              <span>{user.username}</span>
-            </li>
-          ))}
-        </ul>
+
+        {!loading && !error && (
+          <ul>
+            {reactedUsers.map((user) => (
+              <li key={user.user_id}>
+                <img
+                  src={`https://cookeat.cookeat.space/media/profile/${user.user_picture}`}
+                  alt={user.username}
+                />
+                <span>{user.username}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

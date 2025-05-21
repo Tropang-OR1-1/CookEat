@@ -134,7 +134,8 @@ const EngagementControls = ({
 
       {/* Post Reaction Modal */}
       <PostReaction isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} 
-        public_id={public_id} />
+        public_id={public_id}
+        reactions_total={reactions_total} />
     </div>
   );
 };

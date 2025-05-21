@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 2;
 }
 
 .reaction-content {
@@ -66,26 +66,77 @@
   overflow-y: auto;
 }
 
-.reaction-content li {
+/* Make actual list items and skeleton items identical in size and layout */
+.reaction-content li,
+.skeleton-item {
   display: flex;
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  height: 60px; /* fixed height */
+  box-sizing: border-box;
 }
 
-.reaction-content li:last-child {
+.reaction-content li:last-child,
+.skeleton-item:last-child {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
-.reaction-content img {
+.reaction-content img,
+.skeleton-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 10px;
+  flex-shrink: 0;
 }
 
-.reaction-content span {
+.reaction-content span,
+.skeleton-text {
+  height: 14px;
+  border-radius: 4px;
   font-size: 1rem;
   color: #333;
+  align-self: center;
+}
+
+/* Skeleton specific styles */
+.skeleton-wrapper {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.skeleton-avatar {
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f0f0f0 50%,
+    #e0e0e0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  width: 150px;
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f0f0f0 50%,
+    #e0e0e0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
