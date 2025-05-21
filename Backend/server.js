@@ -53,7 +53,7 @@ app.use('/query', feedRoutes);
 app.use('/query', searchRoutes);
 
 
-app.get('/testing/notif/trigger/:event', async (req, res) => {
+app.get('/notification/trigger/:event', async (req, res) => {
   const client = await db.connect();
   const tname = getBitByName(req.params.event);
   if (tname === null) return res.status(401).json({error: "Invalid Event."});
