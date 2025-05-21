@@ -23,6 +23,8 @@ const FeedPost = forwardRef(({
   author_username,
   author_picture,
   isLoggedIn,
+  session_username,
+  session_user_picture,
   openLoginModal
 }, ref) => {
   const [showComments, setShowComments] = useState(false);
@@ -140,7 +142,10 @@ const FeedPost = forwardRef(({
           <div className="feed-post__comments-wrapper">
             <CommentSection
               public_id={public_id}
+              comment_count={comment_count}
               author_picture={author_picture}
+              session_username={session_username}
+              session_user_picture={session_user_picture}
               isVisible={showComments}
               onCancel={() => setShowComments(false)}
             />

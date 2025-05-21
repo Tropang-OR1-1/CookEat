@@ -7,7 +7,6 @@
 .comment-section {
   background-color: #f8f8f8;
   border-radius: 0.5rem;
-  /* Make sure it doesn't overlap other elements */
   position: relative;
   z-index: 1;
 }
@@ -28,8 +27,10 @@
 .comment-section__list {
   list-style: none;
   padding: 0;
-  margin: 1rem 0;
-  overflow-y: auto; /* Scroll if too tall */
+  margin: 0.5rem 0;
+  max-height: 480px;
+  overflow-y: auto;  /* enable scroll */
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
 }
 
 .comment-section__item {
@@ -97,7 +98,7 @@
 
 /* Write comment button */
 .comment-section__write-button {
-  margin-top: 1rem;
+  margin-top: 2px;
   padding: 0.5rem 1rem;
   background-color: #FF8700;
   color: white;
