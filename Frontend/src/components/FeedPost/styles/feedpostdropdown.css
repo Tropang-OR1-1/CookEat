@@ -3,6 +3,11 @@
   display: inline-block;
 }
 
+.more-icon {
+  height: 30px !important;
+  width: 30px !important;
+}
+
 .dropdown-btn {
   background: none;
   border: none;
