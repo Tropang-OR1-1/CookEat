@@ -6,7 +6,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ShareIcon from '@mui/icons-material/Share';
 
-import './styles/EngagementControls.css';
+import './styles/EngagementControl.css';
 
 const EngagementControls = ({
   public_id,
