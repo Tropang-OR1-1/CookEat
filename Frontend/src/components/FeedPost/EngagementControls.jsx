@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/engagementcontrols.css';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ShareIcon from '@mui/icons-material/Share';
+
+import './styles/EngagementControls.css';
 
 const EngagementControls = ({
   public_id,
