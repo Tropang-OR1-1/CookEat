@@ -55,7 +55,7 @@ router.get('/:type/:fname', async (req, res) => {
         //logger.info(`File transmitted: ${filePath}`);  // Log successful file access
 
     } catch (err) {
-        logger.error(`File not found: ${filePath}. Error: ${err.message}`, { stack: err.stack }); // Log error details
+        logger.error(`File not found: ${filePath}. Error: ${err.message}`); // Log error details
         res.status(404).json({ error: 'File not found.' });
     }
 });
