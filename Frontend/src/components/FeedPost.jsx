@@ -40,10 +40,18 @@ const FeedPost = forwardRef(({
   };
 
   const handleCommentCountClick = () => {
+    if (!isLoggedIn) {
+      openLoginModal();
+      return;
+    }
     setShowComments(prev => !prev);
   };
 
   const handleCommentButtonClick = () => {
+    if (!isLoggedIn) {
+      openLoginModal();
+      return;
+    }
     if (!showComments) setShowComments(true);
   };
 
@@ -125,6 +133,7 @@ const FeedPost = forwardRef(({
           setShowComments={setShowComments}
           onCommentCountClick={handleCommentCountClick}
           onCommentButtonClick={handleCommentButtonClick}
+          openLoginModal={openLoginModal}
         />
 
         {showComments && (
