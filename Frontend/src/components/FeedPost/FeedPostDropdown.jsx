@@ -5,7 +5,7 @@ import DeletePost from './DeletePost';
 import IconButton from '@mui/material/IconButton';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
-import './styles/feedpostdropdown.css';
+import './styles/FeedPostDropdown.css';
 
 const FeedPostDropdown = ({
   public_id,
