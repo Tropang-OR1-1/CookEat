@@ -5,7 +5,7 @@ import FeedStateStore from '../utils/feedStateStore.js';
 import LoginRegister from '../components/LoginRegister.jsx';
 import './styles/feedpage.css';
 
-function FeedPage() {
+function FeedPage({ profile, avatar }) {
   const {
     posts,
     page,
@@ -19,9 +19,6 @@ function FeedPage() {
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-
-  const [session_username, setSessionUsername] = useState(null);
-  const [session_user_picture, setSessionUserPicture] = useState(null);
 
   const observer = useRef();
   const [loading, setLoading] = React.useState(false);
@@ -48,31 +45,10 @@ function FeedPage() {
     [loading, hasMore, incrementPage]
   );
 
-  // Fetch session user data
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!token) return;
-      try {
-        const response = await fetch('https://cookeat.cookeat.space/user/profile/me', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch user profile');
-
-        const data = await response.json();
-        setSessionUsername(data.Profile.username);
-        setSessionUserPicture(data.Profile.picture);
-      } catch (err) {
-        console.error('User profile fetch error:', err);
-      }
-    };
-
-    fetchUserProfile();
-  }, [token]);
+    setPosts([]);
+    setHasMore(true);
+  }, [setPosts, setHasMore]);
 
   // Fetch posts data
   useEffect(() => {
@@ -81,25 +57,24 @@ function FeedPage() {
       setError(null);
 
       try {
+        // Get the token from localStorage
         const token = localStorage.getItem('token');
 
-        const response = await fetch(
-          `https://cookeat.cookeat.space/query/feed/posts?page=${page}`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        // Add Authorization header with the token
+        const response = await fetch(`https://cookeat.cookeat.space/query/feed/posts?page=${page}`, {
+          method: 'GET', // assuming it's a GET request
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json', // Optional if needed
+          },
+        });
 
         if (!response.ok) throw new Error('Failed to fetch posts');
 
         const data = await response.json();
 
         if (data && Array.isArray(data.posts)) {
-          setPosts((prevPosts) => [...prevPosts, ...data.posts]);
+          setPosts(prevPosts => [...prevPosts, ...data.posts]);
           if (data.posts.length < 10) setHasMore(false);
         } else {
           setHasMore(false);
@@ -115,8 +90,8 @@ function FeedPage() {
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
-  // Restore scroll position
+  
+  // Restore scroll position on mount and save it on unmount
   useEffect(() => {
     const restoreScrollPosition = () => {
       if (scrollY !== undefined) {
@@ -124,7 +99,8 @@ function FeedPage() {
       }
     };
 
-    const timeout = setTimeout(restoreScrollPosition, 100);
+    // Delay scroll restoration to ensure page is loaded
+    const timeout = setTimeout(restoreScrollPosition, 100); // Delay by 100ms
 
     return () => {
       clearTimeout(timeout);
@@ -132,9 +108,10 @@ function FeedPage() {
     };
   }, [scrollY, setScrollY]);
 
-  // Track scroll position
+  // Track scroll position during page scroll
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [setScrollY]);
@@ -147,15 +124,12 @@ function FeedPage() {
           return (
             <FeedPost
               key={post.public_id}
-              ref={isLast ? lastPostRef : null}
               openLoginModal={openLoginModal}
               isLoggedIn={!!token}
-              session_username={session_username}
-              session_user_picture={session_user_picture}
               public_id={post.public_id}
               title={post.title}
               content={post.content}
-              view_count={post.view_count}
+              view_count={post.view_count}  
               created_at={new Date(post.created_at).toLocaleString()}
               updated_at={new Date(post.updated_at).toLocaleString()}
               media_filename={post.media[0]?.media_filename}
@@ -166,7 +140,12 @@ function FeedPage() {
               ref_public_id={post.ref_public_id}
               author_public_id={post.author.public_id}
               author_username={post.author.username}
-              author_picture={post.author.picture}
+              author_picture={
+                              post.author.public_id === profile?.public_id
+                                  ? avatar
+                                  : post.author.picture
+                              }
+              ref={isLast ? lastPostRef : null}
             />
           );
         })}

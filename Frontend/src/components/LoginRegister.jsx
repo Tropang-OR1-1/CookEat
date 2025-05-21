@@ -22,26 +22,6 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
     setRegisterData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const fetchAndStoreProfile = async (token) => {
-    try {
-      const res = await axios.get('https://cookeat.cookeat.space/user/profile/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const profile = res.data.Profile;
-
-      localStorage.setItem('profile', JSON.stringify(profile));
-
-      localStorage.setItem('avatar', profile.picture || '');
-
-      if (setProfile) setProfile(profile);
-      if (setAvatar) setAvatar(profile.picture || '');
-
-    } catch (err) {
-      console.error("Failed to fetch profile:", err);
-    }
-  };
-
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -50,16 +30,23 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       formData.append('password', loginData.password);
 
       const res = await axios.post('https://cookeat.cookeat.space/user/login', formData);
-      const { token, public_id } = res.data;
+      const { token, user } = res.data;
+      const { public_id, username, profile } = user;
+
+      const profilePic = profile
+        ? `https://cookeat.cookeat.space/uploads/${profile}`
+        : 'https://www.w3schools.com/howto/img_avatar.png';
 
       localStorage.setItem('token', token);
       localStorage.setItem('public_id', public_id);
+      localStorage.setItem('profile', JSON.stringify({ username, avatar: profilePic }));
+      localStorage.setItem('avatar', profilePic);
 
       setToken(token);
-      await fetchAndStoreProfile(token);
+      if (setProfile) setProfile({ username, avatar: profilePic });
+      if (setAvatar) setAvatar(profilePic);
+
       onClose();
-      navigate('/profile');
-      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
@@ -74,20 +61,28 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       formData.append('password', registerData.password);
 
       const res = await axios.post('https://cookeat.cookeat.space/user/register', formData);
-      const { token, public_id } = res.data;
+      const { token, user } = res.data;
+      const { public_id, username, profile } = user;
+
+      const profilePic = profile
+        ? `https://cookeat.cookeat.space/uploads/${profile}`
+        : 'https://www.w3schools.com/howto/img_avatar.png';
 
       localStorage.setItem('token', token);
       localStorage.setItem('public_id', public_id);
+      localStorage.setItem('profile', JSON.stringify({ username, avatar: profilePic }));
+      localStorage.setItem('avatar', profilePic);
 
       setToken(token);
-      await fetchAndStoreProfile(token);
+      if (setProfile) setProfile({ username, avatar: profilePic });
+      if (setAvatar) setAvatar(profilePic);
+
       onClose();
-      navigate('/profile');
-      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
   };
+
 
   const handleSwitchToRegister = () => {
     setIsRegisterMode(true);
