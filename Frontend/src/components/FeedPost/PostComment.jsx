@@ -64,7 +64,7 @@ const PostComment = ({
         <input
           type="text"
           className="comment-input"
-          placeholder={`Comment as ${session_username}`}
+          placeholder={`Comment as ${localStorage.getItem("username")}`}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
         />
