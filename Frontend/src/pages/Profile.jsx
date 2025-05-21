@@ -8,13 +8,14 @@ import './styles/profile.css';
 function Profile({ profile, setProfile }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newAvatar, setNewAvatar] = useState(null);
   const [newBio, setNewBio] = useState('');
   const [activeTab, setActiveTab] = useState('posts');
+
   const avatarPreviewUrl = useRef(null);
-  const username = profile?.username;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -260,7 +261,7 @@ function Profile({ profile, setProfile }) {
           <nav className="profile-tabs">
             <button className={activeTab === 'posts' ? 'active' : ''} onClick={() => setActiveTab('posts')}>Posts</button>
             <button className={activeTab === 'saved' ? 'active' : ''} onClick={() => setActiveTab('saved')}>Saved</button>
-            <button className={activeTab === 'followers' ? 'active' : ''} onClick={() => {setActiveTab('followers')}}>Followers</button>
+            <button className={activeTab === 'followers' ? 'active' : ''} onClick={() => setActiveTab('followers')}>Followers</button>
           </nav>
 
           <div className="tab-content-container">
