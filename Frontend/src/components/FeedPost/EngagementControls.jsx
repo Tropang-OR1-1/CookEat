@@ -87,7 +87,7 @@ const EngagementControls = ({
 
         {/* Top Row: counts */}
         <div className="top-row">
-          <div className="count-column" onClick={handleReaction}>
+          <div className="count-column">
             <span>
               {reactionCount > 0 ? `${reactionCount} like${reactionCount > 1 ? 's' : ''}` : ' '}
             </span>

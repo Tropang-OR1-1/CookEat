@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import EditPost from './EditPost';
 import DeletePost from './DeletePost';
 
+import IconButton from '@mui/material/IconButton';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+
 import './styles/feedpostdropdown.css';
 
-const FeedPostDropdown = ({ 
+const FeedPostDropdown = ({
   public_id,
   title,
   content,
@@ -19,7 +22,7 @@ const FeedPostDropdown = ({
   ref_public_id,
   author_public_id,
   author_username,
-  author_picture 
+  author_picture
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -32,7 +35,11 @@ const FeedPostDropdown = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !toggleButtonRef.current.contains(event.target)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -67,7 +74,7 @@ const FeedPostDropdown = ({
     setShowDeleteModal(true);
   };
 
-  const handleSavePost = () => {            // Logic will be followed soon
+  const handleSavePost = () => {
     console.log(`Saved post ${public_id}`);
     setIsDropdownOpen(false);
   };
@@ -75,17 +82,17 @@ const FeedPostDropdown = ({
   return (
     <>
       <div className="options" ref={dropdownRef}>
-        <button
+        <IconButton
           ref={toggleButtonRef}
-          className="dropdown-btn"
           onClick={toggleDropdown}
           aria-haspopup="true"
           aria-expanded={isDropdownOpen}
           aria-controls={`post-options-menu-${public_id}`}
           aria-label="Post options"
+          size="small"
         >
-          ...
-        </button>
+          <MoreHorizIcon className="more-icon" />
+        </IconButton>
 
         {isDropdownOpen && (
           <div
@@ -173,7 +180,7 @@ const FeedPostDropdown = ({
           isOpen={showDeleteModal}
           onCancel={() => setShowDeleteModal(false)}
           public_id={public_id}
-        />  
+        />
       )}
     </>
   );
