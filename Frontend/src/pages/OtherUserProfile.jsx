@@ -14,6 +14,7 @@ function OtherUserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('posts');
+  const [postCount, setPostCount] = useState(0);
 
   const myPublicIdRaw = localStorage.getItem('public_id') || '';
   const myPublicId = myPublicIdRaw.trim().toLowerCase();
@@ -45,6 +46,8 @@ function OtherUserProfile() {
         );
 
         const data = profileRes.data.Profile;
+        console.log('Full profile response:', profileRes.data);
+
         if (!data) {
           setError('Profile not found');
           setLoading(false);
@@ -72,10 +75,10 @@ function OtherUserProfile() {
           followersCount: actualFollowersCount,
           followingCount: actualFollowingCount,
           bio: data.biography || 'This user has no biography.',
-          coverPhoto: data.coverPhoto
-            ? `https://cookeat.cookeat.space/media/profile/${data.coverPhoto}`
-            : 'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80',
-        });
+          coverPhoto: data.background
+            ? `https://cookeat.cookeat.space/media/background/${data.background}?t=${Date.now()}`
+            : 'https://media.cnn.com/api/v1/images/stellar/prod/gettyimages-1273516682.jpg?c=original',
+          });
 
         setLoading(false);
       } catch (err) {
@@ -176,8 +179,13 @@ function OtherUserProfile() {
 
           {/* Tab content container */}
           <div className="tab-content-container">
-            {activeTab === 'posts' && <OtherUserFeedPage key="posts" public_id={public_id} />}
-
+            {activeTab === 'posts' && (
+              <OtherUserFeedPage
+                key="posts"
+                public_id={public_id}
+                setPostCount={setPostCount}
+              />
+            )}
             {activeTab === 'saved' && (
               <div className="saved-content">
                 <p>This user's saved posts will appear here.</p>

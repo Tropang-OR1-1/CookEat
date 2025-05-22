@@ -3,7 +3,7 @@ import FeedPost from './../components/FeedPost.jsx';
 import FeedPostSkeleton from './../components/PostSkeleton.jsx';
 import './styles/feedpage.css';
 
-function MyFeedPage() {
+function MyFeedPage({ setPostCount }) {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -57,7 +57,9 @@ function MyFeedPage() {
         const data = await response.json();
 
         const userPosts = data.posts.filter(post => post.author?.public_id === myPublicId);
-        setPosts(prev => [...prev, ...userPosts]);
+        const updatedPosts = [...posts, ...userPosts];
+        setPosts(updatedPosts);
+        setPostCount(updatedPosts.length);
 
         if (userPosts.length < 10) setHasMore(false);
       } catch (err) {
