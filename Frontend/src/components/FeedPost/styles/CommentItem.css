@@ -28,16 +28,143 @@
   color: #222;
 }
 
+/* Container that holds comment text and triple dot aligned horizontally */
+.comment-actions-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px; /* match comment-text margin */
+}
+
+/* Comment text styling */
 .comment-text {
   background-color: #e2e3e7;
   padding: 8px 12px;
   border-radius: 18px;
-  margin: 0 0 6px 0;
   font-size: 14px;
   color: #050505;
   line-height: 1.3;
-  max-width: 100%;
-  white-space: pre-wrap; /* preserve line breaks */
+  white-space: pre-wrap;
+  flex-grow: 1; /* fill horizontal space */
+  margin: 0; /* reset margin inside flex */
+}
+
+/* Triple dot container */
+.comment-options {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #65676b;
+  transition: color 0.3s ease;
+}
+
+.comment-options:hover {
+  color: #FF8700;
+}
+
+/* Dropdown menu animation */
+@keyframes dropdownFadeScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.comment-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: white;
+  border: 2px solid #FF8700;
+  border-radius: 6px;
+  margin: 0;
+  list-style: none;
+  min-width: 100px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 1000;
+  animation: dropdownFadeScaleIn 0.15s ease forwards;
+}
+
+.comment-dropdown li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #222;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.comment-dropdown li:hover {
+  background-color: #FF8700;
+  color: #fff;
+}
+
+/* Edit comment textarea container with fade + scale */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.comment-edit-box {
+  margin-top: 0.5em;
+  animation: fadeInScale 0.2s ease forwards;
+}
+
+.comment-edit-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.comment-edit-actions {
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+}
+
+.comment-edit-actions button {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.comment-edit-actions button:first-child {
+  background-color: #FF8700;
+  color: white;
+}
+
+.comment-edit-actions button:first-child:hover {
+  background-color: #e07500;
+}
+
+.comment-edit-actions button:last-child {
+  background-color: #ccc;
+  color: #333;
+}
+
+.comment-edit-actions button:last-child:hover {
+  background-color: #bbb;
 }
 
 .comment-footer {
@@ -66,4 +193,57 @@
 .comment-action:focus {
   text-decoration: underline;
   outline: none;
+}
+
+/* Modal overlay and box */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  font-size: 16px;
+  color: #222;
+}
+
+.modal button {
+  margin: 10px 8px 0 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modal button:first-child {
+  background-color: #FF4C4C;
+  color: white;
+}
+
+.modal button:first-child:hover {
+  background-color: #d93939;
+}
+
+.modal button:last-child {
+  background-color: #ccc;
+  color: #333;
+}
+
+.modal button:last-child:hover {
+  background-color: #bbb;
 }

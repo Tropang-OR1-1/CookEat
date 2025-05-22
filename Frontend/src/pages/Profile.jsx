@@ -12,6 +12,8 @@ function Profile({ profile, setProfile }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newAvatar, setNewAvatar] = useState(null);
+  const [newBackground, setNewBackground] = useState(null);
+  const backgroundPreviewUrl = useRef(null);
   const [newBio, setNewBio] = useState('');
   const [activeTab, setActiveTab] = useState('posts');
 
@@ -55,6 +57,18 @@ function Profile({ profile, setProfile }) {
           localStorage.setItem('public_id', data.public_id);
         }
 
+        const [followersRes, followingRes] = await Promise.all([
+          axios.get(`https://cookeat.cookeat.space/user/followers/${data.public_id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`https://cookeat.cookeat.space/user/followings/${data.public_id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const actualFollowersCount = followersRes.data.followers?.length || 0;
+        const actualFollowingCount = followingRes.data.followings?.length || 0;
+
         const avatarPath = data.profile || data.picture || '';
         const avatarUrl = avatarPath.startsWith('http')
           ? avatarPath
@@ -62,15 +76,25 @@ function Profile({ profile, setProfile }) {
             ? `https://cookeat.cookeat.space/media/profile/${avatarPath}`
             : 'https://www.w3schools.com/howto/img_avatar.png';
 
+        const backgroundPath = data.background || ''; // assuming backend uses 'background' for bg image
+        const backgroundUrl = backgroundPath.startsWith('http')
+          ? backgroundPath
+          : backgroundPath
+            ? `https://cookeat.cookeat.space/media/background/${backgroundPath}`
+            : 'https://media.cnn.com/api/v1/images/stellar/prod/gettyimages-1273516682.jpg?c=original';
+
         const fetchedProfile = {
           avatar: avatarUrl,
+          background: backgroundUrl,
           username: data.username || username,
           postsCount: data.postsCount || 0,
-          followersCount: data.followersCount || 0,
-          followingCount: data.followingCount || 0,
+          followersCount: actualFollowersCount,
+          followingCount: actualFollowingCount,
           bio: data.biography || 'Welcome to CookEat! Start sharing your delicious creations.',
         };
 
+        setNewUsername(fetchedProfile.username);
+        setNewBio(fetchedProfile.bio);
         setProfile(fetchedProfile);
         localStorage.setItem('profile', JSON.stringify(fetchedProfile));
       } catch (err) {
@@ -97,7 +121,9 @@ function Profile({ profile, setProfile }) {
           followingCount: 0,
           bio: 'Welcome to CookEat! Start sharing your delicious creations.',
         };
-
+        
+        setNewUsername(fallbackProfile.username); 
+        setNewBio(fallbackProfile.bio); 
         setProfile(fallbackProfile);
         localStorage.setItem('profile', JSON.stringify(fallbackProfile));
       } finally {
@@ -110,11 +136,23 @@ function Profile({ profile, setProfile }) {
 
   useEffect(() => {
     return () => {
+      if (backgroundPreviewUrl.current) {
+        URL.revokeObjectURL(backgroundPreviewUrl.current);
+      }
       if (avatarPreviewUrl.current) {
         URL.revokeObjectURL(avatarPreviewUrl.current);
       }
     };
   }, []);
+    
+  let backgroundSrc = profile.background || null;
+  if (newBackground) {
+    if (backgroundPreviewUrl.current) {
+      URL.revokeObjectURL(backgroundPreviewUrl.current);
+    }
+    backgroundPreviewUrl.current = URL.createObjectURL(newBackground);
+    backgroundSrc = backgroundPreviewUrl.current;
+  }
 
   const handleSaveProfile = async () => {
     const token = localStorage.getItem('token');
@@ -125,7 +163,11 @@ function Profile({ profile, setProfile }) {
     formData.append('biography', newBio);
     if (newAvatar) {
       formData.append('profile', newAvatar);
-      console.log('✔️ Sending avatar to backend:', newAvatar.name, newAvatar.type);
+      console.log('Sending avatar to backend:', newAvatar.name, newAvatar.type);
+    }
+    if (newBackground) {
+      formData.append('background', newBackground);
+      console.log('Sending background to backend:', newBackground.name, newBackground.type);
     }
 
     try {
@@ -153,16 +195,29 @@ function Profile({ profile, setProfile }) {
             ? `https://cookeat.cookeat.space/media/profile/${avatarPath}`
             : 'https://www.w3schools.com/howto/img_avatar.png';
 
+        const [followersRes, followingRes] = await Promise.all([
+            axios.get(`https://cookeat.cookeat.space/user/followers/${updated.public_id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`https://cookeat.cookeat.space/user/followings/${updated.public_id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
+
+        const actualFollowersCount = followersRes.data.followers?.length || 0;
+        const actualFollowingCount = followingRes.data.followings?.length || 0;
+
         const updatedProfile = {
           avatar: avatarUrl,
           username: updated.username || newUsername,
-          postsCount: updated.postsCount || 0,
-          followersCount: updated.followersCount || 0,
-          followingCount: updated.followingCount || 0,
+          postsCount: updated.postsCount || profile.postsCount || 0,
+          followersCount: actualFollowersCount,
+          followingCount: actualFollowingCount,
           bio: updated.biography || newBio,
         };
 
         setProfile(updatedProfile);
+        updatePostsCount(updatedProfile.postsCount);
         localStorage.setItem('profile', JSON.stringify(updatedProfile));
         setIsEditing(false);
         setNewAvatar(null);
@@ -174,6 +229,36 @@ function Profile({ profile, setProfile }) {
       alert('Failed to update profile.');
     }
   };
+
+  const updatePostsCount = (count) => {
+    setProfile((prev) => {
+      const updatedProfile = { ...prev, postsCount: count };
+      localStorage.setItem('profile', JSON.stringify(updatedProfile));
+      return updatedProfile;
+    });
+  };
+
+  const refreshFollowersCount = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const publicId = localStorage.getItem('public_id');
+
+    const followersRes = await axios.get(
+      `https://cookeat.cookeat.space/user/followers/${publicId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const count = followersRes.data.followers?.length || 0;
+
+    setProfile((prev) => {
+      const updated = { ...prev, followersCount: count };
+      localStorage.setItem('profile', JSON.stringify(updated));
+      return updated;
+    });
+  } catch (err) {
+    console.error('Failed to refresh followers count:', err);
+  }
+};
 
   if (loading || !profile) return <div>Loading...</div>;
 
@@ -188,7 +273,12 @@ function Profile({ profile, setProfile }) {
 
   return (
     <div className="profile-page-container with-cover">
-      <div className="profile-cover-photo" />
+      <div className="profile-cover-photo" style={{
+          backgroundImage: backgroundSrc ? `url(${backgroundSrc})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
       <main className="profile-content">
         <div className="profile-body">
           <header className="profile-header with-cover">
@@ -209,11 +299,26 @@ function Profile({ profile, setProfile }) {
             <div className="profile-info">
               {isEditing ? (
                 <>
+                <label htmlFor="background-upload" style={{ marginTop: '10px', display: 'block' }}>
+                  Change Cover Photo:
+                </label>
+                  <input
+                    id="background-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setNewBackground(e.target.files[0])}
+                  />
+                <label htmlFor="background-upload" style={{ marginTop: '10px', display: 'block' }}>
+                  Change Profile Image:
+                </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setNewAvatar(e.target.files[0])}
                   />
+                <label htmlFor="background-upload" style={{ marginTop: '10px', display: 'block' }}>
+                  Change Username:
+                </label>
                   <input
                     type="text"
                     value={newUsername}
@@ -221,6 +326,9 @@ function Profile({ profile, setProfile }) {
                     placeholder="Enter new username"
                     autoFocus
                   />
+                <label htmlFor="background-upload" style={{ marginTop: '10px', display: 'block' }}>
+                  Edit Bio:
+                </label>
                   <textarea
                     value={newBio}
                     onChange={(e) => setNewBio(e.target.value)}
@@ -261,13 +369,41 @@ function Profile({ profile, setProfile }) {
           <nav className="profile-tabs">
             <button className={activeTab === 'posts' ? 'active' : ''} onClick={() => setActiveTab('posts')}>Posts</button>
             <button className={activeTab === 'saved' ? 'active' : ''} onClick={() => setActiveTab('saved')}>Saved</button>
-            <button className={activeTab === 'followers' ? 'active' : ''} onClick={() => setActiveTab('followers')}>Followers</button>
+            <button
+                    className={activeTab === 'followers' ? 'active' : ''}
+                    onClick={() => {
+                      setActiveTab('followers');
+                      refreshFollowersCount();
+                    }}
+                  >
+                    Followers
+                  </button>
           </nav>
 
           <div className="tab-content-container">
-            {activeTab === 'posts' && <MyFeedPage />}
+            {activeTab === 'posts' && <MyFeedPage setPostCount={(count) => {
+              console.log("🟢 Updated post count:", count);
+                setProfile(prev => {
+                  const updated = { ...prev, postsCount: count };
+                  localStorage.setItem('profile', JSON.stringify(updated));
+                  return updated;
+                });
+              }} />}
             {activeTab === 'saved' && <div className="saved-content"><p>Saved posts will appear here.</p></div>}
-            {activeTab === 'followers' && <div className="followers-content"><Followers public_id={localStorage.getItem('public_id')} /></div>}
+            {activeTab === 'followers' && (
+              <div className="followers-content">
+                <Followers
+                  public_id={localStorage.getItem('public_id')}
+                  setFollowersCount={(count) => {
+                    setProfile((prev) => {
+                      const updatedProfile = { ...prev, followersCount: count };
+                      localStorage.setItem('profile', JSON.stringify(updatedProfile));
+                      return updatedProfile;
+                    });
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>
