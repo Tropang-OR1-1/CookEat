@@ -7,7 +7,6 @@ const PostComment = ({
   public_id,
   onPostSuccess,
   session_username,
-  session_user_picture,
 }) => {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

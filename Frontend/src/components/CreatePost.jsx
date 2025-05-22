@@ -1,28 +1,19 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import './styles/createpost.css';
 
-function CreatePost({ isOpen, onClose }) {
-  const [avatar, setAvatar] = useState('/images/profile_img.jpg');
-  const [username, setUsername] = useState('');
+function CreatePost({
+  avatar,
+  username,
+  isOpen,
+  onClose
+ }) {
   const [formData, setFormData] = useState({
     postTitle: '',
     content: '',
     media: null
   });
-
-  // ✅ Load profile data every time modal is opened
-  useEffect(() => {
-    if (isOpen) {
-      const storedProfile = localStorage.getItem("profile");
-      if (storedProfile) {
-        const parsed = JSON.parse(storedProfile);
-        if (parsed.avatar) setAvatar(parsed.avatar);
-        if (parsed.username) setUsername(parsed.username);
-      }
-    }
-  }, [isOpen]); // 👈 this is the important part
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();

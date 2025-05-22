@@ -5,14 +5,14 @@ import './styles/CommentItem.css';
 
 const CommentItem = ({ comment, onDelete }) => {
   const loggedInPublicId = localStorage.getItem('public_id');
-  const token = localStorage.getItem('token'); // or wherever your token is stored
+  const token = localStorage.getItem('token');
   const isCommentAuthor = loggedInPublicId === comment.user_public_id;
 
   const [showOptions, setShowOptions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.comment_text);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [localCommentText, setLocalCommentText] = useState(comment.comment_text); // local updated comment text
+  const [localCommentText, setLocalCommentText] = useState(comment.comment_text);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -26,7 +26,6 @@ const CommentItem = ({ comment, onDelete }) => {
 
   const confirmDelete = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`https://cookeat.cookeat.space/comments/${comment.comment_id}`, {
         method: 'DELETE',
         headers: {
@@ -38,7 +37,6 @@ const CommentItem = ({ comment, onDelete }) => {
         throw new Error('Failed to delete comment');
       }
 
-      // Call the parent callback to remove the comment from UI
       onDelete(comment.comment_id);
       setShowDeleteConfirm(false);
     } catch (error) {
@@ -46,7 +44,6 @@ const CommentItem = ({ comment, onDelete }) => {
       alert('Failed to delete comment. Please try again.');
     }
   };
-
 
   const handleUpdateComment = async () => {
     if (!editText.trim()) return;
@@ -58,7 +55,7 @@ const CommentItem = ({ comment, onDelete }) => {
       const response = await fetch(`https://cookeat.cookeat.space/comments/${comment.comment_id}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`, // only auth header, **do NOT** set Content-Type manually for FormData
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
