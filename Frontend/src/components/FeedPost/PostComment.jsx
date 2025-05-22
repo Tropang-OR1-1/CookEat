@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './styles/PostComment.css';
 import LoginRegister from './../LoginRegister';
@@ -14,6 +14,7 @@ const PostComment = ({
   const [showLogin, setShowLogin] = useState(false);
 
   const isLoggedIn = !!localStorage.getItem('token');
+  const inputRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,12 +57,26 @@ const PostComment = ({
     }
   };
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      setTimeout(() => {
+        inputRef.current.focus({ preventScroll: true });
+      }, 300);
+    }
+  }, []);
+
   return (
     <div className="post-comment-container">
       {!isLoggedIn && showLogin && <LoginRegister onClose={() => setShowLogin(false)} />}
       <form className="post-comment-form" onSubmit={handleSubmit}>
         <img src={localStorage.getItem("avatar")} alt="User" className="comment-avatar" />
         <input
+          ref={inputRef}
           type="text"
           className="comment-input"
           placeholder={`Comment as ${session_username}`}

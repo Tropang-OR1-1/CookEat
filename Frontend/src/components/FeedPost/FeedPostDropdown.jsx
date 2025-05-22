@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import EditPost from './EditPost';
-import DeletePost from './DeletePost';
+import EditPost from './EditPost.jsx';
+import DeletePost from './DeletePost.jsx';
 
 import IconButton from '@mui/material/IconButton';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
