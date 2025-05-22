@@ -28,7 +28,7 @@
 }
 
 .comment-submit-button {
-  background-color: #1877f2;
+  background-color: #FF8700;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -38,6 +38,6 @@
 }
 
 .comment-submit-button:disabled {
-  background-color: #a2c3f2;
+  background-color: #ffaf54;
   cursor: not-allowed;
 }

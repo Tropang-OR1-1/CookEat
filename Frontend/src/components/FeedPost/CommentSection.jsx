@@ -57,26 +57,6 @@ const CommentSection = ({
     }
   }, [page, fetchComments]);
 
-  const handleWheel = (e) => {
-    if (!containerRef.current || loading) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const delta = e.deltaY;
-
-    if (scrollHeight - scrollTop <= clientHeight + 100 && page < totalPages && delta > 0) {
-      setPage((prev) => prev + 1);
-    }
-
-    if (
-      (scrollTop === 0 && delta < 0) ||
-      (scrollTop + clientHeight >= scrollHeight && delta > 0)
-    ) {
-      return;
-    }
-
-    e.preventDefault();
-  };
-
   if (!isVisible) return null;
 
   const commentSkeletonCount = comment_count > 5 ? 5 : comment_count;
@@ -100,7 +80,6 @@ const CommentSection = ({
       <div
         className="comment-section__list"
         ref={containerRef}
-        onWheel={handleWheel}
       >
 
         {comments.map((comment) => (
