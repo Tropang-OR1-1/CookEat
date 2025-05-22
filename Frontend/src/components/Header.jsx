@@ -16,6 +16,7 @@ function Header({ token, setToken, profile }) {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || 'default-avatar.jpg');
+  const [username, setUsername] = useState(localStorage.getItem("username") || "");
   const [isSearchIconVisible, setIsSearchIconVisible] = useState(false);
 
   const addPostRef = useRef(null);
@@ -62,6 +63,7 @@ function Header({ token, setToken, profile }) {
       const parsedProfile = JSON.parse(storedProfile);
       if (parsedProfile.avatar) {
         setAvatar(parsedProfile.avatar);
+        setUsername(parsedProfile.username);
       }
     }
   }, []);
@@ -260,7 +262,7 @@ function Header({ token, setToken, profile }) {
         )}
       </nav>
 
-      <CreatePost isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
+      <CreatePost isOpen={isPostModalOpen} avatar={avatar} username={username} onClose={() => setIsPostModalOpen(false)} />
       <ErrorBoundary>
         <CreateRecipe isOpen={isRecipeModalOpen} onClose={() => setIsRecipeModalOpen(false)} />
       </ErrorBoundary>
@@ -273,6 +275,7 @@ function Header({ token, setToken, profile }) {
           if (stored) {
             const profile = JSON.parse(stored);
             setAvatar(profile.avatar);
+            setUsername(profile.username);
           }
         }}
         setAvatar={setAvatar}

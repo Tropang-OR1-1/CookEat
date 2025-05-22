@@ -3,7 +3,6 @@
   all: unset;
 }
 
-/* Main container */
 .comment-section {
   background-color: #f8f8f8;
   border-radius: 0.5rem;
@@ -11,7 +10,6 @@
   z-index: 1;
 }
 
-/* Header */
 .comment-section__header {
   display: flex;
   align-items: center;
@@ -23,14 +21,11 @@
   margin: 0;
 }
 
-/* Comment list */
 .comment-section__list {
   list-style: none;
   padding: 0;
   margin: 0.5rem 0;
-  max-height: 480px;
-  overflow-y: auto;  /* enable scroll */
-  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .comment-section__item {
@@ -109,7 +104,6 @@
   font-weight: 600;
 }
 
-/* Error message */
 .comment-section__error {
   color: #d9534f;
   font-weight: 600;
