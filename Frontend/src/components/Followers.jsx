@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link } from 'react-router-dom';
 import './styles/followers.css';
 
-function Followers({ public_id }) {
+function Followers({ public_id, setFollowersCount }) {
   const [followers, setFollowers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,6 +24,9 @@ function Followers({ public_id }) {
         }));
 
         setFollowers(normalizedFollowers);
+        if (typeof setFollowersCount === 'function') {
+          setFollowersCount(normalizedFollowers.length);
+        }
       } catch (err) {
         setError('Failed to load followers.');
         console.error(err);
