@@ -74,7 +74,20 @@ function FeedPage({ profile, avatar }) {
         const data = await response.json();
 
         if (data && Array.isArray(data.posts)) {
-          setPosts(prevPosts => [...prevPosts, ...data.posts]);
+          setPosts(prevPosts => {
+            const combined = [...prevPosts, ...data.posts];
+
+            // Create a Map to filter duplicates by public_id
+            const uniquePostsMap = new Map();
+            combined.forEach(post => {
+              if (!uniquePostsMap.has(post.public_id)) {
+                uniquePostsMap.set(post.public_id, post);
+              }
+            });
+
+            return Array.from(uniquePostsMap.values());
+          });
+
           if (data.posts.length < 10) setHasMore(false);
         } else {
           setHasMore(false);
