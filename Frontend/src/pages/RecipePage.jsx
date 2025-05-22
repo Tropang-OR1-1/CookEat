@@ -94,7 +94,7 @@ function RecipePage() {
     return () => {
       isMounted = false;
     };
-  }, [page, setRecipes, setHasMore]);  // <-- Removed loading here
+  }, [page, setRecipes, setHasMore]);
 
   // Restore scroll position on mount/update
   useEffect(() => {

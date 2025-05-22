@@ -52,8 +52,6 @@ function Profile({ profile, setProfile }) {
         };
 
         setProfile(fetchedProfile);
-        localStorage.setItem('profile', JSON.stringify(fetchedProfile));
-        localStorage.setItem('public_id', response.data.Profile.public_id);
         setLoading(false);
       } catch (err) {
         console.warn('Could not fetch profile from backend, trying token instead.');

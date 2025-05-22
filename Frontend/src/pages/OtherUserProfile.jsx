@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import OtherUserFeedPage from './OtherUserFeedPage.jsx';
-import './styles/Profile.css';
+import './styles/profile.css';
 
 function OtherUserProfile() {
   const { public_id } = useParams();

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/commentmodal.css';
+import './styles/PostComment.css';
 
-const CommentModal = ({public_id, isVisible, isLoggedIn, onCancel }) => {
+const PostComment = ({ public_id, isVisible, isLoggedIn, onCancel, onPostSuccess }) => {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,7 +23,7 @@ const CommentModal = ({public_id, isVisible, isLoggedIn, onCancel }) => {
       setIsSubmitting(true);
       const token = localStorage.getItem('token');
       const formData = new FormData();
-      formData.append('content', newComment); // ✅ Correct key
+      formData.append('content', newComment);
 
       const response = await axios.post(
         `https://cookeat.cookeat.space/comments/${public_id}`,
@@ -37,10 +37,12 @@ const CommentModal = ({public_id, isVisible, isLoggedIn, onCancel }) => {
 
       if (response.status === 200) {
         setNewComment('');
-        onCancel(); // close modal
+        if (onPostSuccess) onPostSuccess();
+        else onCancel();
       }
     } catch (error) {
       console.error('Error submitting comment:', error);
+      alert('Failed to submit comment. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -57,10 +59,14 @@ const CommentModal = ({public_id, isVisible, isLoggedIn, onCancel }) => {
           placeholder="Write your comment..."
         />
         <div className="modal-actions">
-          <button className="modal-button submit" onClick={handleSubmit} disabled={isSubmitting}>
+          <button
+            className="modal-button submit"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
             Submit
           </button>
-          <button className="modal-button cancel" onClick={onCancel}>
+          <button className="modal-button cancel" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </button>
         </div>
@@ -69,4 +75,4 @@ const CommentModal = ({public_id, isVisible, isLoggedIn, onCancel }) => {
   );
 };
 
-export default CommentModal;
+export default PostComment;
