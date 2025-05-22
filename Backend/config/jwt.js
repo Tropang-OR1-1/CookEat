@@ -99,7 +99,8 @@ const socketAuth = async (socket, next) => {
     try {
         // Extract the token from the socket handshake (auth object)
         const token = socket.handshake.auth.token;
-
+        // If no token is provided, return an error
+         logger.info('Socket token:', token);  // Log the token for debugging
         if (!token) {
             return next(new Error('No token provided'));
         }
