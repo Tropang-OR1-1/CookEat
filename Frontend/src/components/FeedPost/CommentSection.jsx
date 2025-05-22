@@ -5,10 +5,16 @@ import CommentItem from './CommentItem';
 import CommentSkeleton from './CommentSkeleton';
 import './styles/CommentSection.css';
 
-const CommentSection = ({ public_id, isVisible, isLoggedIn }) => {
+const CommentSection = ({
+  public_id,
+  comment_count,
+  isVisible,
+  isLoggedIn,
+  session_username,
+  session_user_picture,
+}) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isCommenting, setIsCommenting] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,25 +51,35 @@ const CommentSection = ({ public_id, isVisible, isLoggedIn }) => {
     }
   }, [fetchComments, isVisible]);
 
-  // Infinite scroll handler
-  const handleScroll = () => {
-    if (!containerRef.current || loading) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    if (scrollHeight - scrollTop <= clientHeight + 100) { // 100px from bottom
-      if (page < totalPages) {
-        setPage((prev) => prev + 1);
-      }
-    }
-  };
-
   useEffect(() => {
     if (page > 1) {
       fetchComments(page);
     }
   }, [page, fetchComments]);
 
+  const handleWheel = (e) => {
+    if (!containerRef.current || loading) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    const delta = e.deltaY;
+
+    if (scrollHeight - scrollTop <= clientHeight + 100 && page < totalPages && delta > 0) {
+      setPage((prev) => prev + 1);
+    }
+
+    if (
+      (scrollTop === 0 && delta < 0) ||
+      (scrollTop + clientHeight >= scrollHeight && delta > 0)
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+  };
+
   if (!isVisible) return null;
+
+  const commentSkeletonCount = comment_count > 5 ? 5 : comment_count;
 
   return (
     <div className="comment-section">
@@ -71,45 +87,33 @@ const CommentSection = ({ public_id, isVisible, isLoggedIn }) => {
         <h3>Comments</h3>
       </div>
 
+      <PostComment
+        public_id={public_id}
+        session_username={session_username}
+        session_user_picture={session_user_picture}
+        onPostSuccess={() => {
+          setPage(1);
+          fetchComments(1);
+        }}
+      />
+
       <div
         className="comment-section__list"
         ref={containerRef}
-        onScroll={handleScroll}
+        onWheel={handleWheel}
       >
-        {comments.length === 0 && !loading && !error && (
-          <p>No comments yet.</p>
-        )}
 
         {comments.map((comment) => (
           <CommentItem key={comment.comment_id} comment={comment} />
         ))}
 
         {loading &&
-          Array.from({ length: 3 }).map((_, i) => (
+          Array.from({ length: commentSkeletonCount }).map((_, i) => (
             <CommentSkeleton key={i} />
           ))}
 
         {error && <p className="comment-section__error">{error}</p>}
       </div>
-
-      <button
-        className="comment-section__write-button"
-        onClick={() => setIsCommenting(true)}
-      >
-        Write a comment
-      </button>
-
-      <PostComment
-        isVisible={isCommenting}
-        public_id={public_id}
-        isLoggedIn={isLoggedIn}
-        onCancel={() => setIsCommenting(false)}
-        onPostSuccess={() => {
-          setIsCommenting(false);
-          setPage(1);
-          fetchComments(1);
-        }}
-      />
     </div>
   );
 };

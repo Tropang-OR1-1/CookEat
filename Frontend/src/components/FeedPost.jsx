@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from 'react';
 import { formatDate } from '../utils/formatDate.js';
-import './styles/feedpost.css';
-import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx';
+import './styles/feedpost.css'; // goods rin to
+import FeedPostDropdown from './FeedPost/FeedPostDropdown.jsx'; // oks naman ah
 import EngagementControls from './FeedPost/EngagementControls.jsx';
 import CommentSection from './FeedPost/CommentSection.jsx';
 import { Link } from 'react-router-dom';
@@ -23,6 +23,8 @@ const FeedPost = forwardRef(({
   author_username,
   author_picture,
   isLoggedIn,
+  session_username,
+  session_user_picture,
   openLoginModal
 }, ref) => {
   const [showComments, setShowComments] = useState(false);
@@ -140,7 +142,10 @@ const FeedPost = forwardRef(({
           <div className="feed-post__comments-wrapper">
             <CommentSection
               public_id={public_id}
+              comment_count={comment_count}
               author_picture={author_picture}
+              session_username={session_username}
+              session_user_picture={session_user_picture}
               isVisible={showComments}
               onCancel={() => setShowComments(false)}
             />
