@@ -141,12 +141,12 @@ function FeedPage({ profile, avatar }) {
               author_public_id={post.author.public_id}
               author_username={post.author.username}
               author_picture={
-                              post.author.public_id === profile?.public_id
-                                  ? avatar
-                                  : post.author.picture
-                              }
-              session_username={profile.username}
-              session_user_picture={profile.avatar}
+                post.author.public_id === profile?.public_id
+                  ? avatar
+                  : post.author.picture
+              }
+              session_username={profile?.username || ''}
+              session_user_picture={profile?.avatar || ''}
               ref={isLast ? lastPostRef : null}
             />
           );
