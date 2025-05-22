@@ -145,6 +145,8 @@ function FeedPage({ profile, avatar }) {
                                   ? avatar
                                   : post.author.picture
                               }
+              session_username={profile.username}
+              session_user_picture={profile.avatar}
               ref={isLast ? lastPostRef : null}
             />
           );
