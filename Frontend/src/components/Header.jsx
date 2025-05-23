@@ -306,7 +306,7 @@ function Header({ token, setToken, profile }) {
             <div className={`header-dropdown-content ${isProfileDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
               <Link to="/help">Help and Support</Link>
-              <Link to="/incentives">Incentives</Link>
+              {/* <Link to="/incentives">Incentives</Link> */}
               <Link to="/settings">Settings</Link>
               <Link to="/about">About Us</Link>
               <Link to="#" onClick={handleLogout}>
