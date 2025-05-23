@@ -1,5 +1,3 @@
-/* EditPost.css */
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -10,7 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 101;
+  z-index: 1001;
 }
 
 .modal-container {
@@ -25,13 +23,14 @@
   padding: 20px 30px;
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  z-index: 101;
+  z-index: 1002;
 }
 
 
 .modal-box {
   display: flex;
   flex-direction: column;
+  z-index: 20;
 }
 
 .modal-box__title {
