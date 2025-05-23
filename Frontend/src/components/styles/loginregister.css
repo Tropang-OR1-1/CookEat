@@ -1,33 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
 body {
     display: flex;
     justify-content: center;
-    align-items:  center;
+    align-items: center;
     min-height: 100vh;
     background: #F9F8FF; 
-    /*linear-gradient(90deg, #e2e2e2, #FFA500);*/
 }
 
 .container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 850px;
-  height: 550px;
-  background: white;
-  border-radius: 30px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  z-index: 10000;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 850px;
+    height: 550px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 10000;
 }
 
 .form-box {
@@ -42,23 +34,18 @@ body {
     text-align: center;
     padding: 40px;
     z-index: 1;
-    transition: .6s ease-in-out 1.2s, visibility 0s 1s;
+    transition: .6s ease-in-out;
 }
 
 .container.active .form-box {
     right: 50%;
 }
 
-.form-box.register,
-.form-box.login {
-    transition: 0.6s ease-in-out;
-}
-
 form {
     width: 100%;
 }
 
-.container h1{
+.container h1 {
     font-size: 36px;
     margin: -10px 0;
 }
@@ -68,7 +55,7 @@ form {
     margin: 30px 0;
 }
 
-.input-box input{
+.input-box input {
     width: 100%;
     padding: 13px 50px 13px 20px;
     background: #eee;
@@ -115,6 +102,11 @@ form {
     font-weight: 600;
 }
 
+.btn.large {
+    height: 56px; /* Larger height for primary buttons */
+    font-size: 18px; /* Larger font size for primary buttons */
+}
+
 .container p {
     font-size: 14.5px;
     margin: 15px 0;
@@ -134,7 +126,7 @@ form {
 .toggle-box {
     position: absolute;
     width: 100%;
-    height: 100%;;
+    height: 100%;
 }
 
 .toggle-box::before {
@@ -217,10 +209,8 @@ form {
 
 .modal.show {
     opacity: 1;
-    
 }
 
-/* Modal content animation */
 .modal-content {
     background: white;
     padding: 20px;
@@ -244,7 +234,12 @@ form {
     font-size: 24px;
 }
 
-@media (max-width: 768px) {
+.option-button {
+    max-width: 40%;
+    height: 40%;
+}
+
+@media (max-width: 900px) {
     .container {
         width: 90%;
         height: auto;
@@ -301,7 +296,8 @@ form {
         margin: 5px;
     }
 }
-@media (max-width: 768px) {
+
+@media (max-width: 900px) {
     .form-box {
         animation: slideFade .6s ease-in-out;
     }
