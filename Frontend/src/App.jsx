@@ -36,7 +36,7 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<FeedPage key={window.location.pathname} profile={profile} avatar={avatar} />} />
             <Route path="/feeds" element={<FeedPage key={window.location.pathname} profile={profile} avatar={avatar}/>} />
-            <Route path="/recipes" element={<RecipePage />} />
+            <Route path="/recipes" element={<NotFound />} />
             <Route path="/login" element={<LoginRegister setToken={setToken} profile={profile} setProfile={setProfile} setAvatar={setAvatar} />} />
             <Route path="/about" element={<About />} />
             <Route path="/help" element={<HelpSupport />} />

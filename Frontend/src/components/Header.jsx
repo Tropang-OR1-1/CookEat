@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreatePost from "./CreatePost.jsx";
-import CreateRecipe from "./CreateRecipe.jsx";
+// import CreateRecipe from "./CreateRecipe.jsx";
 import LoginRegister from "./LoginRegister.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
 import Notification from "./Notification.jsx";
@@ -10,7 +10,7 @@ import "./styles/header.css";
 
 function Header({ token, setToken, profile }) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  // const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -105,7 +105,7 @@ function Header({ token, setToken, profile }) {
   useEffect(() => {
     if (
       isPostModalOpen ||
-      isRecipeModalOpen || 
+      // isRecipeModalOpen || 
       isLoginModalOpen || 
       isNotificationModalOpen || 
       isProfileDropdownOpen
@@ -120,7 +120,7 @@ function Header({ token, setToken, profile }) {
     };
   }, [
     isPostModalOpen, 
-    isRecipeModalOpen, 
+    // isRecipeModalOpen, 
     isLoginModalOpen, 
     isNotificationModalOpen, 
     isProfileDropdownOpen,
@@ -205,14 +205,14 @@ function Header({ token, setToken, profile }) {
                   >
                     Create Post
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => {
                       setIsRecipeModalOpen(true);
                       setIsAddPostOpen(false);
                     }}
                   >
                     Create Recipe
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>
@@ -264,7 +264,7 @@ function Header({ token, setToken, profile }) {
 
       <CreatePost isOpen={isPostModalOpen} avatar={avatar} username={username} onClose={() => setIsPostModalOpen(false)} />
       <ErrorBoundary>
-        <CreateRecipe isOpen={isRecipeModalOpen} onClose={() => setIsRecipeModalOpen(false)} />
+        {/* <CreateRecipe isOpen={isRecipeModalOpen} onClose={() => setIsRecipeModalOpen(false)} /> */}
       </ErrorBoundary>
       <LoginRegister
         isOpen={isLoginModalOpen}
@@ -306,7 +306,7 @@ function Header({ token, setToken, profile }) {
             <div className={`header-dropdown-content ${isProfileDropdownOpen ? "open" : ""}`}>
               <Link to="/profile">Show Profile</Link>
               <Link to="/help">Help and Support</Link>
-              <Link to="/incentives">Incentives</Link>
+              {/* <Link to="/incentives">Incentives</Link> */}
               <Link to="/settings">Settings</Link>
               <Link to="/about">About Us</Link>
               <Link to="#" onClick={handleLogout}>

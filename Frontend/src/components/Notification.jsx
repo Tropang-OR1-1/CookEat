@@ -1,25 +1,46 @@
 import React, { useState, useEffect } from 'react';
-//import NotificationItem from './subcomponents/NotificationItem.jsx'; // Please implement this so that we can repeatedly use NotifItem component instead of our current implementation.
+import axios from 'axios';
+import NotificationItem from './Notification/NotificationItem';
 import './styles/notification.css';
 
 const sampleNotifications = [
-    { id: 1, sender: 'Bernie', message: 'liked your post.', unread: true, avatar: 'avatar1.jpg', time: '2m' },
-    { id: 2, sender: 'Michael', message: 'commented: "Sarap pre!”', unread: false, avatar: 'avatar2.jpg', time: '10m' },
-    { id: 3, sender: 'Jay', message: 'shared your recipe.', unread: true, avatar: 'avatar3.jpg', time: '1h' },
+    { id: 1, sender: 'CuzRy', message: 'liked your post.', unread: true, avatar: '02a638a5-a5b1-4df5-b9ee-a36ae7d96067.png', time: '2m' },
+    { id: 2, sender: 'Ham', message: 'commented: "Sarap pre!”', unread: false, avatar: 'ce39cbfd-9d1d-422c-bf32-ace294bd14af.jpg', time: '10m' },
+    { id: 3, sender: 'Jay', message: 'shared your recipe.', unread: true, avatar: '26ff3952-fcbc-4216-b7cc-5586c8c3140e.png', time: '1h' },
 ];
 
 function Notification({ isOpen, onClose }) {
     const [activeTab, setActiveTab] = useState('All');
     const [notifications, setNotifications] = useState(sampleNotifications);
+    const [avatars, setAvatars] = useState({});
+
+    useEffect(() => {
+        console.log("Notifications component mounted");
+
+        const fetchAvatars = async () => {
+            const newAvatars = {};
+            for (const notif of sampleNotifications) {
+                try {
+                    const response = await axios.get(
+                        `https://cookeat.cookeat.space/media/profile/${notif.avatar}`,
+                        { responseType: 'blob' }
+                    );
+                    newAvatars[notif.id] = URL.createObjectURL(response.data);
+                } catch (err) {
+                    console.error(`Failed to load avatar for ${notif.sender}:`, err);
+                    newAvatars[notif.id] = ''; // Fallback or empty avatar
+                }
+            }
+            setAvatars(newAvatars);
+        };
+
+        fetchAvatars();
+    }, []);
 
     const filteredNotifications =
         activeTab === 'Unread'
             ? notifications.filter(n => n.unread)
             : notifications;
-
-    useEffect(() => {
-        console.log("Notifications component mounted");
-    }, []);
 
     const handleNotificationClick = (id) => {
         console.log(`Notification ${id} clicked`);
@@ -64,18 +85,16 @@ function Notification({ isOpen, onClose }) {
                             </div>
                         ) : (
                             filteredNotifications.map(notif => (
-                                <li
-                                    className="notification-item"
+                                <NotificationItem
                                     key={notif.id}
+                                    id={notif.id}
+                                    sender={notif.sender}
+                                    message={notif.message}
+                                    time={notif.time}
+                                    unread={notif.unread}
+                                    avatarUrl={avatars[notif.id]}
                                     onClick={() => handleNotificationClick(notif.id)}
-                                >
-                                    <img src={notif.avatar} className="avatar" alt="avatar" />
-                                    <div className="text-content">
-                                        <p><strong>{notif.sender}</strong> {notif.message}</p>
-                                        <span className="time">{notif.time}</span>
-                                    </div>
-                                    {notif.unread && <span className="dot"></span>}
-                                </li>
+                                />
                             ))
                         )}
                     </ul>
