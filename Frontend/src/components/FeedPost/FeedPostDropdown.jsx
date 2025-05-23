@@ -74,10 +74,10 @@ const FeedPostDropdown = ({
     setShowDeleteModal(true);
   };
 
-  const handleSavePost = () => {
-    console.log(`Saved post ${public_id}`);
-    setIsDropdownOpen(false);
-  };
+  // const handleSavePost = () => {
+  //   console.log(`Saved post ${public_id}`);
+  //   setIsDropdownOpen(false);
+  // };
 
   return (
     <>
@@ -100,13 +100,13 @@ const FeedPostDropdown = ({
             className="dropdown-content show"
             role="menu"
           >
-            <button
+            {/* <button
               className="dropdown-item"
               role="menuitem"
               onClick={handleSavePost}
             >
               Save
-            </button>
+            </button> */}
 
             {isAuthor ? (
               <>
@@ -127,7 +127,7 @@ const FeedPostDropdown = ({
               </>
             ) : (
               <>
-                <button
+                {/* <button
                   className="dropdown-item"
                   role="menuitem"
                   onClick={() => {
@@ -146,7 +146,7 @@ const FeedPostDropdown = ({
                   }}
                 >
                   Hide
-                </button>
+                </button> */}
               </>
             )}
           </div>

@@ -123,8 +123,8 @@ const CommentItem = ({ comment, onDelete }) => {
             <span className="comment-time">
               {formatDate(comment.comment_created_at)}
             </span>
-            <button className="comment-action" type="button">Like</button>
-            <button className="comment-action" type="button">Reply</button>
+            {/* <button className="comment-action" type="button">Like</button>
+            <button className="comment-action" type="button">Reply</button> */}
           </div>
         </div>
       </li>
