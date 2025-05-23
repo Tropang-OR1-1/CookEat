@@ -197,13 +197,13 @@ const hasUploadedFiles = (files) => {
   return Array.isArray(files) && files.length > 0;
   };
 
-  const sanitizeInput = (dirty) => {
+  const sanitizeInput = (dirty) => {/*
     try {
       return xss(dirty);
     } catch (err) {
       logger.error(err); // Log the error for debugging
       return dirty; // Return the original input if something goes wrong
-    }
+    }*/return dirty;
   };
 
 const isAlphanumeric = (str) => typeof str === 'undefined' || typeof str === 'string' && /^[A-Za-z0-9_]+$/.test(str);
