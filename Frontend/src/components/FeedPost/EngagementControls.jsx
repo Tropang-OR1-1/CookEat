@@ -26,46 +26,46 @@ const EngagementControls = ({
 
   const totalComments = Number(comment_count ?? 0);
 
-  const handleReaction = async () => {
-    if (!isLoggedIn) {
-      openLoginModal();
-      return;
-    }
-
-    if (isReacting) return;
-    setIsReacting(true);
-
-    const token = localStorage.getItem('token');
-    const url = `https://cookeat.cookeat.space/react/post/${public_id}`;
-
-    try {
-      if (reaction === 'like') {
-        await axios.delete(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
-        setReaction(null);
-        setReactionCount((prev) => prev - 1);
-      } else {
-        const formData = new FormData();
-        formData.append('react', 'UP');
-
-        await axios.post(url, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setReaction('like');
-        setReactionCount((prev) => prev + 1);
+    const handleReaction = async () => {
+      if (!isLoggedIn) {
+        openLoginModal();
+        return;
       }
-    } catch (error) {
-      console.error('Error reacting to the post:', error);
-    } finally {
-      setIsReacting(false);
-    }
-  };
+
+      if (isReacting) return;
+      setIsReacting(true);
+
+      const token = localStorage.getItem('token');
+      const url = `https://cookeat.cookeat.space/react/post/${public_id}`;
+
+      try {
+        if (reaction === 'like') {
+          await axios.delete(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          });
+          setReaction(null);
+          setReactionCount((prev) => prev - 1);
+        } else {
+          const formData = new FormData();
+          formData.append('react', 'UP');
+
+          await axios.post(url, formData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setReaction('like');
+          setReactionCount((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error('Error reacting to the post:', error);
+      } finally {
+        setIsReacting(false);
+      }
+    };
 
   const handleCommentClick = () => {
     if (!isLoggedIn) {

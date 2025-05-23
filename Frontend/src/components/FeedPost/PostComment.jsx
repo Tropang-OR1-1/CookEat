@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import './styles/PostComment.css';
 import LoginRegister from './../LoginRegister';
@@ -55,19 +55,6 @@ const PostComment = ({
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-
-      setTimeout(() => {
-        inputRef.current.focus({ preventScroll: true });
-      }, 300);
-    }
-  }, []);
 
   return (
     <div className="post-comment-container">

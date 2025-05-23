@@ -57,25 +57,31 @@ const CommentSection = ({
     }
   }, [page, fetchComments]);
 
-  const handleWheel = (e) => {
-    if (!containerRef.current || loading) return;
+  // 🔁 Infinite scroll logic
+  useEffect(() => {
+    const container = containerRef.current;
 
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const delta = e.deltaY;
+    const handleScroll = () => {
+      if (
+        container &&
+        container.scrollTop + container.clientHeight >= container.scrollHeight - 50 &&
+        !loading &&
+        page < totalPages
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    };
 
-    if (scrollHeight - scrollTop <= clientHeight + 100 && page < totalPages && delta > 0) {
-      setPage((prev) => prev + 1);
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
     }
 
-    if (
-      (scrollTop === 0 && delta < 0) ||
-      (scrollTop + clientHeight >= scrollHeight && delta > 0)
-    ) {
-      return;
-    }
-
-    e.preventDefault();
-  };
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [loading, page, totalPages]);
 
   if (!isVisible) return null;
 
@@ -97,12 +103,7 @@ const CommentSection = ({
         }}
       />
 
-      <div
-        className="comment-section__list"
-        ref={containerRef}
-        onWheel={handleWheel}
-      >
-
+      <div className="comment-section__list" ref={containerRef}>
         {comments.map((comment) => (
           <CommentItem key={comment.comment_id} comment={comment} />
         ))}
