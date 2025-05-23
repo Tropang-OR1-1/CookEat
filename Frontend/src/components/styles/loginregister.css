@@ -116,7 +116,7 @@ form {
 }
 
 .container p {
-    font-size: 14.5;
+    font-size: 14.5px;
     margin: 15px 0;
 }
 
@@ -242,4 +242,78 @@ form {
     right: 20px;
     cursor: pointer;
     font-size: 24px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        height: auto;
+        flex-direction: column;
+        border-radius: 20px;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    .form-box,
+    .toggle-panel {
+        position: static;
+        width: 100%;
+        height: auto;
+        padding: 30px 20px;
+        transition: none;
+    }
+
+    .form-box {
+        z-index: 3;
+    }
+
+    .toggle-box::before {
+        display: none;
+    }
+
+    .toggle-panel {
+        background: #FFA500;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .toggle-panel .btn {
+        background: #fff;
+        color: #FFA500;
+        border: 2px solid #fff;
+    }
+
+    .container.active .form-box.login,
+    .form-box.register {
+        transition: none;
+    }
+
+    .container.active .form-box {
+        right: 0;
+    }
+
+    .social-icons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .social-icons a {
+        margin: 5px;
+    }
+}
+@media (max-width: 768px) {
+    .form-box {
+        animation: slideFade .6s ease-in-out;
+    }
+
+    @keyframes slideFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 }
