@@ -7,7 +7,7 @@
   background-color: #f8f8f8;
   border-radius: 0.5rem;
   position: relative;
-  z-index: 1;
+  z-index: 0;
 }
 
 .comment-section__header {
@@ -71,7 +71,6 @@
   color: #888;
 }
 
-/* Pagination controls */
 .comment-section__pagination {
   display: flex;
   justify-content: space-between;
@@ -93,7 +92,6 @@
   cursor: not-allowed;
 }
 
-/* Write comment button */
 .comment-section__write-button {
   margin-top: 2px;
   padding: 0.5rem 1rem;
