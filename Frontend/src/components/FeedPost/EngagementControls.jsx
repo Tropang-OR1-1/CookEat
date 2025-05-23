@@ -67,6 +67,18 @@ const EngagementControls = ({
       }
     };
 
+  const handleReactCountClick = () => {
+    if (reactionCount > 0) {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCommentCountClick = () => {
+    if (totalComments > 0) {
+      setShowComments((prev) => !prev);
+    }
+  };
+
   const handleCommentClick = () => {
     if (!isLoggedIn) {
       openLoginModal();
@@ -75,16 +87,13 @@ const EngagementControls = ({
     setShowComments((prev) => !prev);
   };
 
-  const handleCommentCountClick = () => {
-    setShowComments((prev) => !prev);
-  };
-
   return (
     <div className="engagement-controls-container">
       <div className="engagement-flex-wrapper">
         {/* Top Row: counts */}
-        <div className="top-row">       
-          <div className="count-column" onClick={handleReaction}>
+
+        <div className="top-row">
+          <div className="count-column" onClick={handleReactCountClick}>
             <span>
               {reactionCount > 0 ? `${reactionCount} like${reactionCount > 1 ? 's' : ''}` : ' '}
             </span>
@@ -133,9 +142,12 @@ const EngagementControls = ({
       </div>
 
       {/* Post Reaction Modal */}
-      <PostReaction isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} 
+      <PostReaction
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         public_id={public_id}
-        reactions_total={reactions_total} />
+        reactions_total={reactions_total}
+      />
     </div>
   );
 };

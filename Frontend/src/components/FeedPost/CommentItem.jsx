@@ -130,8 +130,8 @@ const CommentItem = ({ comment, onDelete }) => {
       </li>
 
       {showDeleteConfirm && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="comment-modal-overlay">
+          <div className="comment-modal">
             <p>Are you sure you want to delete this comment?</p>
             <button onClick={confirmDelete}>Yes, Delete</button>
             <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>

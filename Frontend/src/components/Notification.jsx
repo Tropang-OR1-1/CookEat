@@ -31,7 +31,7 @@ function Notification({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay show" onClick={(e) => e.target.classList.contains('modal-overlay') && onClose()}>
+        <div className="notification-modal-overlay show" onClick={(e) => e.target.classList.contains('notification-modal-overlay') && onClose()}>
             <div className="notification-panel show">
                 <div className="notification-header">
                     <strong>Notifications</strong>
