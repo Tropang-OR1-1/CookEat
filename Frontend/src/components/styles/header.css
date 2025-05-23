@@ -24,6 +24,7 @@ body {
   background-color: #FFA500;
   padding: 15px 20px;
   color: rgb(255, 255, 255);
+  z-index: 3;
 }
 
 .header-logo {
