@@ -56,6 +56,7 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
     const { token, user } = res.data;
 
     onAuthSuccess(token, user);
+    window.location.reload();
   } catch (err) {
     alert(err?.response?.data?.error || err.message);
   }
@@ -74,6 +75,7 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
       
       onAuthSuccess(token, user);
       onClose();
+      window.location.reload();
     } catch (err) {
       alert(err?.response?.data?.error || err.message);
     }
