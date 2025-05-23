@@ -179,3 +179,56 @@ textarea#content {
 textarea#content:focus {
   opacity: 1; 
 }
+
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .form {
+    gap: 10px;
+  }
+
+  .user-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .user-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .user-name {
+    font-size: 14px;
+  }
+
+  .input-field {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  textarea.input-field {
+    height: 120px;
+  }
+
+  .publish-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .close-btn {
+    top: 8px;
+    right: 12px;
+    font-size: 22px;
+  }
+}
