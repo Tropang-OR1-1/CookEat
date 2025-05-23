@@ -196,8 +196,8 @@
   outline: none;
 }
 
-/* Modal overlay and box */
-.modal-overlay {
+/* comment-modal overlay and box */
+.comment-modal-overlay {
   position: fixed;
   top: 0; left: 0;
   width: 100vw;
@@ -209,7 +209,7 @@
   z-index: 9999;
 }
 
-.modal {
+.comment-modal {
   background: white;
   padding: 20px 30px;
   border-radius: 10px;
@@ -221,7 +221,7 @@
   color: #222;
 }
 
-.modal button {
+.comment-modal button {
   margin: 10px 8px 0 8px;
   padding: 8px 16px;
   border-radius: 8px;
@@ -231,20 +231,20 @@
   transition: background-color 0.2s ease;
 }
 
-.modal button:first-child {
+.comment-modal button:first-child {
   background-color: #FF4C4C;
   color: white;
 }
 
-.modal button:first-child:hover {
+.comment-modal button:first-child:hover {
   background-color: #d93939;
 }
 
-.modal button:last-child {
+.comment-modal button:last-child {
   background-color: #ccc;
   color: #333;
 }
 
-.modal button:last-child:hover {
+.comment-modal button:last-child:hover {
   background-color: #bbb;
 }
