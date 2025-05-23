@@ -114,11 +114,11 @@
 
 @media (min-width: 481px) and (max-width: 800px) {
   .feed-post {
-    width: 90%;               /* smaller than desktop but not full width */
-    padding: 14px 12px;       /* medium padding */
-    margin: 0 auto 14px auto; /* center with some margin below */
-    border-width: 2.2px;      /* slightly thinner border */
-    box-shadow: 0 1.5px 3.5px rgba(0, 0, 0, 0.09); /* medium shadow */
+    width: 90%;
+    padding: 14px 12px;
+    margin: 0 auto 14px auto;
+    border-width: 2.2px;
+    box-shadow: 0 1.5px 3.5px rgba(0, 0, 0, 0.09);
   }
 
   .feed-post__profile-img {
@@ -171,11 +171,11 @@
 
 @media (max-width: 480px) {
   .feed-post {
-    width: 100%;         /* full width on mobile */
-    padding: 12px 10px;  /* slightly smaller padding */
-    border-width: 2px;   /* thinner border */
-    margin: 0 0 12px 0;  /* spacing below each post */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* lighter shadow */
+    width: 100%;
+    padding: 12px 10px;
+    border-width: 2px;
+    margin: 0 0 12px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
   .feed-post__profile-img {

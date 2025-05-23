@@ -8,7 +8,8 @@ const PostReaction = ({
   isOpen,
   onClose,
   reactions_total,
-  public_id }) => {
+  public_id
+}) => {
   const [reactedUsers, setReactedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,7 +41,6 @@ const PostReaction = ({
 
   if (!isOpen) return null;
 
-  
   const skeletonCount = reactions_total > 6 ? 6 : reactions_total;
 
   return (
@@ -48,10 +48,10 @@ const PostReaction = ({
       <div className="reaction-content">
         <div className="reaction-header">
           <h2>Users Who Liked</h2>
-          <div className="close-wrapper">
+          <div className="reaction-close-wrapper">
             <IconButton
               onClick={onClose}
-              className="mui-close-button"
+              className="reaction-mui-close-button"
               aria-label="Close"
             >
               <CloseIcon fontSize="small" />
@@ -60,11 +60,11 @@ const PostReaction = ({
         </div>
 
         {loading && (
-          <ul className="skeleton-wrapper">
+          <ul className="reaction-skeleton-wrapper">
             {[...Array(skeletonCount)].map((_, idx) => (
-              <li className="skeleton-item" key={idx}>
-                <div className="skeleton-avatar"></div>
-                <div className="skeleton-text"></div>
+              <li className="reaction-skeleton-item" key={idx}>
+                <div className="reaction-skeleton-avatar"></div>
+                <div className="reaction-skeleton-text"></div>
               </li>
             ))}
           </ul>
@@ -73,14 +73,15 @@ const PostReaction = ({
         {error && <p>{error}</p>}
 
         {!loading && !error && (
-          <ul>
+          <ul className="reaction-user-list">
             {reactedUsers.map((user) => (
-              <li key={user.user_id}>
+              <li key={user.user_id} className="reaction-user-item">
                 <img
                   src={`https://cookeat.cookeat.space/media/profile/${user.user_picture}`}
                   alt={user.username}
+                  className="reaction-user-avatar"
                 />
-                <span>{user.username}</span>
+                <span className="reaction-user-name">{user.username}</span>
               </li>
             ))}
           </ul>

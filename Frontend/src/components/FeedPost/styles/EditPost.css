@@ -10,7 +10,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  z-index: 101;
 }
 
 .modal-container {
@@ -18,7 +18,7 @@
   border-radius: 8px;
   border: 2.5px solid #FF8700;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  width: 1000px;       /* wider */
+  width: 1000px;
   max-width: 95vw;     /* responsive */
   max-height: 70vh;    /* limit height more */
   overflow-y: auto;    /* scroll if content too tall */

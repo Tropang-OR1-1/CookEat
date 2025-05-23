@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2;
+  z-index: 1;
 }
 
 .reaction-content {
@@ -37,12 +37,12 @@
   margin: 0;
 }
 
-.close-wrapper {
+.reaction-close-wrapper {
   display: flex;
   align-items: center;
 }
 
-.mui-close-button {
+.reaction-mui-close-button {
   color: #FF8700;
   padding: 4px;
   font-size: 2rem; /* makes the icon inside appear larger */
@@ -54,7 +54,7 @@
   box-sizing: content-box;
 }
 
-.mui-close-button:hover {
+.reaction-mui-close-button:hover {
   color: #e07b00;
 }
 
@@ -68,7 +68,7 @@
 
 /* Make actual list items and skeleton items identical in size and layout */
 .reaction-content li,
-.skeleton-item {
+.reaction-skeleton-item {
   display: flex;
   align-items: center;
   padding: 10px;
@@ -78,13 +78,13 @@
 }
 
 .reaction-content li:last-child,
-.skeleton-item:last-child {
+.reaction-skeleton-item:last-child {
   border-bottom: none;
   margin-bottom: 0;
 }
 
-.reaction-content img,
-.skeleton-avatar {
+.reaction-user-avatar,
+.reaction-skeleton-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -93,8 +93,8 @@
   flex-shrink: 0;
 }
 
-.reaction-content span,
-.skeleton-text {
+.reaction-user-name,
+.reaction-skeleton-text {
   height: 14px;
   border-radius: 4px;
   font-size: 1rem;
@@ -103,13 +103,13 @@
 }
 
 /* Skeleton specific styles */
-.skeleton-wrapper {
+.reaction-skeleton-wrapper {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.skeleton-avatar {
+.reaction-skeleton-avatar {
   background: linear-gradient(
     90deg,
     #e0e0e0 25%,
@@ -120,7 +120,7 @@
   animation: shimmer 1.5s infinite;
 }
 
-.skeleton-text {
+.reaction-skeleton-text {
   width: 150px;
   background: linear-gradient(
     90deg,
