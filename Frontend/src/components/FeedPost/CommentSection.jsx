@@ -57,6 +57,32 @@ const CommentSection = ({
     }
   }, [page, fetchComments]);
 
+  // 🔁 Infinite scroll logic
+  useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (
+        container &&
+        container.scrollTop + container.clientHeight >= container.scrollHeight - 50 &&
+        !loading &&
+        page < totalPages
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [loading, page, totalPages]);
+
   if (!isVisible) return null;
 
   const commentSkeletonCount = comment_count > 5 ? 5 : comment_count;
@@ -77,11 +103,7 @@ const CommentSection = ({
         }}
       />
 
-      <div
-        className="comment-section__list"
-        ref={containerRef}
-      >
-
+      <div className="comment-section__list" ref={containerRef}>
         {comments.map((comment) => (
           <CommentItem key={comment.comment_id} comment={comment} />
         ))}
