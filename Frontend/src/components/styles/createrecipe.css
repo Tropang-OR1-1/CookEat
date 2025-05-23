@@ -83,12 +83,15 @@ button:active {
 
 .publish-btn {
   padding: 10px;
-  background-color: #4285f4;
+  border-radius: 8px;
+
+  background-color: #FF8700;
   color: white;
   border: none;
   cursor: pointer;
 }
 
 .publish-btn:hover {
-  background-color: #357ae8;
+  border-radius: 8px;
+  background-color: #ffa033;
 }

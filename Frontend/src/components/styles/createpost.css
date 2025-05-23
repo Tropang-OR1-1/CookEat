@@ -36,7 +36,7 @@
   box-sizing: border-box;
   opacity: 0;
   animation: slideIn 0.5s forwards;
-  border: 2px solid #FFA500; 
+  border: 2px solid #FF8700; 
 }
 
 @keyframes slideIn {
@@ -88,7 +88,7 @@ h2 {
 
 .user-name {
     font-size: 16px;
-    color: #FFA500;
+    color: #FF8700;
     font-weight: 500;
 }
 
@@ -109,13 +109,13 @@ textarea.input-field {
 
 input.input-field:focus,
 textarea.input-field:focus {
-    border-color: #FFA500;
+    border-color: #FF8700;
     box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
 }
 
 .publish-btn {
   padding: 12px;
-  background-color: #FFA500;
+  background-color: #FF8700;
   color: white;
   border: none;
   cursor: pointer;
@@ -125,12 +125,12 @@ textarea.input-field:focus {
 }
 
 .publish-btn:hover {
-  background-color: #e68900;
-  transform: scale(1.05);
+  background-color: #ffa033;
+  border-radius: 8px;
 }
 
 .publish-btn:disabled {
-  background-color: #f1a500;
+  background-color: #FF8700;
   cursor: not-allowed;
 }
 
@@ -148,12 +148,44 @@ textarea.input-field:focus {
     max-width: 500px;
 }
 
+.input-field[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background-color: white;
+  color: #333;
+  border: 2px solid #FFA500;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  text-align: left;
+  margin-top: 6px;
+}
+
+.custom-file-upload:hover {
+  border-color: #e68900;
+  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+}
+
+#file-name-display {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #555;
+  word-break: break-word;
+}
+
 @media (max-width: 600px) {
     .modal-content {
         width: 90%;
     }
     .user-info {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
     }
 }
@@ -178,4 +210,58 @@ textarea#content {
 
 textarea#content:focus {
   opacity: 1; 
+}
+
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .form {
+    gap: 10px;
+  }
+
+  .user-info {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .user-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .user-name {
+    font-size: 14px;
+  }
+
+  .input-field {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  textarea.input-field {
+    height: 120px;
+  }
+
+  .publish-btn {
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .close-btn {
+    top: 8px;
+    right: 12px;
+    font-size: 22px;
+  }
 }

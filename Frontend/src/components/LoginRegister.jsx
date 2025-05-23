@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/loginregister.css';
@@ -8,6 +8,16 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
 
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 900);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
@@ -23,44 +33,43 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
   };
 
   const onAuthSuccess = (token, user) => {
-  const { public_id, username, profile } = user;
+    const { public_id, username, profile } = user;
 
-  const profilePic = profile
-    ? `https://cookeat.cookeat.space/uploads/${profile}`
-    : 'https://www.w3schools.com/howto/img_avatar.png';
+    const profilePic = profile
+      ? `https://cookeat.cookeat.space/uploads/${profile}`
+      : 'https://www.w3schools.com/howto/img_avatar.png';
 
-  localStorage.setItem('token', token);
-  localStorage.setItem('public_id', public_id);
-  localStorage.setItem('profile', JSON.stringify({ username, avatar: profilePic }));
-  localStorage.setItem('avatar', profilePic);
+    localStorage.setItem('token', token);
+    localStorage.setItem('public_id', public_id);
+    localStorage.setItem('profile', JSON.stringify({ username, avatar: profilePic }));
+    localStorage.setItem('avatar', profilePic);
 
-  setToken(token);
-  if (setProfile) setProfile({ username, avatar: profilePic });
-  if (setAvatar) setAvatar(profilePic);
+    setToken(token);
+    if (setProfile) setProfile({ username, avatar: profilePic });
+    if (setAvatar) setAvatar(profilePic);
 
-  // 👉 Ito lang ang function na tumatakbo once after login/register
-  if (window.initSocketOnce) window.initSocketOnce(); 
+    // This function runs once after login/register
+    if (window.initSocketOnce) window.initSocketOnce(); 
 
-  onClose();
-};
-
+    onClose();
+  };
 
   const handleLoginSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const formData = new FormData();
-    formData.append('email', loginData.email);
-    formData.append('password', loginData.password);
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append('email', loginData.email);
+      formData.append('password', loginData.password);
 
-    const res = await axios.post('https://cookeat.cookeat.space/user/login', formData);
-    const { token, user } = res.data;
+      const res = await axios.post('https://cookeat.cookeat.space/user/login', formData);
+      const { token, user } = res.data;
 
-    onAuthSuccess(token, user);
-    window.location.reload();
-  } catch (err) {
-    alert(err?.response?.data?.error || err.message);
-  }
-};
+      onAuthSuccess(token, user);
+      window.location.reload();
+    } catch (err) {
+      alert(err?.response?.data?.error || err.message);
+    }
+  };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -81,15 +90,14 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
     }
   };
 
-
   const handleSwitchToRegister = () => {
     setIsRegisterMode(true);
-    setTimeout(() => setShowRegisterForm(true), 600);
+    setShowRegisterForm(true);
   };
 
   const handleSwitchToLogin = () => {
     setIsRegisterMode(false);
-    setTimeout(() => setShowRegisterForm(false), 600);
+    setShowRegisterForm(false);
   };
 
   if (!isOpen) return null;
@@ -131,14 +139,18 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
                   onChange={handleRegisterChange}
                 />
               </div>
-              <button type="submit" className="btn">Register</button>
+              <button type="submit" className="btn large">Register</button>
               <p>or register with social platforms</p>
-              <div className="social-icons">
-                <a href="#"><i className='bx bxl-google'></i></a>
-                <a href="#"><i className='bx bxl-facebook'></i></a>
-                <a href="#"><i className='bx bxl-github'></i></a>
-                <a href="#"><i className='bx bxl-linkedin'></i></a>
-              </div>
+              {isMobile ? (
+                <button className="btn" onClick={handleSwitchToLogin}>Login</button>
+              ) : (
+                <div className="social-icons">
+                  <a href="#"><i className='bx bxl-google'></i></a>
+                  <a href="#"><i className='bx bxl-facebook'></i></a>
+                  <a href="#"><i className='bx bxl-github'></i></a>
+                  <a href="#"><i className='bx bxl-linkedin'></i></a>
+                </div>
+              )}
             </form>
           ) : (
             <form onSubmit={handleLoginSubmit}>
@@ -166,14 +178,18 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
               <div className="forgot-link">
                 <a href="#">Forgot password?</a>
               </div>
-              <button type="submit" className="btn">Login</button>
+              <button type="submit" className="btn large">Login</button>
               <p>or login with social platforms</p>
-              <div className="social-icons">
-                <a href="#"><i className='bx bxl-google'></i></a>
-                <a href="#"><i className='bx bxl-facebook'></i></a>
-                <a href="#"><i className='bx bxl-github'></i></a>
-                <a href="#"><i className='bx bxl-linkedin'></i></a>
-              </div>
+              {isMobile ? (
+                <button className="btn" onClick={handleSwitchToRegister}>Register</button>
+              ) : (
+                <div className="social-icons">
+                  <a href="#"><i className='bx bxl-google'></i></a>
+                  <a href="#"><i className='bx bxl-facebook'></i></a>
+                  <a href="#"><i className='bx bxl-github'></i></a>
+                  <a href="#"><i className='bx bxl-linkedin'></i></a>
+                </div>
+              )}
             </form>
           )}
         </div>
@@ -182,12 +198,12 @@ function LoginRegister({ isOpen, onClose, setToken, setProfile, setAvatar }) {
           <div className="toggle-panel toggle-left">
             <h1>Welcome to Cook Eat</h1>
             <p>Don't have an account?</p>
-            <button className="btn" onClick={handleSwitchToRegister}>Register</button>
+            <button className="btn large" onClick={handleSwitchToRegister}>Register</button>
           </div>
           <div className="toggle-panel toggle-right">
             <h1>Welcome to Cook Eat!</h1>
             <p>Already have an account?</p>
-            <button className="btn" onClick={handleSwitchToLogin}>Login</button>
+            <button className="btn large" onClick={handleSwitchToLogin}>Login</button>
           </div>
         </div>
       </div>
