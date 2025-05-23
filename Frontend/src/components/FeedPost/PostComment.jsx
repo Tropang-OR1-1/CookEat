@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect} from 'react';
 import axios from 'axios';
 import './styles/PostComment.css';
 import LoginRegister from './../LoginRegister';
@@ -56,6 +56,11 @@ const PostComment = ({
     }
   };
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
   return (
     <div className="post-comment-container">
       {!isLoggedIn && showLogin && <LoginRegister onClose={() => setShowLogin(false)} />}

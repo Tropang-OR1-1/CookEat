@@ -1,6 +1,6 @@
 /* notification.css */
 
-.modal-overlay {
+.notification-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -14,12 +14,12 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.modal-overlay.show {
+.notification-modal-overlay.show {
     opacity: 1;
     visibility: visible;
 }
 
-.modal-overlay.hidden {
+.notification-modal-overlay.hidden {
     display: none; 
 }
 
