@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import './styles/PostReaction.css';
 import IconButton from '@mui/material/IconButton';
@@ -13,11 +13,11 @@ const PostReaction = ({
   const [reactedUsers, setReactedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const modalRef = useRef(null);
 
   const fetchReactedUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await axios.get(`https://cookeat.cookeat.space/react/post/${public_id}`, {
         headers: {
@@ -39,13 +39,40 @@ const PostReaction = ({
     }
   }, [isOpen, fetchReactedUsers]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  // Scroll lock
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const skeletonCount = reactions_total > 6 ? 6 : reactions_total;
 
   return (
     <div className="reaction-overlay">
-      <div className="reaction-content">
+      <div className="reaction-content" ref={modalRef}>
         <div className="reaction-header">
           <h2>Users Who Liked</h2>
           <div className="reaction-close-wrapper">
