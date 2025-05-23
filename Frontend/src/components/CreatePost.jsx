@@ -3,12 +3,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import './styles/createpost.css';
 
-function CreatePost({
-  avatar,
-  username,
-  isOpen,
-  onClose
- }) {
+function CreatePost({ avatar, username, isOpen, onClose }) {
   const [formData, setFormData] = useState({
     postTitle: '',
     content: '',
@@ -99,7 +94,6 @@ function CreatePost({
       console.log("Post created successfully, response:", response);
       alert("Post created successfully!");
 
-      // Reset form and close modal
       onClose();
       setFormData({
         postTitle: '',
@@ -162,6 +156,9 @@ function CreatePost({
           />
 
           <label htmlFor="media">Upload Media (Picture/Video):</label>
+          <label htmlFor="media" className="custom-file-upload">
+            Choose File
+          </label>
           <input
             type="file"
             id="media"
@@ -171,6 +168,9 @@ function CreatePost({
             ref={fileInputRef}
             className="input-field"
           />
+          {formData.media && (
+            <div id="file-name-display">{formData.media.name}</div>
+          )}
 
           <button
             type="submit"
