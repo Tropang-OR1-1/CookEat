@@ -10,8 +10,11 @@ We believe that CookEat is more than just a recipe-sharing site, it’s a culina
 
 ## Project Information:
 **Project Title:** CookEat
+
 **Project Group Name:** OR 1=1
+
 **Project Repository:** https://github.com/Tropang-OR1-1/CookEat
+
 **Project Group GitHub Organization:** https://github.com/Tropang-OR1-1
 
 
