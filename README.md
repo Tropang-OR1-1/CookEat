@@ -7,7 +7,6 @@ But CookEat isn’t only about the past. It also celebrates the creativity and i
   What sets CookEat apart is its community-driven spirit. Users are encouraged to interact with each other, exchange ideas, and discover shared tastes. The platform’s design prioritizes ease of use, with intuitive navigation and features that allow contributors to upload content, comment on recipes, and build connections through a shared passion for cooking.
 We believe that CookEat is more than just a recipe-sharing site, it’s a culinary hub that fosters connection, creativity, and cultural preservation. Whether you’re looking to relive your grandmother’s kitchen or explore the next food trend, CookEat invites you to be part of a living, growing archive of delicious ideas.
 
----
 
 ## Project Information:
 **Project Title:** CookEat
@@ -15,7 +14,6 @@ We believe that CookEat is more than just a recipe-sharing site, it’s a culina
 **Project Repository:** https://github.com/Tropang-OR1-1/CookEat
 **Project Group GitHub Organization:** https://github.com/Tropang-OR1-1
 
----
 
 ## Technologies Used
   ### Backend Tech Stack  
