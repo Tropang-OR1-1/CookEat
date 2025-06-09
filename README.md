@@ -18,12 +18,12 @@ We believe that CookEat is more than just a recipe-sharing site, it’s a culina
 **Project Group GitHub Organization:** https://github.com/Tropang-OR1-1
 
 ## Developers:
-1. @jaygarciaaa | @K1taru
-2. @Jrhey124 | @soipogi
-3. @Burniiiii
-4. @nixxinix
-5. @just-gelo
-6. @AERyann
+1. [@jaygarciaaa](https://github.com/jaygarciaaa) | [@K1taru](https://github.com/K1taru)  
+2. [@Jrhey124](https://github.com/Jrhey124) | [@soipogi](https://github.com/soipogi)  
+3. [@Burniiiii](https://github.com/Burniiiii)  
+4. [@nixxinix](https://github.com/nixxinix)  
+5. [@just-gelo](https://github.com/just-gelo)  
+6. [@AERyann](https://github.com/AERyann)
 
 ## Technologies Used
   ### Backend Tech Stack  
